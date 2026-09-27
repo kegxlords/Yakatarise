@@ -111,3 +111,447 @@ h1, h2, h3, h4 { font-weight: 700; line-height: 1.2; color: var(--text-main); }
   .mobile-menu-btn { display: block; }
   .nav-links { display: none; } /* Hidden by default on mobile */
 }
+/* ==========================================
+   NEW UI: Floating Bottom Navigation
+   ========================================== */
+.bottom-nav-floating {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 95%;
+  max-width: 500px;
+  background: #fff;
+  border-radius: 25px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  z-index: 1000;
+  border: 1px solid #f0f0f0;
+}
+
+.nav-item-floating {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  text-decoration: none;
+  color: #94A3B8;
+  font-size: 10px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.nav-item-floating svg {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 4px;
+  fill: currentColor;
+}
+
+.nav-item-floating.active {
+  color: var(--primary); /* Burgundy */
+}
+
+/* The Center "Pop-out" Button */
+.nav-center-btn {
+  position: relative;
+  top: -25px;
+  background: var(--primary); /* Burgundy */
+  color: #fff !important;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 15px rgba(139, 0, 0, 0.3);
+  border: 4px solid #fff;
+}
+
+.nav-center-btn svg {
+  width: 28px;
+  height: 28px;
+  margin-bottom: 0;
+  fill: #fff;
+}
+
+.nav-center-btn span {
+  display: none; /* Hide text on center button for cleaner look */
+}
+
+/* ==========================================
+   NEW UI: Split Miner Cards (Like "House No 1")
+   ========================================== */
+.miner-card-split {
+  display: flex;
+  background: #fff;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+  border: 1px solid #f0f0f0;
+}
+
+.miner-card-left {
+  background: var(--primary); /* Burgundy */
+  color: #fff;
+  width: 35%;
+  padding: 20px 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+}
+
+.miner-card-left img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  background: #fff; /* Placeholder bg */
+}
+
+.miner-rate {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.miner-rate-label {
+  font-size: 10px;
+  opacity: 0.8;
+  margin-top: 5px;
+  text-transform: uppercase;
+}
+
+.miner-card-right {
+  width: 65%;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.miner-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.miner-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.miner-badge {
+  background: #F0FDF4;
+  color: var(--success);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  border: 1px solid #bbf7d0;
+}
+
+.miner-term-badge {
+  display: inline-block;
+  background: #F1F5F9;
+  color: #64748B;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.miner-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.miner-stat-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.miner-stat-label {
+  font-size: 10px;
+  color: #94A3B8;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.miner-stat-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.btn-rent-split {
+  width: 100%;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 30px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(139, 0, 0, 0.2);
+  transition: transform 0.2s;
+}
+
+.btn-rent-split:active {
+  transform: scale(0.95);
+}
+
+/* ==========================================
+   NEW UI: Profile Page Overlap
+   ========================================== */
+.profile-header-bg {
+  background: linear-gradient(135deg, #8B0000 0%, #5c0000 100%);
+  height: 220px;
+  border-bottom-left-radius: 30px;
+  border-bottom-right-radius: 30px;
+  position: relative;
+  padding: 20px;
+  color: #fff;
+}
+
+.profile-avatar-container {
+  position: absolute;
+  top: 40px;
+  left: 20px;
+  width: 80px;
+  height: 80px;
+  background: #fff;
+  border-radius: 50%;
+  padding: 4px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.profile-avatar {
+  width: 100%;
+  height: 100%;
+  background: #e2e8f0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  color: #94A3B8;
+}
+
+.profile-info {
+  margin-left: 110px;
+  margin-top: 10px;
+}
+
+.profile-phone {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.profile-badges {
+  display: flex;
+  gap: 10px;
+}
+
+.badge-member {
+  background: rgba(255,255,255,0.2);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.badge-id {
+  background: rgba(0,0,0,0.2);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+.profile-balance-card {
+  background: #fff;
+  margin: -60px 20px 20px 20px;
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  position: relative;
+  z-index: 10;
+}
+
+.balance-title {
+  font-size: 12px;
+  color: #94A3B8;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.balance-amount {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 10px 0 20px 0;
+}
+
+.balance-stats-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.balance-stat-box {
+  flex: 1;
+  background: #F8FAFC;
+  padding: 15px;
+  border-radius: 12px;
+}
+
+.balance-stat-box label {
+  font-size: 11px;
+  color: #64748B;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.balance-stat-box div {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.action-buttons-row {
+  display: flex;
+  gap: 15px;
+}
+
+.btn-action-large {
+  flex: 1;
+  padding: 15px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 700;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.btn-recharge {
+  background: var(--primary);
+  color: #fff;
+}
+
+.btn-withdraw {
+  background: #F1F5F9;
+  color: var(--text-main);
+}
+
+/* Icon Grid for Profile */
+.icon-grid-menu {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+  margin-bottom: 30px;
+}
+
+.icon-grid-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--text-main);
+}
+
+.icon-circle {
+  width: 50px;
+  height: 50px;
+  background: #fff;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+  font-size: 20px;
+}
+
+.icon-grid-item span {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* List Menu */
+.list-menu-container {
+  background: #fff;
+  margin: 0 20px;
+  border-radius: 20px;
+  padding: 10px 0;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+}
+
+.list-menu-item {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #F1F5F9;
+  text-decoration: none;
+  color: var(--text-main);
+}
+
+.list-menu-item:last-child {
+  border-bottom: none;
+}
+
+.list-menu-icon {
+  width: 36px;
+  height: 36px;
+  background: #EFF6FF;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15px;
+  color: var(--primary);
+}
+
+.list-menu-text h4 {
+  font-size: 15px;
+  margin: 0;
+  font-weight: 600;
+}
+
+.list-menu-text p {
+  font-size: 12px;
+  color: #94A3B8;
+  margin: 2px 0 0 0;
+}
+
+/* Add padding to body so content isn't hidden behind floating nav */
+body {
+  padding-bottom: 100px; 
+   }
