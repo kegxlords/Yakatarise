@@ -10,17 +10,21 @@
     .back-btn { width: 36px; height: 36px; background: #F8FAFC; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; color: var(--text-main); font-weight: bold; }
     
     .bank-details-card { background: linear-gradient(135deg, #8B0000 0%, #5c0000 100%); margin: 20px; border-radius: 20px; padding: 25px; color: #fff; box-shadow: 0 10px 20px rgba(139, 0, 0, 0.2); }
-    .bank-row { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+    .bank-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
     .bank-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
     .bank-row .lbl { opacity: 0.8; }
     .bank-row .val { font-weight: 700; font-size: 16px; display: flex; align-items: center; gap: 10px; }
-    .copy-icon { background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 6px; font-size: 10px; cursor: pointer; }
-
+    .copy-icon { background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; border: none; color: #fff; }
+    
     .form-container { padding: 0 20px; }
     .input-group { margin-bottom: 15px; }
     .input-group label { display: block; font-size: 12px; color: #64748B; margin-bottom: 8px; font-weight: 600; }
     .input-group input { width: 100%; padding: 15px; border: 1px solid #E2E8F0; border-radius: 12px; font-size: 15px; outline: none; background: #fff; }
     .input-group input:focus { border-color: var(--primary); }
+    
+    .deposit-alert { margin: 0 20px 20px; padding: 15px; border-radius: 12px; font-size: 14px; font-weight: 600; display: none; }
+    .deposit-alert.success { background: #F0FDF4; color: var(--success); border: 1px solid #BBF7D0; display: block; }
+    .deposit-alert.error { background: #FEF2F2; color: var(--danger); border: 1px solid #FECACA; display: block; }
   </style>
 </head>
 <body>
@@ -32,30 +36,95 @@
   </div>
 
   <div class="bank-details-card">
-    <div class="bank-row"><span class="lbl">Bank Name</span><span class="val">Opay / Moniepoint</span></div>
-    <div class="bank-row"><span class="lbl">Account Number</span><span class="val">8012345678 <span class="copy-icon" onclick="copyText('8012345678')">Copy</span></span></div>
-    <div class="bank-row"><span class="lbl">Account Name</span><span class="val">JaKaTaRise Capital</span></div>
+    <div class="bank-row"><span class="lbl">Bank Name</span><span class="val" id="dispBankName">Loading...</span></div>
+    <div class="bank-row">
+      <span class="lbl">Account Number</span>
+      <span class="val">
+        <span id="dispAcctNum">Loading...</span> 
+        <button class="copy-icon" onclick="copyText(document.getElementById('dispAcctNum').innerText)">Copy</button>
+      </span>
+    </div>
+    <div class="bank-row"><span class="lbl">Account Name</span><span class="val" id="dispAcctName">Loading...</span></div>
   </div>
 
+  <div id="depositAlert" class="deposit-alert"></div>
+
   <div class="form-container">
-    <div class="input-group">
-      <label>Amount Sent (₦)</label>
-      <input type="number" placeholder="e.g. 6200" />
-    </div>
-    <div class="input-group">
-      <label>Transaction Reference / Sender Name</label>
-      <input type="text" placeholder="Helps us identify your payment" />
-    </div>
-    <button class="btn btn-primary btn-block" style="margin-top: 10px; border-radius: 12px; padding: 15px;">I Have Made This Transfer</button>
+    <form id="depositForm">
+      <div class="input-group">
+        <label>Amount Sent (₦)</label>
+        <input type="number" id="depAmount" placeholder="e.g. 6200" required />
+      </div>
+      <div class="input-group">
+        <label>Transaction Reference / Sender Name</label>
+        <input type="text" id="depRef" placeholder="Helps us identify your payment" required />
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" style="border-radius: 12px; padding: 15px; margin-top: 10px;">Submit Deposit Request</button>
+    </form>
+    <p style="text-align:center; font-size: 12px; color: #94A3B8; margin-top: 15px;">Deposits are typically approved within 5-30 minutes during working hours.</p>
   </div>
 
   <div id="app-footer"></div>
+  
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/components.js"></script>
   <script src="assets/js/api-client.js"></script>
   <script src="assets/js/auth-guard.js"></script>
   <script>
-    function copyText(text) { navigator.clipboard.writeText(text); alert('Copied!'); }
+    // 1. Load Bank Details from Settings
+    document.addEventListener('DOMContentLoaded', async () => {
+      const { data: settings } = await window.supabase.from('settings').select('*');
+      if(settings) {
+        const getVal = (key) => settings.find(s => s.key === key)?.value || 'Not Set';
+        document.getElementById('dispBankName').innerText = getVal('bank_name');
+        document.getElementById('dispAcctNum').innerText = getVal('account_number');
+        document.getElementById('dispAcctName').innerText = getVal('account_name');
+      }
+    });
+
+    // 2. Handle Deposit Submission
+    document.getElementById('depositForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const { data: { session } } = await window.supabase.auth.getSession();
+      if(!session) return;
+
+      const amount = document.getElementById('depAmount').value;
+      const ref = document.getElementById('depRef').value;
+      const alertBox = document.getElementById('depositAlert');
+      const btn = e.target.querySelector('button');
+
+      btn.disabled = true;
+      btn.innerText = 'Submitting...';
+
+      // Generate a unique reference ID
+      const txRef = 'DEP-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+
+      const { error } = await window.supabase.from('transactions').insert({
+        user_id: session.user.id,
+        type: 'deposit',
+        amount: amount,
+        description: ref,
+        reference: txRef,
+        status: 'pending'
+      });
+
+      if(error) {
+        alertBox.className = 'deposit-alert error';
+        alertBox.innerText = '❌ Error submitting deposit. Please try again.';
+        btn.disabled = false;
+        btn.innerText = 'Submit Deposit Request';
+      } else {
+        alertBox.className = 'deposit-alert success';
+        alertBox.innerText = '✅ Deposit request submitted! Admin will verify and credit your wallet shortly.';
+        document.getElementById('depositForm').reset();
+        btn.innerText = 'Submitted Successfully';
+      }
+    });
+
+    function copyText(text) { 
+      navigator.clipboard.writeText(text); 
+      alert('Copied to clipboard!'); 
+    }
   </script>
 </body>
 </html>
