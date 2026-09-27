@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Global Settings - JaKaTaRise Admin</title>
+  <link rel="stylesheet" href="../assets/css/styles.css" />
+  <link rel="stylesheet" href="../assets/css/admin.css" />
+</head>
+<body>
+
+  <aside class="admin-sidebar">
+    <div class="admin-logo">
+      <div style="width:30px;height:30px;background:var(--primary);color:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;">J</div>
+      JaKaTaRise Admin
+    </div>
+    <nav class="admin-nav">
+      <a href="index.html">📊 Overview</a>
+      <a href="users.html">👥 Users</a>
+      <a href="deposits.html">💰 Deposits</a>
+      <a href="withdrawals.html"> Withdrawals</a>
+      <a href="miners.html">⛏️ Mining Plans</a>
+      <a href="settings.html" class="active">⚙️ Global Settings</a>
+      <a href="../index.html" style="margin-top: 20px; border-top: 1px solid #1E293B; padding-top: 20px;">🌐 View Live Site</a>
+    </nav>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-header">
+      <h2>Global Platform Settings</h2>
+    </div>
+
+    <form id="settingsForm">
+      <!-- Financial Rules -->
+      <div class="form-card">
+        <h3>💰 Financial Rules</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Minimum Deposit (₦)</label>
+            <input type="number" class="form-input" value="1000" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Minimum Withdrawal (₦)</label>
+            <input type="number" class="form-input" value="1000" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Withdrawal Fee (%)</label>
+            <input type="number" class="form-input" value="8" step="0.1" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Direct Referral Bonus (%)</label>
+            <input type="number" class="form-input" value="8" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Time Restrictions -->
+      <div class="form-card">
+        <h3>⏰ Withdrawal Time Window</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Opening Hour (24h format)</label>
+            <input type="number" class="form-input" value="9" min="0" max="23" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Closing Hour (24h format)</label>
+            <input type="number" class="form-input" value="17" min="0" max="23" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Allowed Days</label>
+            <select class="form-input" multiple style="height: 100px;">
+              <option value="1" selected>Monday</option>
+              <option value="2" selected>Tuesday</option>
+              <option value="3" selected>Wednesday</option>
+              <option value="4" selected>Thursday</option>
+              <option value="5" selected>Friday</option>
+              <option value="6" selected>Saturday</option>
+              <option value="0">Sunday</option>
+            </select>
+            <small class="text-muted">Hold Ctrl/Cmd to select multiple days.</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact & Links -->
+      <div class="form-card">
+        <h3>🔗 Contact & Support Links</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Telegram Channel Link</label>
+            <input type="url" class="form-input" value="https://t.me/jakatarise" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">WhatsApp Support Link</label>
+            <input type="url" class="form-input" value="https://wa.me/1234567890" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Support Email</label>
+            <input type="email" class="form-input" value="support@jakatarise.com" />
+          </div>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-primary" onclick="alert('Settings saved to database!')">💾 Save All Settings</button>
+    </form>
+  </main>
+
+</body>
+</html>
