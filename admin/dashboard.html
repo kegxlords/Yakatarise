@@ -528,12 +528,42 @@
         return `<tr><td>${tx.profiles?.email || 'Unknown'}</td><td style="font-weight:700;color:#D4AF37;">₦${Number(tx.amount).toLocaleString()}</td><td style="font-size:11px;color:#8E8E93;">${tx.description || 'N/A'}</td><td><span class="badge-dark ${badgeClass}">${tx.status}</span></td><td>${actions}</td></tr>`;
       }).join('');
     }
+    // ===== SAFE DEPOSIT APPROVAL (FIXED) =====
     window.approveDeposit = async function(id, userId, amount) {
-      if(!confirm(`Approve ₦${amount.toLocaleString()}?`)) return;
-      const { data: wallet } = await window.supabase.from('wallets').select('balance').eq('user_id', userId).single();
-      await window.supabase.from('wallets').update({ balance: wallet.balance + amount }).eq('user_id', userId);
-      await window.supabase.from('transactions').update({ status: 'approved' }).eq('id', id);
-      alert('✅ Approved!'); loadDeposits();
+      if(!confirm(`Approve ₦${Number(amount).toLocaleString()}?`)) return;
+      
+      try {
+        // 1. Find the user's wallet
+        let { data: wallet, error: wErr } = await window.supabase
+          .from('wallets').select('balance, total_deposited').eq('user_id', userId).single();
+          
+        if (wErr || !wallet) throw new Error("User wallet not found.");
+
+        // 2. Calculate new totals
+        const newBalance = Number(wallet.balance) + Number(amount);
+        const newTotalDeposited = Number(wallet.total_deposited || 0) + Number(amount);
+
+        // 3. Update Wallet (Balance AND Total Deposited)
+        const { error: uErr } = await window.supabase
+          .from('wallets')
+          .update({ 
+            balance: newBalance, 
+            total_deposited: newTotalDeposited 
+          })
+          .eq('user_id', userId);
+          
+        if (uErr) throw new Error("Failed to update wallet: " + uErr.message);
+
+        // 4. Mark transaction as approved
+        const { error: tErr } = await window.supabase
+          .from('transactions').update({ status: 'approved' }).eq('id', id);
+        if (tErr) throw new Error("Failed to update transaction: " + tErr.message);
+
+        alert('✅ Approved successfully!');
+        loadDeposits(); 
+      } catch (err) {
+        alert('❌ Error: ' + err.message);
+      }
     };
     window.rejectDeposit = async function(id) {
       if(!confirm('Reject this deposit?')) return;
