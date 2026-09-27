@@ -32,10 +32,10 @@
     .stat-box-modern .lbl { font-size: 11px; color: #64748B; margin-top: 5px; }
 
     .commission-card { background: #fff; margin: 0 20px 20px; border-radius: 20px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border: 1px solid #F1F5F9; }
-    .comm-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
-    .comm-item { background: #F8FAFC; padding: 10px 5px; border-radius: 10px; text-align: center; border: 1px solid #F1F5F9; }
-    .comm-item .pct { font-size: 16px; font-weight: 800; color: var(--accent); }
-    .comm-item .lvl { font-size: 10px; color: #64748B; margin-top: 2px; }
+    .comm-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
+    .comm-item { background: #F8FAFC; padding: 12px 5px; border-radius: 10px; text-align: center; border: 1px solid #F1F5F9; }
+    .comm-item .pct { font-size: 18px; font-weight: 800; color: var(--accent); }
+    .comm-item .lvl { font-size: 11px; color: #64748B; margin-top: 4px; font-weight: 600; }
 
     /* Members List Styles */
     .members-section { padding: 0 20px; margin-bottom: 20px; }
@@ -65,7 +65,7 @@
 
   <div class="team-header-bg">
     <h1>My Team</h1>
-    <p>Invite friends and earn up to 8% direct bonus.</p>
+    <p>Build your network and earn 3-level commissions.</p>
   </div>
 
   <div class="referral-card">
@@ -78,8 +78,8 @@
 
   <div class="stats-row">
     <div class="stat-box-modern">
-      <div class="val" id="statDirect">0</div>
-      <div class="lbl">Direct Refs</div>
+      <div class="val" id="statLevel1">0</div>
+      <div class="lbl">Level 1</div>
     </div>
     <div class="stat-box-modern">
       <div class="val" id="statTotal">0</div>
@@ -93,18 +93,18 @@
 
   <div class="commission-card">
     <h3 style="margin: 0; font-size: 16px; color: var(--text-main);">Commission Structure</h3>
-    <div class="comm-grid">
-      <div class="comm-item"><div class="pct">8%</div><div class="lvl">Direct</div></div>
-      <div class="comm-item"><div class="pct">5%</div><div class="lvl">Level 1</div></div>
-      <div class="comm-item"><div class="pct">2%</div><div class="lvl">Level 2</div></div>
-      <div class="comm-item"><div class="pct">1%</div><div class="lvl">Level 3</div></div>
+    <p style="font-size: 12px; color: #64748B; margin-top: 5px;">Earn from every miner rented by your team.</p>
+    <div class="comm-grid" id="commGrid">
+      <!-- Populated dynamically from Admin Settings -->
+      <div class="comm-item"><div class="pct">...</div><div class="lvl">Level 1</div></div>
+      <div class="comm-item"><div class="pct">...</div><div class="lvl">Level 2</div></div>
+      <div class="comm-item"><div class="pct">...</div><div class="lvl">Level 3</div></div>
     </div>
   </div>
 
   <div class="members-section">
-    <h3>Recent Direct Referrals</h3>
+    <h3>Level 1 Members</h3>
     <div id="membersList">
-      <!-- Populated by JS -->
       <div style="text-align:center; padding: 20px; color: #94A3B8;">Loading team data...</div>
     </div>
   </div>
@@ -142,8 +142,8 @@
       const refLink = `${window.location.origin}/register.html?ref=${refCode}`;
       document.getElementById('refLink').value = refLink;
 
-      // 2. Get Team Counts
-      const { count: directCount } = await window.supabase
+      // 2. Get Team Counts (Real Data)
+      const { count: l1Count } = await window.supabase
         .from('profiles')
         .select('*', { count: 'exact', head: true })
         .eq('referred_by', userId);
@@ -158,7 +158,7 @@
         .select('*', { count: 'exact', head: true })
         .eq('upline_level_3', userId);
 
-      const totalTeam = (directCount || 0) + (l2Count || 0) + (l3Count || 0);
+      const totalTeam = (l1Count || 0) + (l2Count || 0) + (l3Count || 0);
 
       // 3. Get Total Commissions Earned
       const { data: commissions } = await window.supabase
@@ -173,33 +173,47 @@
         totalCommissions = commissions.reduce((sum, tx) => sum + Number(tx.amount), 0);
       }
 
-      // Update UI Stats
-      document.getElementById('statDirect').innerText = directCount || 0;
+      // 4. Fetch Admin Settings for Commission Percentages
+      const { data: settings } = await window.supabase.from('settings').select('*');
+      const getSetting = (key, def) => settings?.find(s => s.key === key)?.value || def;
+      
+      const l1Pct = getSetting('referral_level_1', 5);
+      const l2Pct = getSetting('referral_level_2', 2);
+      const l3Pct = getSetting('referral_level_3', 1);
+
+      // Update UI Stats & Commission Grid
+      document.getElementById('statLevel1').innerText = l1Count || 0;
       document.getElementById('statTotal').innerText = totalTeam;
       document.getElementById('statCommissions').innerText = '₦' + totalCommissions.toLocaleString();
 
-      // 4. Get Recent Direct Team Members
+      document.getElementById('commGrid').innerHTML = `
+        <div class="comm-item"><div class="pct">${l1Pct}%</div><div class="lvl">Level 1</div></div>
+        <div class="comm-item"><div class="pct">${l2Pct}%</div><div class="lvl">Level 2</div></div>
+        <div class="comm-item"><div class="pct">${l3Pct}%</div><div class="lvl">Level 3</div></div>
+      `;
+
+      // 5. Get Level 1 Team Members
       const { data: members } = await window.supabase
         .from('profiles')
-        .select('full_name, created_at')
+        .select('full_name, email, created_at')
         .eq('referred_by', userId)
         .order('created_at', { ascending: false })
-        .limit(5);
+        .limit(10);
 
       const membersContainer = document.getElementById('membersList');
       if (members && members.length > 0) {
         membersContainer.innerHTML = members.map(m => `
           <div class="member-item">
-            <div class="member-avatar">${(m.full_name || 'U')[0].toUpperCase()}</div>
+            <div class="member-avatar">${(m.full_name || m.email || 'U')[0].toUpperCase()}</div>
             <div class="member-info">
-              <div class="member-name">${m.full_name || 'Unknown User'}</div>
+              <div class="member-name">${m.full_name || 'Member'}</div>
               <div class="member-date">Joined ${new Date(m.created_at).toLocaleDateString()}</div>
             </div>
             <div class="member-level">Level 1</div>
           </div>
         `).join('');
       } else {
-        membersContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: #94A3B8; font-size: 14px;">No direct referrals yet. Share your link to start earning!</div>';
+        membersContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: #94A3B8; font-size: 14px; background: #fff; border-radius: 16px; border: 1px dashed #CBD5E1;">No Level 1 members yet. Share your link to start building your team!</div>';
       }
     });
   </script>
