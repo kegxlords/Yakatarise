@@ -74,13 +74,69 @@
   <script src="assets/js/components.js"></script>
   <script src="assets/js/api-client.js"></script>
   <script src="assets/js/auth-guard.js"></script>
+  <script src="assets/js/wallet.js"></script> <!-- Keep your existing wallet.js for time/fee logic -->
+  
   <script>
-    function calcFee() {
-      const amt = parseFloat(document.getElementById('withdrawAmount').value) || 0;
-      const fee = amt * 0.08;
-      document.getElementById('feeDisplay').innerText = '₦' + fee.toLocaleString();
-      document.getElementById('netDisplay').innerText = '' + (amt - fee).toLocaleString();
-    }
+    document.addEventListener('DOMContentLoaded', async () => {
+      const { data: { session } } = await window.supabase.auth.getSession();
+      if(!session) return;
+
+      // 1. Fetch Balance
+      const { data: wallet } = await window.supabase.from('wallets').select('balance').eq('user_id', session.user.id).single();
+      if(wallet) document.querySelector('.balance-display .val').innerText = '₦' + Number(wallet.balance).toLocaleString();
+
+      // 2.  Check Active Miner Requirement
+      const { count } = await window.supabase
+        .from('user_miners')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', session.user.id)
+        .eq('status', 'active');
+
+      const formContainer = document.querySelector('.form-container');
+      const timeWarning = document.querySelector('.time-warning');
+
+      if (!count || count === 0) {
+        // Hide form and show restriction banner
+        formContainer.innerHTML = `
+          <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 16px; padding: 30px; text-align: center; margin-top: 20px;">
+            <div style="font-size: 40px; margin-bottom: 10px;">🔒</div>
+            <h3 style="color: var(--danger); margin: 0 0 10px 0;">Withdrawal Locked</h3>
+            <p style="color: #991B1B; margin-bottom: 20px;">You must rent an active miner before you can withdraw your funds.</p>
+            <a href="rent-miners.html" class="btn btn-primary" style="display: inline-block; text-decoration: none; padding: 12px 24px; border-radius: 12px;">Rent a Miner Now</a>
+          </div>
+        `;
+        if(timeWarning) timeWarning.style.display = 'none';
+      } else {
+        // User has a miner, attach form submit handler
+        document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const btn = e.target.querySelector('button');
+          const amount = document.getElementById('withdrawAmount').value;
+          const bankName = e.target.querySelector('input[placeholder="e.g. GTBank"]').value;
+          const acctNum = e.target.querySelector('input[placeholder="10 digits"]').value;
+          const acctName = e.target.querySelector('input[placeholder="Name on account"]').value;
+
+          btn.disabled = true;
+          btn.innerText = 'Processing...';
+
+          const result = await callApi('/api/request-withdrawal', {
+            amount: parseFloat(amount),
+            bank_name: bankName,
+            account_number: acctNum,
+            account_name: acctName
+          });
+
+          if (result.success) {
+            alert('✅ Withdrawal request submitted! Admin will process it shortly.');
+            window.location.href = 'transactions.html';
+          } else {
+            alert('❌ ' + (result.error || 'Failed to submit withdrawal.'));
+            btn.disabled = false;
+            btn.innerText = 'Submit Withdrawal Request';
+          }
+        });
+      }
+    });
   </script>
 </body>
 </html>
