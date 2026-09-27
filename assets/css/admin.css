@@ -399,3 +399,31 @@ body {
   .admin-bottom-nav { display: block; }
   .admin-main { padding-bottom: 90px; } /* Prevents content from hiding behind nav */
 }
+/* ==========================================
+   FORCE DREAMY BACKGROUND (Add to bottom of admin.css)
+   ========================================== */
+body {
+  background-color: #F0F4F8 !important; /* Dreamy Soft Cloud Blue */
+}
+
+.admin-main {
+  background-color: #F0F4F8 !important;
+}
+
+/* Make the cards pop against the dreamy background */
+.stat-card, .form-card, .table-container, .modal-content {
+  background-color: #FFFFFF !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.02) !important;
+}
+
+/* Make the sidebar match the dreamy theme */
+.admin-sidebar {
+  background-color: #FFFFFF !important;
+  border-right: 1px solid #E2E8F0 !important;
+}
+
+/* Make the bottom nav match */
+.admin-bottom-nav {
+  background-color: #FFFFFF !important;
+  border-top: 1px solid #E2E8F0 !important;
+}
