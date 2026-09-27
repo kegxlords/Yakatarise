@@ -110,6 +110,37 @@
     }
     .empty-miner-box h4 { color: var(--text-main); margin-bottom: 8px; }
     .empty-miner-box p { color: #94A3B8; font-size: 13px; margin-bottom: 20px; }
+  /* Welcome Popup Styles */
+    .welcome-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7); z-index: 2000;
+      display: none; align-items: center; justify-content: center;
+      backdrop-filter: blur(5px);
+    }
+    .welcome-overlay.active { display: flex; }
+    .welcome-box {
+      background: #fff; width: 90%; max-width: 400px; border-radius: 20px;
+      padding: 30px 20px; text-align: center; position: relative;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2); border-top: 5px solid var(--primary);
+    }
+    .welcome-close {
+      position: absolute; top: 15px; right: 15px; background: #f0f0f0;
+      border: none; width: 30px; height: 30px; border-radius: 50%;
+      font-size: 16px; cursor: pointer; color: #666;
+    }
+    .welcome-icon { font-size: 40px; margin-bottom: 10px; }
+    .welcome-title { color: var(--primary); font-size: 22px; margin-bottom: 15px; font-weight: 800; }
+    .welcome-info { text-align: left; background: #F8FAFC; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
+    .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+    .info-row:last-child { margin-bottom: 0; }
+    .info-label { color: #64748B; }
+    .info-val { font-weight: 700; color: var(--text-main); }
+    .btn-telegram {
+      background: #0088cc; color: #fff; width: 100%; padding: 14px;
+      border-radius: 12px; border: none; font-weight: 700; font-size: 15px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+      text-decoration: none; margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
@@ -293,5 +324,70 @@
       }
     });
   </script>
+  <script>
+    // Welcome Popup Logic
+    function closeWelcomePopup() {
+      document.getElementById('welcomePopup').classList.remove('active');
+      // Save to localStorage so it doesn't show every time they refresh
+      localStorage.setItem('welcomeSeen', 'true');
+    }
+
+    async function showWelcomePopup() {
+      // Check if user has already seen it
+      if (localStorage.getItem('welcomeSeen') === 'true') return;
+
+      // Fetch settings
+      const { data: settings } = await window.supabase.from('settings').select('*');
+      if (!settings) return;
+
+      const getVal = (key, def) => settings.find(s => s.key === key)?.value || def;
+
+      // Populate data
+      document.getElementById('popMinDep').innerText = '₦' + Number(getVal('min_deposit', 1000)).toLocaleString();
+      document.getElementById('popMinWith').innerText = '₦' + Number(getVal('min_withdrawal', 1000)).toLocaleString();
+      
+      const refBonus = getVal('referral_bonus_direct', 8);
+      document.getElementById('popRefBonus').innerText = refBonus + '% Direct Bonus';
+      
+      const tgLink = getVal('telegram_link', '#');
+      document.getElementById('popTelegramLink').href = tgLink;
+
+      // Show popup
+      document.getElementById('welcomePopup').classList.add('active');
+    }
+
+    // Add this line inside your existing document.addEventListener('DOMContentLoaded', ...)
+    // OR just add this line at the very end of your script:
+    setTimeout(showWelcomePopup, 1000); // Show 1 second after page loads
+  </script>
+  <!-- Welcome Popup Modal -->
+  <div id="welcomePopup" class="welcome-overlay">
+    <div class="welcome-box">
+      <button class="welcome-close" onclick="closeWelcomePopup()">✕</button>
+      <div class="welcome-icon">👋</div>
+      <h2 class="welcome-title">Welcome to JaKaTaRise!</h2>
+      <p style="font-size: 14px; color: #64748B; margin-bottom: 20px;">Here is what you need to know to start earning:</p>
+      
+      <div class="welcome-info">
+        <div class="info-row">
+          <span class="info-label">Min. Deposit:</span>
+          <span class="info-val" id="popMinDep">Loading...</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Min. Withdrawal:</span>
+          <span class="info-val" id="popMinWith">Loading...</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Referral Bonus:</span>
+          <span class="info-val" id="popRefBonus">Loading...</span>
+        </div>
+      </div>
+
+      <a href="#" id="popTelegramLink" target="_blank" class="btn-telegram">
+        ️ Join our Telegram Group
+      </a>
+      <button class="btn btn-outline btn-block" style="border-radius: 12px;" onclick="closeWelcomePopup()">Start Mining</button>
+    </div>
+  </div>
 </body>
 </html>
