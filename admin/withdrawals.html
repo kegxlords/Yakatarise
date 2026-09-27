@@ -3,35 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Manage Withdrawals - JaKaTaRise Admin</title>
+  <title>Withdrawals - JaKaTaRise Admin</title>
   <link rel="stylesheet" href="../assets/css/styles.css" />
   <link rel="stylesheet" href="../assets/css/admin.css" />
 </head>
 <body>
 
   <aside class="admin-sidebar">
-    <div class="admin-logo">
-      <div style="width:30px;height:30px;background:var(--primary);color:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;">J</div>
-      JaKaTaRise Admin
-    </div>
+    <div class="admin-logo"><div class="admin-logo-icon">J</div>JaKaTaRise</div>
     <nav class="admin-nav">
       <a href="index.html">📊 Overview</a>
       <a href="users.html">👥 Users</a>
       <a href="deposits.html">💰 Deposits</a>
-      <a href="withdrawals.html" class="active"> Withdrawals</a>
+      <a href="withdrawals.html" class="active">💸 Withdrawals</a>
       <a href="miners.html">⛏️ Mining Plans</a>
-      <a href="settings.html">️ Global Settings</a>
-      <a href="../index.html" style="margin-top: 20px; border-top: 1px solid #1E293B; padding-top: 20px;">🌐 View Live Site</a>
+      <a href="settings.html">️ Settings</a>
+      <a href="../index.html" class="view-site">🌐 View Live Site</a>
     </nav>
   </aside>
 
   <main class="admin-main">
     <div class="admin-header">
       <h2>Withdrawal Requests</h2>
+      <select id="statusFilter" class="form-input" style="width: 200px;" onchange="loadWithdrawals()">
+        <option value="pending">Pending Only</option>
+        <option value="approved">Approved</option>
+        <option value="rejected">Rejected</option>
+        <option value="all">All Transactions</option>
+      </select>
     </div>
 
-    <div class="form-card" style="padding: 0; overflow: hidden;">
-      <table class="data-table" id="withdrawalTable">
+    <div class="table-container">
+      <table class="data-table">
         <thead>
           <tr>
             <th>User</th>
@@ -39,12 +42,12 @@
             <th>Fee (8%)</th>
             <th>Net Payout</th>
             <th>Bank Details</th>
-            <th>Date</th>
-            <th>Actions</th>
+            <th>Status</th>
+            <th style="text-align: right;">Actions</th>
           </tr>
         </thead>
         <tbody id="withdrawalBody">
-          <tr><td colspan="7" style="text-align:center;">Loading withdrawals...</td></tr>
+          <tr><td colspan="7" style="text-align:center; padding: 40px;">Loading withdrawals...</td></tr>
         </tbody>
       </table>
     </div>
@@ -53,79 +56,61 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/api-client.js"></script>
   <script src="../assets/js/admin-guard.js"></script>
-  
   <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-      // 1. Fetch Pending Withdrawals
-      const { data: txs, error } = await supabase
-        .from('transactions')
-        .select('*, profiles(full_name, email)')
-        .eq('type', 'withdrawal')
-        .eq('status', 'pending')
-        .order('created_at', { ascending: false });
-
+    async function loadWithdrawals() {
+      const filter = document.getElementById('statusFilter').value;
       const tbody = document.getElementById('withdrawalBody');
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 40px;">Loading...</td></tr>';
 
-      if (error || !txs || txs.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 30px;">No pending withdrawal requests.</td></tr>';
+      let query = window.supabase.from('transactions').select('*, profiles(email)').eq('type', 'withdrawal').order('created_at', { ascending: false });
+      if (filter !== 'all') query = query.eq('status', filter);
+
+      const { data: txs } = await query;
+      if (!txs || txs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 40px; color: var(--admin-text-muted);">No withdrawals found.</td></tr>';
         return;
       }
 
-      // 2. Render Table
       tbody.innerHTML = txs.map(tx => {
         const amount = Number(tx.amount);
         const fee = amount * 0.08;
         const net = amount - fee;
-        const date = new Date(tx.created_at).toLocaleDateString();
-        const email = tx.profiles?.email || 'Unknown User';
-        
-        // Note: Bank details would ideally be stored in a 'bank_accounts' table or the transaction description. 
-        // For now, we assume it's in the description or you can expand the query.
-        const bankDetails = tx.description || 'Bank details not provided'; 
+        let badgeClass = 'badge-warning';
+        if(tx.status === 'approved') badgeClass = 'badge-success';
+        if(tx.status === 'rejected') badgeClass = 'badge-danger';
+
+        let actions = tx.status === 'pending' ? `
+          <button class="btn btn-sm btn-approve" onclick="approveWithdrawal('${tx.id}')">Mark Paid</button>
+          <button class="btn btn-sm btn-reject" onclick="rejectWithdrawal('${tx.id}', '${tx.user_id}', ${amount})">Reject</button>
+        ` : '<span style="color: var(--admin-text-muted); font-size: 12px;">Processed</span>';
 
         return `
           <tr>
-            <td>
-              <div style="font-weight:600;">${email}</div>
-              <div style="font-size:12px;color:var(--text-muted);">ID: ${tx.id.substring(0,8)}</div>
-            </td>
+            <td><div style="font-weight:500;">${tx.profiles?.email || 'Unknown'}</div></td>
             <td style="font-weight:700;">₦${amount.toLocaleString()}</td>
-            <td style="color:var(--danger);">- ₦${fee.toLocaleString()}</td>
-            <td style="font-weight:800; color:var(--success);">₦${net.toLocaleString()}</td>
-            <td><div style="font-size:12px;color:var(--text-muted);">${bankDetails}</div></td>
-            <td>${date}</td>
-            <td>
-              <button class="btn btn-sm btn-approve" onclick="approveWithdrawal('${tx.id}')">Approve</button>
-              <button class="btn btn-sm btn-reject" onclick="rejectWithdrawal('${tx.id}')">Reject</button>
-            </td>
+            <td style="color: var(--danger);">- ₦${fee.toLocaleString()}</td>
+            <td style="font-weight:700; color: var(--success);">₦${net.toLocaleString()}</td>
+            <td><div style="font-size:12px;color:var(--admin-text-muted);">${tx.description || 'N/A'}</div></td>
+            <td><span class="badge ${badgeClass}">${tx.status}</span></td>
+            <td style="text-align: right;">${actions}</td>
           </tr>
         `;
       }).join('');
-    });
+    }
 
-    // 3. Approve Action
-    window.approveWithdrawal = async function(transactionId) {
-      if(!confirm("Have you manually sent the money to the user's bank account? Click OK to confirm.")) return;
-      
-      const result = await callApi('/api/approve-withdrawal', { transaction_id: transactionId });
-      
-      if (result.success) {
-        alert('✅ Withdrawal marked as paid!');
-        location.reload();
-      } else {
-        alert('❌ Error: ' + result.error);
-      }
+    window.approveWithdrawal = async function(id) {
+      if(!confirm('Have you sent the money? Click OK to mark as paid.')) return;
+      const result = await callApi('/api/approve-withdrawal', { transaction_id: id });
+      if(result.success) { alert('✅ Marked as paid!'); loadWithdrawals(); } else alert('❌ ' + result.error);
     };
 
-    // 4. Reject Action (Refunds balance)
-    window.rejectWithdrawal = async function(transactionId) {
-      if(!confirm("Reject this withdrawal? The funds will be refunded to the user's wallet.")) return;
-      
-      // Note: You would create a /api/reject-withdrawal.js endpoint for this.
-      // For now, this is a placeholder.
-      alert("Please create the /api/reject-withdrawal.js endpoint to handle refunds.");
+    window.rejectWithdrawal = async function(id, userId, amount) {
+      if(!confirm(`Reject and refund ₦${amount.toLocaleString()} to user?`)) return;
+      // Create /api/reject-withdrawal.js to handle refunding the wallet
+      alert('Please create /api/reject-withdrawal.js to handle refunds.');
     };
+
+    document.addEventListener('DOMContentLoaded', loadWithdrawals);
   </script>
-
 </body>
 </html>
