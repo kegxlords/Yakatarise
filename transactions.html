@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Transaction History - JaKaTaRise Capital</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <style>
+    .page-header { padding: 40px 0; text-align: center; }
+    .page-header h1 { color: var(--primary); }
+    
+    .filter-tabs { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 10px; }
+    .filter-btn { padding: 8px 16px; background: #fff; border: 1px solid var(--border); border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    
+    .tx-list { display: flex; flex-direction: column; gap: 15px; padding-bottom: 60px; }
+    .tx-item { background: #fff; padding: 15px; border-radius: var(--radius); box-shadow: var(--shadow); display: flex; justify-content: space-between; align-items: center; }
+    .tx-info h4 { font-size: 15px; margin-bottom: 4px; }
+    .tx-info p { font-size: 12px; color: var(--text-muted); }
+    .tx-amount { text-align: right; }
+    .tx-amount div { font-weight: 800; font-size: 16px; }
+    .tx-amount.positive { color: var(--success); }
+    .tx-amount.negative { color: var(--danger); }
+    .status-pill { font-size: 10px; padding: 3px 8px; border-radius: 10px; font-weight: 700; text-transform: uppercase; }
+    .status-approved { background: #F0FDF4; color: var(--success); }
+    .status-pending { background: #FEF3C7; color: #D97706; }
+  </style>
+</head>
+<body>
+  <div id="app-header"></div>
+
+  <header class="page-header">
+    <div class="container">
+      <h1>Transaction History</h1>
+      <p class="text-muted">Track all your deposits, withdrawals, and mining payouts.</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="filter-tabs">
+      <button class="filter-btn active">All</button>
+      <button class="filter-btn">Deposits</button>
+      <button class="filter-btn">Withdrawals</button>
+      <button class="filter-btn">Mining Payouts</button>
+    </div>
+
+    <div class="tx-list">
+      <!-- Mock Transaction 1 -->
+      <div class="tx-item">
+        <div class="tx-info">
+          <h4>Mining Payout (Pre Grade)</h4>
+          <p>Today, 12:00 AM</p>
+        </div>
+        <div class="tx-amount positive">
+          <div>+ ₦310.00</div>
+          <span class="status-pill status-approved">Completed</span>
+        </div>
+      </div>
+
+      <!-- Mock Transaction 2 -->
+      <div class="tx-item">
+        <div class="tx-info">
+          <h4>Withdrawal to GTBank</h4>
+          <p>Yesterday, 10:30 AM</p>
+        </div>
+        <div class="tx-amount negative">
+          <div>- ₦5,000.00</div>
+          <span class="status-pill status-pending">Pending</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="app-footer"></div>
+  <script src="assets/js/components.js"></script>
+</body>
+</html>
