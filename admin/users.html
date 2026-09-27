@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Users - JaKaTaRise Admin</title>
+  <link rel="stylesheet" href="../assets/css/styles.css" />
+  <link rel="stylesheet" href="../assets/css/admin.css" />
+  <style>
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center;
+      z-index: 2000;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-content {
+      background: #fff; padding: 30px; border-radius: 16px; width: 90%; max-width: 500px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-header h3 { margin: 0; color: var(--primary); }
+    .close-modal { background: none; border: none; font-size: 24px; cursor: pointer; color: #94A3B8; }
+    
+    .team-list-item { padding: 10px; border-bottom: 1px solid #F1F5F9; display: flex; justify-content: space-between; }
+    .team-list-item:last-child { border-bottom: none; }
+  </style>
+</head>
+<body>
+
+  <aside class="admin-sidebar">
+    <div class="admin-logo">
+      <div style="width:30px;height:30px;background:var(--primary);color:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;">J</div>
+      JaKaTaRise Admin
+    </div>
+    <nav class="admin-nav">
+      <a href="index.html"> Overview</a>
+      <a href="users.html" class="active">👥 Users</a>
+      <a href="deposits.html">💰 Deposits</a>
+      <a href="withdrawals.html">💸 Withdrawals</a>
+      <a href="miners.html">️ Mining Plans</a>
+      <a href="settings.html">⚙️ Global Settings</a>
+      <a href="../index.html" style="margin-top: 20px; border-top: 1px solid #1E293B; padding-top: 20px;">🌐 View Live Site</a>
+    </nav>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-header">
+      <h2>User Management</h2>
+      <input type="text" id="userSearch" placeholder="🔍 Search by email or name..." class="form-input" style="width: 300px;" onkeyup="filterUsers()" />
+    </div>
+
+    <div class="form-card" style="padding: 0; overflow: hidden;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Balance</th>
+            <th>Status</th>
+            <th>Joined</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="usersTableBody">
+          <tr><td colspan="5" style="text-align:center; padding: 30px;">Loading users...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- MODAL: Update Balance -->
+  <div id="balanceModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Update Wallet Balance</h3>
+        <button class="close-modal" onclick="closeModal('balanceModal')">&times;</button>
+      </div>
+      <p style="font-size: 14px; color: #64748B; margin-bottom: 15px;">User: <strong id="balModalEmail">-</strong></p>
+      <input type="hidden" id="balModalUserId" />
+      
+      <div class="form-group">
+        <label class="form-label">Action</label>
+        <select id="balAction" class="form-input">
+          <option value="credit">Credit (Add Money)</option>
+          <option value="debit">Debit (Remove Money)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Amount (₦)</label>
+        <input type="number" id="balAmount" class="form-input" placeholder="0.00" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Reason</label>
+        <input type="text" id="balReason" class="form-input" placeholder="e.g. Manual Bonus, Refund" />
+      </div>
+      <button class="btn btn-primary btn-block" onclick="submitBalanceUpdate()">Confirm Update</button>
+    </div>
+  </div>
+
+  <!-- MODAL: View Team -->
+  <div id="teamModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>User's Team (Referrals)</h3>
+        <button class="close-modal" onclick="closeModal('teamModal')">&times;</button>
+      </div>
+      <div id="teamModalContent" style="max-height: 300px; overflow-y: auto;">
+        Loading team...
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/js/api-client.js"></script>
+  <script src="../assets/js/admin-guard.js"></script>
+  
+  <script>
+    let allUsers = [];
+
+    // 1. Load Users
+    async function loadUsers() {
+      const { data: users, error } = await window.supabase
+        .from('profiles')
+        .select('*, wallets(balance)')
+        .order('created_at', { ascending: false });
+
+      const tbody = document.getElementById('usersTableBody');
+      if (error || !users) {
+        tbody.innerHTML = '<tr><td colspan="5">Error loading users.</td></tr>';
+        return;
+      }
+
+      allUsers = users;
+      renderUsers(users);
+    }
+
+    function renderUsers(users) {
+      const tbody = document.getElementById('usersTableBody');
+      tbody.innerHTML = users.map(u => {
+        const balance = u.wallets?.balance || 0;
+        const statusColor = u.is_active ? 'var(--success)' : 'var(--danger)';
+        const statusText = u.is_active ? 'Active' : 'Banned';
+        
+        return `
+          <tr>
+            <td>
+              <div style="font-weight:600;">${u.full_name || 'Unnamed'}</div>
+              <div style="font-size:12px;color:var(--text-muted);">${u.email}</div>
+            </td>
+            <td style="font-weight:700; color: var(--primary);">₦${Number(balance).toLocaleString()}</td>
+            <td><span style="color: ${statusColor}; font-weight:600;">${statusText}</span></td>
+            <td>${new Date(u.created_at).toLocaleDateString()}</td>
+            <td>
+              <button class="btn btn-sm btn-approve" onclick="openBalanceModal('${u.id}', '${u.email}')">💰 Balance</button>
+              <button class="btn btn-sm" style="background:#F1F5F9; color:var(--text-main);" onclick="openTeamModal('${u.id}')">👥 Team</button>
+              <button class="btn btn-sm" style="background:#FEF3C7; color:#D97706;" onclick="impersonateUser('${u.email}')">👁️ View As</button>
+              <button class="btn btn-sm btn-reject" onclick="toggleBan('${u.id}', ${u.is_active})">${u.is_active ? 'Ban' : 'Unban'}</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // 2. Search Filter
+    window.filterUsers = function() {
+      const query = document.getElementById('userSearch').value.toLowerCase();
+      const filtered = allUsers.filter(u => 
+        (u.email && u.email.toLowerCase().includes(query)) || 
+        (u.full_name && u.full_name.toLowerCase().includes(query))
+      );
+      renderUsers(filtered);
+    };
+
+    // 3. Balance Modal Logic
+    window.openBalanceModal = function(userId, email) {
+      document.getElementById('balModalUserId').value = userId;
+      document.getElementById('balModalEmail').innerText = email;
+      document.getElementById('balanceModal').classList.add('active');
+    };
+
+    window.submitBalanceUpdate = async function() {
+      const userId = document.getElementById('balModalUserId').value;
+      const action = document.getElementById('balAction').value;
+      const amount = parseFloat(document.getElementById('balAmount').value);
+      const reason = document.getElementById('balReason').value;
+
+      if(!amount || amount <= 0) return alert('Enter a valid amount');
+
+      const btn = event.target;
+      btn.innerText = 'Processing...';
+      btn.disabled = true;
+
+      const result = await callApi('/api/adjust-balance', { user_id: userId, action, amount, reason });
+
+      if(result.success) {
+        alert('✅ Balance updated successfully!');
+        closeModal('balanceModal');
+        loadUsers(); // Refresh table
+      } else {
+        alert('❌ Error: ' + result.error);
+      }
+      btn.innerText = 'Confirm Update';
+      btn.disabled = false;
+    };
+
+    // 4. Team Modal Logic
+    window.openTeamModal = async function(userId) {
+      document.getElementById('teamModal').classList.add('active');
+      const content = document.getElementById('teamModalContent');
+      content.innerHTML = 'Loading...';
+
+      const { data: team, error } = await window.supabase
+        .from('profiles')
+        .select('full_name, email, created_at')
+        .eq('referred_by', userId);
+
+      if(error || !team || team.length === 0) {
+        content.innerHTML = '<p style="text-align:center; color:#94A3B8;">No direct referrals found.</p>';
+        return;
+      }
+
+      content.innerHTML = team.map(m => `
+        <div class="team-list-item">
+          <div>
+            <div style="font-weight:600;">${m.full_name || 'Unnamed'}</div>
+            <div style="font-size:12px;color:#94A3B8;">${m.email}</div>
+          </div>
+          <div style="font-size:12px;color:#64748B;">${new Date(m.created_at).toLocaleDateString()}</div>
+        </div>
+      `).join('');
+    };
+
+    // 5. Impersonate Logic
+    window.impersonateUser = async function(email) {
+      if(!confirm(`Open a new session as ${email}?`)) return;
+      
+      const result = await callApi('/api/impersonate', { email });
+      if(result.magic_link) {
+        window.open(result.magic_link, '_blank');
+        alert('✅ A magic login link has been generated and opened in a new tab.');
+      } else {
+        alert('❌ Error: ' + result.error);
+      }
+    };
+
+    // 6. Ban/Unban
+    window.toggleBan = async function(userId, currentStatus) {
+      const newStatus = !currentStatus;
+      if(!confirm(`Are you sure you want to ${newStatus ? 'UNBAN' : 'BAN'} this user?`)) return;
+
+      const { error } = await window.supabase.from('profiles').update({ is_active: newStatus }).eq('id', userId);
+      if(error) alert('Error updating status');
+      else loadUsers();
+    };
+
+    // Helper
+    window.closeModal = function(id) {
+      document.getElementById(id).classList.remove('active');
+    };
+
+    // Init
+    document.addEventListener('DOMContentLoaded', loadUsers);
+  </script>
+</body>
+</html>
