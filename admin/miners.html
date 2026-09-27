@@ -84,22 +84,53 @@
     }
 
     window.addMiner = async function() {
+      // 1. Get values from inputs
       const name = document.getElementById('newMinerName').value;
       const price = document.getElementById('newMinerPrice').value;
       const daily = document.getElementById('newMinerDaily').value;
       const duration = document.getElementById('newMinerDuration').value;
       const limit = document.getElementById('newMinerLimit').value;
 
-      if(!name || !price) return alert('Name and Price are required');
+      // 2. Validation
+      if(!name || !price || !daily || !duration) {
+        return alert('Please fill in Name, Price, Daily Revenue, and Duration.');
+      }
 
-      const { error } = await window.supabase.from('miners').insert({ name, price, daily_revenue: daily, duration_days: duration, purchase_limit: limit, is_active: true });
-      if(error) alert('Error: ' + error.message);
-      else { alert('✅ Plan added!'); loadMiners(); }
-    };
+      // 3. FIX: Convert empty strings to numbers (default to 0 or 1)
+      const safePrice = parseFloat(price) || 0;
+      const safeDaily = parseFloat(daily) || 0;
+      const safeDuration = parseInt(duration) || 0;
+      const safeLimit = parseInt(limit) || 1; // Default limit to 1 if empty
 
-    window.toggleMiner = async function(id, status) {
-      await window.supabase.from('miners').update({ is_active: !status }).eq('id', id);
-      loadMiners();
+      const btn = event.target;
+      btn.innerText = 'Saving...';
+      btn.disabled = true;
+
+      // 4. Insert into Database
+      const { error } = await window.supabase.from('miners').insert({ 
+        name: name, 
+        price: safePrice, 
+        daily_revenue: safeDaily, 
+        duration_days: safeDuration, 
+        purchase_limit: safeLimit, 
+        is_active: true 
+      });
+
+      if(error) {
+        alert('❌ Error: ' + error.message);
+      } else {
+        alert('✅ Plan added successfully!');
+        // Clear form
+        document.getElementById('newMinerName').value = '';
+        document.getElementById('newMinerPrice').value = '';
+        document.getElementById('newMinerDaily').value = '';
+        document.getElementById('newMinerDuration').value = '';
+        document.getElementById('newMinerLimit').value = '1';
+        loadMiners(); // Refresh table
+      }
+      
+      btn.innerText = 'Save New Plan';
+      btn.disabled = false;
     };
 
     document.addEventListener('DOMContentLoaded', loadMiners);
