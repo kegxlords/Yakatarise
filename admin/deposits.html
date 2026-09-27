@@ -93,20 +93,24 @@
       }).join('');
     }
 
-    // ===== SAFE DEPOSIT APPROVAL (FIXED) =====
+    // ===== FIXED DEPOSIT APPROVAL (Updates Total Deposits) =====
     window.approveDeposit = async function(id, userId, amount) {
       if(!confirm(`Approve ₦${Number(amount).toLocaleString()}?`)) return;
       
       try {
-        // 1. Find the user's wallet
+        // 1. Find the user's wallet safely
         let { data: wallet, error: wErr } = await window.supabase
           .from('wallets').select('balance, total_deposited').eq('user_id', userId).single();
           
         if (wErr || !wallet) throw new Error("User wallet not found.");
 
-        // 2. Calculate new totals
-        const newBalance = Number(wallet.balance) + Number(amount);
-        const newTotalDeposited = Number(wallet.total_deposited || 0) + Number(amount);
+        // 2. Calculate new totals (Ensure they are treated as numbers)
+        const currentBalance = Number(wallet.balance) || 0;
+        const currentTotalDeposited = Number(wallet.total_deposited) || 0;
+        const depositAmount = Number(amount);
+
+        const newBalance = currentBalance + depositAmount;
+        const newTotalDeposited = currentTotalDeposited + depositAmount;
 
         // 3. Update Wallet (Balance AND Total Deposited)
         const { error: uErr } = await window.supabase
@@ -124,8 +128,8 @@
           .from('transactions').update({ status: 'approved' }).eq('id', id);
         if (tErr) throw new Error("Failed to update transaction: " + tErr.message);
 
-        alert('✅ Approved successfully!');
-        loadDeposits(); 
+        alert('✅ Approved successfully! Total deposits updated.');
+        loadDeposits(); // Refresh the list
       } catch (err) {
         alert('❌ Error: ' + err.message);
       }
