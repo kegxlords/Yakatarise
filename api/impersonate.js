@@ -1,26 +1,31 @@
-import { supabaseAdmin, jsonResponse } from './_utils.js';
-import { getAdminUser } from './_auth.js';
+// api/impersonate.js
+import { createClient } from '@supabase/supabase-js';
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return jsonResponse(res, 405, { error: 'Method not allowed' });
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  try {
-    await getAdminUser(req); // Ensure only admins can do this
-    const { email } = req.body;
+  // Initialize Supabase with Secret Admin Keys
+  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
-    // Use Supabase Admin API to generate a magic link for the user
-    const { data, error } = await supabaseAdmin.auth.admin.generateLink({
-      type: 'magiclink',
-      email: email,
-    });
+  // 1. Verify the person clicking the button is actually an Admin
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ error: 'No token provided' });
 
-    if (error) throw error;
+  const { data: { user }, error: authError } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
+  if (authError || !user) return res.status(401).json({ error: 'Invalid session' });
 
-    // Return the link so the frontend can open it
-    return jsonResponse(res, 200, { magic_link: data.properties.action_link });
+  const { data: profile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single();
+  if (!profile?.is_admin) return res.status(403).json({ error: 'Admin privileges required' });
 
-  } catch (error) {
-    if (error.message.includes('Admin')) return jsonResponse(res, 403, { error: error.message });
-    return jsonResponse(res, 500, { error: 'Failed to generate link' });
-  }
+  // 2. Generate the Magic Login Link for the target user
+  const { email } = req.body;
+  const { data, error } = await supabase.auth.admin.generateLink({
+    type: 'magiclink',
+    email: email,
+  });
+
+  if (error) return res.status(500).json({ error: error.message });
+
+  // 3. Send the link back to the frontend
+  return res.status(200).json({ magic_link: data.properties.action_link });
 }
