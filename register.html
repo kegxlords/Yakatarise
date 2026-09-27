@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Forgot Password - JaKaTaRise Capital</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <style>
+    .auth-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); }
+    .auth-card { width: 100%; max-width: 420px; background: #fff; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-lg); border-top: 4px solid var(--accent); }
+    .auth-header { text-align: center; margin-bottom: 30px; }
+    .auth-header h2 { color: var(--primary); margin-bottom: 8px; }
+    .auth-links { text-align: center; margin-top: 20px; font-size: 14px; color: var(--text-muted); }
+    .auth-links a { color: var(--primary); font-weight: 600; }
+  </style>
+</head>
+<body>
+
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h2>Reset Password</h2>
+        <p class="text-muted">Enter your email to receive a reset link</p>
+      </div>
+
+      <div id="alert" class="alert"></div>
+
+      <form id="forgotForm">
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" id="email" class="form-input" placeholder="you@example.com" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Send Reset Link</button>
+      </form>
+
+      <div class="auth-links">
+        Remember your password? <a href="login.html">Sign In</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabaseUrl = 'YOUR_SUPABASE_URL';
+    const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    document.getElementById('forgotForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const alertBox = document.getElementById('alert');
+
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/change-password.html'
+      });
+
+      if (error) {
+        alertBox.textContent = error.message;
+        alertBox.className = 'alert alert-error show';
+      } else {
+        alertBox.textContent = 'If an account exists, a reset link has been sent.';
+        alertBox.className = 'alert alert-success show';
+      }
+    });
+  </script>
+</body>
+</html>
