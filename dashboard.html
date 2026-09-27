@@ -8,17 +8,14 @@
   <style>
     .dashboard-header { background: linear-gradient(135deg, #4A0404 0%, #8B0000 100%); color: #fff; padding: 40px 0; margin-bottom: 30px; }
     .dashboard-header h1 { color: #fff; margin-bottom: 10px; }
-    .dashboard-header p { opacity: 0.9; }
-    
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
     .stat-card { background: #fff; padding: 25px; border-radius: var(--radius); box-shadow: var(--shadow); border-left: 4px solid var(--primary); }
     .stat-card.gold { border-left-color: var(--accent); }
     .stat-card.green { border-left-color: var(--success); }
     .stat-label { font-size: 14px; color: var(--text-muted); margin-bottom: 10px; font-weight: 500; }
     .stat-value { font-size: 28px; font-weight: 800; color: var(--text-main); }
-    
     .quick-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
-    .action-btn { background: #fff; padding: 20px; border-radius: var(--radius); box-shadow: var(--shadow); text-align: center; font-weight: 600; color: var(--primary); transition: transform 0.2s; border: 1px solid var(--border); }
+    .action-btn { background: #fff; padding: 20px; border-radius: var(--radius); box-shadow: var(--shadow); text-align: center; font-weight: 600; color: var(--primary); transition: transform 0.2s; border: 1px solid var(--border); text-decoration: none; display: block;}
     .action-btn:hover { transform: translateY(-3px); border-color: var(--primary); }
   </style>
 </head>
@@ -27,39 +24,73 @@
 
   <header class="dashboard-header">
     <div class="container">
-      <h1>Welcome back, Miner!</h1>
+      <h1>Welcome back, <span id="userName">Miner</span>!</h1>
       <p>Here is your mining portfolio overview for today.</p>
     </div>
   </header>
 
   <main class="container" style="padding-bottom: 60px;">
-    <!-- Stats -->
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-label">Total Balance</div>
-        <div class="stat-value">₦0.00</div>
+        <div class="stat-value" id="statBalance">Loading...</div>
       </div>
       <div class="stat-card gold">
         <div class="stat-label">Active Miners</div>
-        <div class="stat-value">0</div>
+        <div class="stat-value" id="statMiners">Loading...</div>
       </div>
       <div class="stat-card green">
         <div class="stat-label">Today's Earnings</div>
-        <div class="stat-value">₦0.00</div>
+        <div class="stat-value" id="statEarnings">Loading...</div>
       </div>
     </div>
 
-    <!-- Quick Actions -->
     <h3 style="margin-bottom: 15px;">Quick Actions</h3>
     <div class="quick-actions">
       <a href="rent-miners.html" class="action-btn">⛏️ Rent a Miner</a>
       <a href="deposit.html" class="action-btn">💰 Deposit Funds</a>
-      <a href="withdraw.html" class="action-btn"> Withdraw</a>
+      <a href="withdraw.html" class="action-btn">💸 Withdraw</a>
       <a href="team.html" class="action-btn">👥 My Team</a>
     </div>
   </main>
 
   <div id="app-footer"></div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/components.js"></script>
+  <script src="assets/js/api-client.js"></script>
+  <script src="assets/js/auth-guard.js"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if(!session) return;
+
+      // 1. Fetch User Profile
+      const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', session.user.id).single();
+      if(profile) document.getElementById('userName').innerText = profile.full_name || 'Miner';
+
+      // 2. Fetch Wallet Balance
+      const { data: wallet } = await supabase.from('wallets').select('balance').eq('user_id', session.user.id).single();
+      const balance = wallet ? wallet.balance : 0;
+      document.getElementById('statBalance').innerText = '₦' + Number(balance).toLocaleString();
+
+      // 3. Fetch Active Miners & Calculate Daily Earnings
+      const { data: miners } = await supabase
+        .from('user_miners')
+        .select('*, miners(daily_revenue)')
+        .eq('user_id', session.user.id)
+        .eq('status', 'active');
+
+      const activeCount = miners ? miners.length : 0;
+      let dailyEarnings = 0;
+      if(miners) {
+        miners.forEach(m => { dailyEarnings += Number(m.miners.daily_revenue); });
+      }
+
+      document.getElementById('statMiners').innerText = activeCount;
+      document.getElementById('statEarnings').innerText = '₦' + dailyEarnings.toLocaleString();
+    });
+  </script>
 </body>
 </html>
