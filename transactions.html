@@ -3,28 +3,45 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Transactions - JaKaTaRise Capital</title>
+  <title>Transaction History - JaKaTaRise Capital</title>
   <link rel="stylesheet" href="assets/css/styles.css" />
   <style>
     .page-header-simple { padding: 20px; display: flex; align-items: center; gap: 15px; background: #fff; border-bottom: 1px solid #f0f0f0; position: sticky; top: 0; z-index: 50; }
     .back-btn { width: 36px; height: 36px; background: #F8FAFC; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; color: var(--text-main); font-weight: bold; }
     
     .filter-tabs { display: flex; gap: 10px; padding: 15px 20px; overflow-x: auto; background: #fff; border-bottom: 1px solid #f0f0f0; }
-    .tab-pill { padding: 8px 16px; background: #F8FAFC; border-radius: 20px; font-size: 13px; font-weight: 600; color: #64748B; white-space: nowrap; border: none; cursor: pointer; }
+    .tab-pill { padding: 8px 16px; background: #F8FAFC; border-radius: 20px; font-size: 13px; font-weight: 600; color: #64748B; white-space: nowrap; border: none; cursor: pointer; transition: all 0.2s; }
     .tab-pill.active { background: var(--primary); color: #fff; }
 
-    .tx-list { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+    .tx-list { padding: 20px; display: flex; flex-direction: column; gap: 12px; min-height: 200px; }
+    
     .tx-item { background: #fff; padding: 15px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; border: 1px solid #F1F5F9; }
-    .tx-icon { width: 40px; height: 40px; background: #F0FDF4; color: var(--success); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-right: 15px; }
+    .tx-left { display: flex; align-items: center; gap: 15px; flex: 1; }
+    
+    .tx-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+    .tx-icon.deposit { background: #F0FDF4; color: var(--success); }
     .tx-icon.withdraw { background: #FEF2F2; color: var(--danger); }
+    .tx-icon.mining { background: #FFFBEB; color: var(--accent); }
+    .tx-icon.referral { background: #F5F3FF; color: #8B5CF6; }
+    .tx-icon.purchase { background: #EFF6FF; color: #3B82F6; }
+
     .tx-info { flex: 1; }
     .tx-title { font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
     .tx-date { font-size: 11px; color: #94A3B8; }
-    .tx-amount { text-align: right; }
-    .tx-val { font-size: 15px; font-weight: 800; color: var(--text-main); }
-    .tx-status { font-size: 10px; padding: 3px 8px; border-radius: 10px; font-weight: 700; margin-top: 4px; display: inline-block; }
+    
+    .tx-right { text-align: right; }
+    .tx-val { font-size: 15px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; }
+    .tx-val.positive { color: var(--success); }
+    .tx-val.negative { color: var(--danger); }
+    
+    .tx-status { font-size: 10px; padding: 3px 8px; border-radius: 10px; font-weight: 700; display: inline-block; }
     .status-completed { background: #F0FDF4; color: var(--success); }
+    .status-approved { background: #F0FDF4; color: var(--success); }
     .status-pending { background: #FEF3C7; color: #D97706; }
+    .status-rejected { background: #FEF2F2; color: var(--danger); }
+
+    .empty-state { text-align: center; padding: 40px 20px; color: #94A3B8; grid-column: 1/-1; }
+    .empty-state h4 { color: var(--text-main); margin-bottom: 5px; }
   </style>
 </head>
 <body>
@@ -36,44 +53,128 @@
   </div>
 
   <div class="filter-tabs">
-    <button class="tab-pill active">All</button>
-    <button class="tab-pill">Deposits</button>
-    <button class="tab-pill">Withdrawals</button>
-    <button class="tab-pill">Mining Payouts</button>
+    <button class="tab-pill active" onclick="filterTransactions('all', this)">All</button>
+    <button class="tab-pill" onclick="filterTransactions('deposit', this)">Deposits</button>
+    <button class="tab-pill" onclick="filterTransactions('withdrawal', this)">Withdrawals</button>
+    <button class="tab-pill" onclick="filterTransactions('mining_payout', this)">Mining</button>
+    <button class="tab-pill" onclick="filterTransactions('referral_bonus', this)">Referrals</button>
   </div>
 
-  <div class="tx-list">
-    <!-- Mining Payout -->
-    <div class="tx-item">
-      <div class="tx-icon">⛏️</div>
-      <div class="tx-info">
-        <div class="tx-title">Mining Payout (Pre Grade)</div>
-        <div class="tx-date">Today, 12:00 AM</div>
-      </div>
-      <div class="tx-amount">
-        <div class="tx-val" style="color: var(--success);">+ 310.00</div>
-        <span class="tx-status status-completed">Completed</span>
-      </div>
-    </div>
-
-    <!-- Withdrawal -->
-    <div class="tx-item">
-      <div class="tx-icon withdraw">💸</div>
-      <div class="tx-info">
-        <div class="tx-title">Withdrawal to GTBank</div>
-        <div class="tx-date">Yesterday, 10:30 AM</div>
-      </div>
-      <div class="tx-amount">
-        <div class="tx-val" style="color: var(--danger);">- ₦5,000.00</div>
-        <span class="tx-status status-pending">Pending</span>
-      </div>
-    </div>
+  <div class="tx-list" id="txList">
+    <div style="text-align:center; padding: 40px; color: #94A3B8;">Loading transactions...</div>
   </div>
 
   <div id="app-footer"></div>
+  
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/components.js"></script>
   <script src="assets/js/api-client.js"></script>
   <script src="assets/js/auth-guard.js"></script>
+  
+  <script>
+    let allTransactions = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const { data: { session } } = await window.supabase.auth.getSession();
+      if(!session) return;
+
+      // Fetch real transactions from database
+      const { data: txs, error } = await window.supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .order('created_at', { ascending: false });
+
+      const container = document.getElementById('txList');
+
+      if (error) {
+        container.innerHTML = '<div class="empty-state"><h4>Error loading data</h4><p>Please check your connection.</p></div>';
+        return;
+      }
+
+      if (!txs || txs.length === 0) {
+        container.innerHTML = '<div class="empty-state"><h4>No Transactions Yet</h4><p>Your deposit, withdrawal, and mining history will appear here.</p></div>';
+        return;
+      }
+
+      allTransactions = txs;
+      renderTransactions(txs);
+    });
+
+    function renderTransactions(transactions) {
+      const container = document.getElementById('txList');
+      
+      if (transactions.length === 0) {
+        container.innerHTML = '<div class="empty-state"><h4>No matching transactions</h4></div>';
+        return;
+      }
+
+      container.innerHTML = transactions.map(tx => {
+        // Determine Icon and Title based on type
+        let iconClass = '', iconEmoji = '', title = '';
+        const rawAmount = Number(tx.amount);
+        const isPositive = ['deposit', 'mining_payout', 'referral_bonus'].includes(tx.type);
+        const amountClass = isPositive ? 'positive' : 'negative';
+        const sign = isPositive ? '+' : '-';
+        const absAmount = Math.abs(rawAmount).toLocaleString(undefined, {minimumFractionDigits: 2});
+
+        switch(tx.type) {
+          case 'deposit':
+            iconClass = 'deposit'; iconEmoji = '💳'; title = tx.description || 'Wallet Deposit'; break;
+          case 'withdrawal':
+            iconClass = 'withdraw'; iconEmoji = '💸'; title = tx.description || 'Withdrawal Request'; break;
+          case 'mining_payout':
+            iconClass = 'mining'; iconEmoji = '️'; title = tx.description || 'Daily Mining Payout'; break;
+          case 'referral_bonus':
+            iconClass = 'referral'; iconEmoji = '👥'; title = tx.description || 'Referral Commission'; break;
+          case 'miner_purchase':
+            iconClass = 'purchase'; iconEmoji = '🛒'; title = tx.description || 'Miner Rental'; break;
+          default:
+            iconClass = 'deposit'; iconEmoji = '📄'; title = tx.description || 'Transaction';
+        }
+
+        // Determine Status Badge
+        let statusClass = '', statusText = tx.status;
+        if(tx.status === 'completed' || tx.status === 'approved') { statusClass = 'status-completed'; statusText = 'Success'; }
+        else if(tx.status === 'pending') { statusClass = 'status-pending'; statusText = 'Pending'; }
+        else if(tx.status === 'rejected') { statusClass = 'status-rejected'; statusText = 'Failed'; }
+
+        // Format Date
+        const dateStr = new Date(tx.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const timeStr = new Date(tx.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+        return `
+          <div class="tx-item">
+            <div class="tx-left">
+              <div class="tx-icon ${iconClass}">${iconEmoji}</div>
+              <div class="tx-info">
+                <div class="tx-title">${title}</div>
+                <div class="tx-date">${dateStr} • ${timeStr}</div>
+              </div>
+            </div>
+            <div class="tx-right">
+              <div class="tx-val ${amountClass}">${sign} ₦${absAmount}</div>
+              <span class="tx-status ${statusClass}">${statusText}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Filter Functionality
+    window.filterTransactions = function(type, btnElement) {
+      // Update active tab styling
+      document.querySelectorAll('.tab-pill').forEach(btn => btn.classList.remove('active'));
+      btnElement.classList.add('active');
+
+      // Filter array
+      if (type === 'all') {
+        renderTransactions(allTransactions);
+      } else {
+        const filtered = allTransactions.filter(tx => tx.type === type);
+        renderTransactions(filtered);
+      }
+    };
+  </script>
 </body>
 </html>
