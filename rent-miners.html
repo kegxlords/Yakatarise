@@ -28,11 +28,64 @@
     </div>
   </header>
 
-  <main class="container">
-    <div class="miners-grid" id="minersContainer">
-      <div style="text-align:center; padding: 40px; grid-column: 1/-1;">Loading available miners...</div>
+  <main class="container" style="padding-top: 20px;">
+    <div id="minersContainer">
+      <!-- Miners injected here -->
     </div>
   </main>
+
+  <!-- Update the script at the bottom to render the new card style -->
+  <script>
+    // ... (Keep the fetch logic) ...
+    
+    // Inside the render loop, change the HTML template to this:
+    /*
+    container.innerHTML = miners.map(m => {
+      // Calculate daily rate percentage for the big number on the left
+      const dailyRatePercent = ((m.daily_revenue / m.price) * 100).toFixed(2);
+      
+      return `
+        <div class="miner-card-split">
+          <div class="miner-card-left">
+            <!-- You can use a real image URL here -->
+            <img src="https://cdn-icons-png.flaticon.com/512/2721/2721698.png" alt="Miner">
+            <div class="miner-rate">${dailyRatePercent}%</div>
+            <div class="miner-rate-label">Daily Rate</div>
+          </div>
+          <div class="miner-card-right">
+            <div>
+              <div class="miner-header-row">
+                <h3 class="miner-title">${m.name}</h3>
+                <span class="miner-badge">OPEN</span>
+              </div>
+              <span class="miner-term-badge">${m.duration_days} DAYS</span>
+              
+              <div class="miner-stats-grid">
+                <div class="miner-stat-item">
+                  <span class="miner-stat-label">Price</span>
+                  <span class="miner-stat-val">₦${Number(m.price).toLocaleString()}</span>
+                </div>
+                <div class="miner-stat-item">
+                  <span class="miner-stat-label">Term</span>
+                  <span class="miner-stat-val">${m.duration_days} Days</span>
+                </div>
+                <div class="miner-stat-item">
+                  <span class="miner-stat-label">Daily Return</span>
+                  <span class="miner-stat-val">₦${Number(m.daily_revenue).toLocaleString()}</span>
+                </div>
+                <div class="miner-stat-item">
+                  <span class="miner-stat-label">Total Return</span>
+                  <span class="miner-stat-val">₦${(Number(m.daily_revenue) * m.duration_days).toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+            <button class="btn-rent-split" onclick="rentMiner('${m.id}')">RENT NOW</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+    */
+  </script>
 
   <div id="app-footer"></div>
   
