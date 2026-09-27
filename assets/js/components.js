@@ -7,60 +7,31 @@ const headerHTML = `
         <div class="logo-icon">J</div>
         <span class="logo-text">JaKaTaRise</span>
       </a>
+      <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
       <div class="nav-links" id="navLinks">
-        <!-- Links injected by JS based on auth state -->
+        <!-- Links injected by JS -->
       </div>
     </div>
   </nav>
 `;
 
-const footerHTML = `
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-grid">
-        <div>
-          <h4 style="color: var(--accent);">JaKaTaRise Capital</h4>
-          <p style="font-size: 14px; margin-top: 10px;">Mining Resources, Building Futures.</p>
-        </div>
-        <div>
-          <h4 style="color: #fff;">Quick Links</h4>
-          <ul class="footer-links">
-            <li><a href="dashboard.html">Dashboard</a></li>
-            <li><a href="rent-miners.html">Rent Miners</a></li>
-            <li><a href="my-miners.html">My Miners</a></li>
-            <li><a href="contact.html">Contact Support</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4 style="color: #fff;">Legal</h4>
-          <ul class="footer-links">
-            <li><a href="#">Terms of Service</a></li>
-            <li><a href="#">Privacy Policy</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>&copy; 2024 JaKaTaRise Capital. All rights reserved.</p>
-      </div>
-    </div>
-  </footer>
-`;
+// ... (Keep the footerHTML exactly as it was in Phase 2) ...
 
 function loadComponents() {
-  // Inject Header & Footer
   const headerContainer = document.getElementById('app-header');
   const footerContainer = document.getElementById('app-footer');
   
   if (headerContainer) headerContainer.innerHTML = headerHTML;
   if (footerContainer) footerContainer.innerHTML = footerHTML;
 
-  // Simple Auth Check for Navigation Links
   const navLinks = document.getElementById('navLinks');
   if (navLinks) {
-    // In a real app, check Supabase session here. For now, we show logged-in state if on dashboard pages.
+    // Check if user is on an authenticated page
     const isAuthPage = window.location.pathname.includes('dashboard') || 
                        window.location.pathname.includes('rent-miners') || 
-                       window.location.pathname.includes('my-miners');
+                       window.location.pathname.includes('my-miners') ||
+                       window.location.pathname.includes('wallet') ||
+                       window.location.pathname.includes('team');
     
     if (isAuthPage) {
       navLinks.innerHTML = `
@@ -79,10 +50,28 @@ function loadComponents() {
   }
 }
 
+// Mobile Menu Toggle
+window.toggleMobileMenu = function() {
+  const nav = document.getElementById('navLinks');
+  if (nav.style.display === 'flex') {
+    nav.style.display = 'none';
+  } else {
+    nav.style.display = 'flex';
+    nav.style.flexDirection = 'column';
+    nav.style.position = 'absolute';
+    nav.style.top = '70px';
+    nav.style.left = '0';
+    nav.style.right = '0';
+    nav.style.background = '#fff';
+    nav.style.padding = '20px';
+    nav.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+    nav.style.zIndex = '99';
+  }
+}
+
 function logout() {
   // Add Supabase signOut logic here later
   window.location.href = 'login.html';
 }
 
-// Run on load
 document.addEventListener('DOMContentLoaded', loadComponents);
