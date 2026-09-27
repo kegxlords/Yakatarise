@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Redeem Gift Code - JaKaTaRise Capital</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <style>
+    .page-header-simple { padding: 20px; display: flex; align-items: center; gap: 15px; background: #fff; border-bottom: 1px solid #f0f0f0; }
+    .back-btn { width: 36px; height: 36px; background: #F8FAFC; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; color: var(--text-main); font-weight: bold; }
+    
+    .redeem-card { background: #fff; margin: 20px; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; }
+    .redeem-icon { font-size: 50px; margin-bottom: 15px; }
+    .redeem-card h2 { color: var(--text-main); margin-bottom: 10px; }
+    .redeem-card p { color: #64748B; font-size: 14px; margin-bottom: 25px; }
+    
+    .code-input { width: 100%; padding: 16px; border: 2px solid #E2E8F0; border-radius: 12px; font-size: 18px; text-align: center; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; outline: none; margin-bottom: 20px; }
+    .code-input:focus { border-color: var(--primary); }
+    
+    .redeem-alert { margin-top: 15px; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 600; display: none; }
+    .redeem-alert.success { background: #F0FDF4; color: var(--success); border: 1px solid #BBF7D0; display: block; }
+    .redeem-alert.error { background: #FEF2F2; color: var(--danger); border: 1px solid #FECACA; display: block; }
+  </style>
+</head>
+<body>
+  <div id="app-header"></div>
+
+  <div class="page-header-simple">
+    <a href="wallet.html" class="back-btn">‹</a>
+    <h2 style="margin: 0; font-size: 18px;">Redeem Gift Code</h2>
+  </div>
+
+  <div class="redeem-card">
+    <div class="redeem-icon">🎁</div>
+    <h2>Have a Gift Code?</h2>
+    <p>Enter your code below to instantly credit your wallet.</p>
+    
+    <input type="text" id="giftCodeInput" class="code-input" placeholder="ENTER CODE" />
+    <button class="btn btn-primary btn-block" style="border-radius: 12px; padding: 16px; font-size: 16px;" onclick="redeemCode()">Redeem Code</button>
+    
+    <div id="redeemAlert" class="redeem-alert"></div>
+  </div>
+
+  <div id="app-footer"></div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/components.js"></script>
+  <script src="assets/js/api-client.js"></script>
+  <script src="assets/js/auth-guard.js"></script>
+  <script>
+    window.redeemCode = async function() {
+      const code = document.getElementById('giftCodeInput').value.trim();
+      const alertBox = document.getElementById('redeemAlert');
+      const btn = event.target;
+
+      if (!code) {
+        alertBox.className = 'redeem-alert error';
+        alertBox.innerText = 'Please enter a code.';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = 'Processing...';
+      alertBox.className = 'redeem-alert';
+
+      const result = await callApi('/api/redeem-gift-code', { code });
+
+      if (result.success) {
+        alertBox.className = 'redeem-alert success';
+        alertBox.innerText = '✅ ' + result.message;
+        document.getElementById('giftCodeInput').value = '';
+      } else {
+        alertBox.className = 'redeem-alert error';
+        alertBox.innerText = '❌ ' + (result.error || 'Failed to redeem code.');
+      }
+
+      btn.disabled = false;
+      btn.innerText = 'Redeem Code';
+    };
+  </script>
+</body>
+</html>
