@@ -58,10 +58,10 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/api-client.js"></script>
   <script>
-    // 1. Auto-fill Referral Code from URL (e.g., register.html?ref=ABC123)
+    // 1. Auto-fill Referral Code from URL
     document.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
       const refCode = urlParams.get('ref');
@@ -72,7 +72,7 @@
 
     // 2. Handle Form Submission
     document.getElementById('registerForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
+      e.preventDefault(); // Stop page from reloading
       
       const fullName = document.getElementById('fullName').value.trim();
       const email = document.getElementById('email').value.trim();
@@ -87,19 +87,20 @@
       alertBox.className = 'alert';
       alertBox.style.display = 'none';
 
-      // Basic validation
       if (password.length < 6) {
         alertBox.textContent = 'Password must be at least 6 characters.';
         alertBox.className = 'alert alert-error show';
+        alertBox.style.display = 'block';
         return;
       }
 
-      // Loading state
       btn.disabled = true;
       btn.innerText = 'Creating account...';
 
       try {
-        const { data, error } = await supabase.auth.signUp({
+        console.log("Attempting to sign up:", email); // Debug log
+        
+        const { data, error } = await window.supabase.auth.signUp({
           email,
           password,
           options: {
@@ -112,19 +113,25 @@
         });
 
         if (error) {
+          console.error("Supabase Error:", error); // Debug log
           alertBox.textContent = error.message;
           alertBox.className = 'alert alert-error show';
+          alertBox.style.display = 'block';
           btn.disabled = false;
           btn.innerText = 'Create Account';
         } else {
-          alertBox.textContent = 'Account created successfully! Please check your email to verify your account, then login.';
+          console.log("Success:", data); // Debug log
+          alertBox.textContent = '✅ Account created! Please check your email to verify your account, then login.';
           alertBox.className = 'alert alert-success show';
+          alertBox.style.display = 'block';
           btn.innerText = 'Account Created';
           document.getElementById('registerForm').reset();
         }
       } catch (err) {
-        alertBox.textContent = 'An unexpected error occurred.';
+        console.error("Unexpected Error:", err); // Debug log
+        alertBox.textContent = 'An unexpected error occurred. Check console (F12).';
         alertBox.className = 'alert alert-error show';
+        alertBox.style.display = 'block';
         btn.disabled = false;
         btn.innerText = 'Create Account';
       }
