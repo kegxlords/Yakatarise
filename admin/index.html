@@ -28,7 +28,7 @@
   <main class="admin-main">
     <div class="admin-header">
       <h2>Dashboard Overview</h2>
-      <button class="btn btn-outline btn-sm" onclick="location.reload()"> Refresh Data</button>
+      <button class="btn btn-outline btn-sm" onclick="location.reload()">🔄 Refresh Data</button>
     </div>
 
     <div class="stats-grid">
@@ -47,6 +47,14 @@
       <div class="stat-card green">
         <div class="stat-label">Total Platform Revenue</div>
         <div class="stat-value" id="statRevenue">...</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Active Miners Running</div>
+        <div class="stat-value" id="statActiveMiners">...</div>
+      </div>
+      <div class="stat-card gold">
+        <div class="stat-label">Total Payouts (Withdrawals)</div>
+        <div class="stat-value" id="statTotalPayouts">...</div>
       </div>
     </div>
 
@@ -80,37 +88,33 @@
       document.getElementById('statUsers').innerText = userCount || 0;
 
       // 2. Count Pending Deposits
-      const { count: depCount } = await window.supabase
-        .from('transactions')
-        .select('*', { count: 'exact', head: true })
-        .eq('type', 'deposit').eq('status', 'pending');
+      const { count: depCount } = await window.supabase.from('transactions').select('*', { count: 'exact', head: true }).eq('type', 'deposit').eq('status', 'pending');
       document.getElementById('statDeps').innerText = depCount || 0;
 
       // 3. Count Pending Withdrawals
-      const { count: withCount } = await window.supabase
-        .from('transactions')
-        .select('*', { count: 'exact', head: true })
-        .eq('type', 'withdrawal').eq('status', 'pending');
+      const { count: withCount } = await window.supabase.from('transactions').select('*', { count: 'exact', head: true }).eq('type', 'withdrawal').eq('status', 'pending');
       document.getElementById('statWiths').innerText = withCount || 0;
 
-      // 4. Calculate Total Revenue (Sum of all Approved Deposits)
-      const { data: approvedDeps } = await window.supabase
-        .from('transactions')
-        .select('amount')
-        .eq('type', 'deposit').eq('status', 'approved');
-      
+      // 4. Calculate Total Revenue (Approved Deposits)
+      const { data: approvedDeps } = await window.supabase.from('transactions').select('amount').eq('type', 'deposit').eq('status', 'approved');
       let totalRev = 0;
       if(approvedDeps) approvedDeps.forEach(t => totalRev += Number(t.amount));
       document.getElementById('statRevenue').innerText = '₦' + totalRev.toLocaleString();
 
-      // 5. Load Recent Activity
-      const { data: recentTx } = await window.supabase
-        .from('transactions')
-        .select('*, profiles(email)')
-        .order('created_at', { ascending: false })
-        .limit(5);
+      // 5. Count Active Miners
+      const { count: activeMiners } = await window.supabase.from('user_miners').select('*', { count: 'exact', head: true }).eq('status', 'active');
+      document.getElementById('statActiveMiners').innerText = activeMiners || 0;
 
+      // 6. Calculate Total Payouts (Approved Withdrawals)
+      const { data: approvedWiths } = await window.supabase.from('transactions').select('amount').eq('type', 'withdrawal').eq('status', 'approved');
+      let totalPayouts = 0;
+      if(approvedWiths) approvedWiths.forEach(t => totalPayouts += Number(t.amount));
+      document.getElementById('statTotalPayouts').innerText = '₦' + totalPayouts.toLocaleString();
+
+      // 7. Load Recent Activity
+      const { data: recentTx } = await window.supabase.from('transactions').select('*, profiles(email)').order('created_at', { ascending: false }).limit(5);
       const tbody = document.getElementById('activityTableBody');
+      
       if(recentTx && recentTx.length > 0) {
         tbody.innerHTML = recentTx.map(tx => `
           <tr>
