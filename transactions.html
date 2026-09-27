@@ -3,75 +3,77 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Transaction History - JaKaTaRise Capital</title>
+  <title>Transactions - JaKaTaRise Capital</title>
   <link rel="stylesheet" href="assets/css/styles.css" />
   <style>
-    .page-header { padding: 40px 0; text-align: center; }
-    .page-header h1 { color: var(--primary); }
+    .page-header-simple { padding: 20px; display: flex; align-items: center; gap: 15px; background: #fff; border-bottom: 1px solid #f0f0f0; position: sticky; top: 0; z-index: 50; }
+    .back-btn { width: 36px; height: 36px; background: #F8FAFC; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; color: var(--text-main); font-weight: bold; }
     
-    .filter-tabs { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 10px; }
-    .filter-btn { padding: 8px 16px; background: #fff; border: 1px solid var(--border); border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
-    .filter-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
-    
-    .tx-list { display: flex; flex-direction: column; gap: 15px; padding-bottom: 60px; }
-    .tx-item { background: #fff; padding: 15px; border-radius: var(--radius); box-shadow: var(--shadow); display: flex; justify-content: space-between; align-items: center; }
-    .tx-info h4 { font-size: 15px; margin-bottom: 4px; }
-    .tx-info p { font-size: 12px; color: var(--text-muted); }
+    .filter-tabs { display: flex; gap: 10px; padding: 15px 20px; overflow-x: auto; background: #fff; border-bottom: 1px solid #f0f0f0; }
+    .tab-pill { padding: 8px 16px; background: #F8FAFC; border-radius: 20px; font-size: 13px; font-weight: 600; color: #64748B; white-space: nowrap; border: none; cursor: pointer; }
+    .tab-pill.active { background: var(--primary); color: #fff; }
+
+    .tx-list { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+    .tx-item { background: #fff; padding: 15px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; border: 1px solid #F1F5F9; }
+    .tx-icon { width: 40px; height: 40px; background: #F0FDF4; color: var(--success); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-right: 15px; }
+    .tx-icon.withdraw { background: #FEF2F2; color: var(--danger); }
+    .tx-info { flex: 1; }
+    .tx-title { font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+    .tx-date { font-size: 11px; color: #94A3B8; }
     .tx-amount { text-align: right; }
-    .tx-amount div { font-weight: 800; font-size: 16px; }
-    .tx-amount.positive { color: var(--success); }
-    .tx-amount.negative { color: var(--danger); }
-    .status-pill { font-size: 10px; padding: 3px 8px; border-radius: 10px; font-weight: 700; text-transform: uppercase; }
-    .status-approved { background: #F0FDF4; color: var(--success); }
+    .tx-val { font-size: 15px; font-weight: 800; color: var(--text-main); }
+    .tx-status { font-size: 10px; padding: 3px 8px; border-radius: 10px; font-weight: 700; margin-top: 4px; display: inline-block; }
+    .status-completed { background: #F0FDF4; color: var(--success); }
     .status-pending { background: #FEF3C7; color: #D97706; }
   </style>
 </head>
 <body>
   <div id="app-header"></div>
 
-  <header class="page-header">
-    <div class="container">
-      <h1>Transaction History</h1>
-      <p class="text-muted">Track all your deposits, withdrawals, and mining payouts.</p>
-    </div>
-  </header>
+  <div class="page-header-simple">
+    <a href="wallet.html" class="back-btn">‹</a>
+    <h2 style="margin: 0; font-size: 18px;">Transaction History</h2>
+  </div>
 
-  <main class="container">
-    <div class="filter-tabs">
-      <button class="filter-btn active">All</button>
-      <button class="filter-btn">Deposits</button>
-      <button class="filter-btn">Withdrawals</button>
-      <button class="filter-btn">Mining Payouts</button>
-    </div>
+  <div class="filter-tabs">
+    <button class="tab-pill active">All</button>
+    <button class="tab-pill">Deposits</button>
+    <button class="tab-pill">Withdrawals</button>
+    <button class="tab-pill">Mining Payouts</button>
+  </div>
 
-    <div class="tx-list">
-      <!-- Mock Transaction 1 -->
-      <div class="tx-item">
-        <div class="tx-info">
-          <h4>Mining Payout (Pre Grade)</h4>
-          <p>Today, 12:00 AM</p>
-        </div>
-        <div class="tx-amount positive">
-          <div>+ ₦310.00</div>
-          <span class="status-pill status-approved">Completed</span>
-        </div>
+  <div class="tx-list">
+    <!-- Mining Payout -->
+    <div class="tx-item">
+      <div class="tx-icon">⛏️</div>
+      <div class="tx-info">
+        <div class="tx-title">Mining Payout (Pre Grade)</div>
+        <div class="tx-date">Today, 12:00 AM</div>
       </div>
-
-      <!-- Mock Transaction 2 -->
-      <div class="tx-item">
-        <div class="tx-info">
-          <h4>Withdrawal to GTBank</h4>
-          <p>Yesterday, 10:30 AM</p>
-        </div>
-        <div class="tx-amount negative">
-          <div>- ₦5,000.00</div>
-          <span class="status-pill status-pending">Pending</span>
-        </div>
+      <div class="tx-amount">
+        <div class="tx-val" style="color: var(--success);">+ 310.00</div>
+        <span class="tx-status status-completed">Completed</span>
       </div>
     </div>
-  </main>
+
+    <!-- Withdrawal -->
+    <div class="tx-item">
+      <div class="tx-icon withdraw">💸</div>
+      <div class="tx-info">
+        <div class="tx-title">Withdrawal to GTBank</div>
+        <div class="tx-date">Yesterday, 10:30 AM</div>
+      </div>
+      <div class="tx-amount">
+        <div class="tx-val" style="color: var(--danger);">- ₦5,000.00</div>
+        <span class="tx-status status-pending">Pending</span>
+      </div>
+    </div>
+  </div>
 
   <div id="app-footer"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/components.js"></script>
+  <script src="assets/js/api-client.js"></script>
+  <script src="assets/js/auth-guard.js"></script>
 </body>
 </html>
