@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Withdrawals - JaKaTaRise Admin</title>
+  <link rel="stylesheet" href="../assets/css/styles.css" />
+  <link rel="stylesheet" href="../assets/css/admin.css" />
+</head>
+<body>
+
+  <aside class="admin-sidebar">
+    <div class="admin-logo">
+      <div style="width:30px;height:30px;background:var(--primary);color:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;">J</div>
+      JaKaTaRise Admin
+    </div>
+    <nav class="admin-nav">
+      <a href="index.html"> Overview</a>
+      <a href="users.html">👥 Users</a>
+      <a href="deposits.html">💰 Deposits</a>
+      <a href="withdrawals.html" class="active">💸 Withdrawals</a>
+      <a href="miners.html">️ Mining Plans</a>
+      <a href="settings.html">⚙️ Global Settings</a>
+      <a href="../index.html" style="margin-top: 20px; border-top: 1px solid #1E293B; padding-top: 20px;">🌐 View Live Site</a>
+    </nav>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-header">
+      <h2>Withdrawal Requests</h2>
+      <div>
+        <select class="form-input" style="width: auto; padding: 8px 12px;">
+          <option>Pending Only</option>
+          <option>Approved</option>
+          <option>Rejected</option>
+          <option>All</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-card" style="padding: 0; overflow: hidden;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Amount</th>
+            <th>Fee (8%)</th>
+            <th>Net Payout</th>
+            <th>Bank Details</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Pending Request -->
+          <tr>
+            <td>
+              <div style="font-weight:600;">alice.smith@email.com</div>
+              <div style="font-size:12px;color:var(--text-muted);">ID: #8X92</div>
+            </td>
+            <td style="font-weight:700;">₦15,000</td>
+            <td style="color:var(--danger);">- ₦1,200</td>
+            <td style="font-weight:800; color:var(--success);">₦13,800</td>
+            <td>
+              <div>GTBank</div>
+              <div style="font-size:12px;color:var(--text-muted);">0123456789</div>
+              <div style="font-size:12px;color:var(--text-muted);">Alice Smith</div>
+            </td>
+            <td>Oct 24, 2024<br/><span style="font-size:12px;color:var(--text-muted);">10:30 AM</span></td>
+            <td>
+              <button class="btn btn-sm btn-approve" onclick="alert('Approved & Credited!')">Approve</button>
+              <button class="btn btn-sm btn-reject" onclick="alert('Rejected & Refunded!')">Reject</button>
+            </td>
+          </tr>
+          
+          <!-- Another Pending Request -->
+          <tr>
+            <td>
+              <div style="font-weight:600;">mike.ross@email.com</div>
+              <div style="font-size:12px;color:var(--text-muted);">ID: #8X93</div>
+            </td>
+            <td style="font-weight:700;">₦5,000</td>
+            <td style="color:var(--danger);">- ₦400</td>
+            <td style="font-weight:800; color:var(--success);">₦4,600</td>
+            <td>
+              <div>Opay</div>
+              <div style="font-size:12px;color:var(--text-muted);">9087654321</div>
+              <div style="font-size:12px;color:var(--text-muted);">Mike Ross</div>
+            </td>
+            <td>Oct 24, 2024<br/><span style="font-size:12px;color:var(--text-muted);">11:15 AM</span></td>
+            <td>
+              <button class="btn btn-sm btn-approve" onclick="alert('Approved & Credited!')">Approve</button>
+              <button class="btn btn-sm btn-reject" onclick="alert('Rejected & Refunded!')">Reject</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+</body>
+</html>
