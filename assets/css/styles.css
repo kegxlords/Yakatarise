@@ -106,3 +106,8 @@ h1, h2, h3, h4 { font-weight: 700; line-height: 1.2; color: var(--text-main); }
   .nav-links { display: none; /* Add a mobile hamburger menu later */ }
   .footer-grid { grid-template-columns: 1fr; gap: 30px; }
 }
+.mobile-menu-btn { display: none; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--primary); }
+@media (max-width: 768px) {
+  .mobile-menu-btn { display: block; }
+  .nav-links { display: none; } /* Hidden by default on mobile */
+}
