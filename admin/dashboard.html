@@ -12,382 +12,137 @@
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     
     body {
-      margin: 0;
-      padding: 0;
-      background: #000000;
-      color: #FFFFFF;
+      margin: 0; padding: 0;
+      background: #000000; color: #FFFFFF;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      min-height: 100vh;
-      padding-bottom: 80px;
+      min-height: 100vh; padding-bottom: 80px;
     }
 
     /* Header */
     .admin-top-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px 20px;
-      background: #000000;
-      border-bottom: 1px solid #1C1C1E;
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 20px; background: #000000; border-bottom: 1px solid #1C1C1E;
+      position: sticky; top: 0; z-index: 100;
     }
-    .admin-brand {
-      font-size: 20px;
-      font-weight: 800;
-      color: #FFFFFF;
-    }
+    .admin-brand { font-size: 20px; font-weight: 800; color: #FFFFFF; }
     .admin-brand span { color: #8B0000; }
     .admin-badge {
-      background: #8B0000;
-      color: #D4AF37;
-      padding: 4px 12px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 1px;
+      background: #8B0000; color: #D4AF37; padding: 4px 12px;
+      border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 1px;
     }
-    .admin-signout {
-      color: #8E8E93;
-      font-size: 14px;
-      text-decoration: none;
-      margin-left: 12px;
-    }
+    .admin-signout { color: #8E8E93; font-size: 14px; text-decoration: none; margin-left: 12px; }
 
     /* Horizontal Scroll Tabs */
     .admin-tabs-scroll {
-      display: flex;
-      overflow-x: auto;
-      gap: 8px;
-      padding: 12px 16px;
-      background: #000000;
-      border-bottom: 1px solid #1C1C1E;
-      position: sticky;
-      top: 57px;
-      z-index: 99;
-      scrollbar-width: none;
+      display: flex; overflow-x: auto; gap: 8px; padding: 12px 16px;
+      background: #000000; border-bottom: 1px solid #1C1C1E;
+      position: sticky; top: 57px; z-index: 99; scrollbar-width: none;
     }
     .admin-tabs-scroll::-webkit-scrollbar { display: none; }
     
     .admin-tab {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 10px 16px;
-      background: #1C1C1E;
-      border: 1px solid #2C2C2E;
-      border-radius: 10px;
-      color: #8E8E93;
-      font-size: 13px;
-      font-weight: 600;
-      white-space: nowrap;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-decoration: none;
+      display: flex; align-items: center; gap: 6px; padding: 10px 16px;
+      background: #1C1C1E; border: 1px solid #2C2C2E; border-radius: 10px;
+      color: #8E8E93; font-size: 13px; font-weight: 600; white-space: nowrap;
+      cursor: pointer; transition: all 0.2s; text-decoration: none;
     }
-    .admin-tab.active {
-      background: #8B0000;
-      border-color: #8B0000;
-      color: #D4AF37;
-    }
+    .admin-tab.active { background: #8B0000; border-color: #8B0000; color: #D4AF37; }
     .admin-tab-icon { font-size: 16px; }
 
     /* Sections */
-    .admin-section {
-      display: none;
-      padding: 16px;
-      animation: fadeIn 0.3s ease;
-    }
+    .admin-section { display: none; padding: 16px; animation: fadeIn 0.3s ease; }
     .admin-section.active { display: block; }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
     /* Cards */
-    .dark-card {
-      background: #1C1C1E;
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 16px;
-      border: 1px solid #2C2C2E;
-    }
-    .dark-card-title {
-      font-size: 17px;
-      font-weight: 700;
-      margin-bottom: 16px;
-      color: #FFFFFF;
-    }
+    .dark-card { background: #1C1C1E; border-radius: 16px; padding: 20px; margin-bottom: 16px; border: 1px solid #2C2C2E; }
+    .dark-card-title { font-size: 17px; font-weight: 700; margin-bottom: 16px; color: #FFFFFF; }
 
     /* Stats Grid */
-    .stats-grid-dark {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .stat-box-dark {
-      background: #1C1C1E;
-      border-radius: 12px;
-      padding: 16px;
-      border: 1px solid #2C2C2E;
-    }
-    .stat-box-dark .lbl {
-      font-size: 11px;
-      color: #8E8E93;
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .stat-box-dark .val {
-      font-size: 22px;
-      font-weight: 800;
-      color: #FFFFFF;
-    }
+    .stats-grid-dark { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .stat-box-dark { background: #1C1C1E; border-radius: 12px; padding: 16px; border: 1px solid #2C2C2E; }
+    .stat-box-dark .lbl { font-size: 11px; color: #8E8E93; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-box-dark .val { font-size: 22px; font-weight: 800; color: #FFFFFF; }
     .stat-box-dark .val.gold { color: #D4AF37; }
     .stat-box-dark .val.red { color: #FF453A; }
     .stat-box-dark .val.green { color: #30D158; }
 
-    /* Info Banner */
-    .info-banner {
-      background: rgba(139, 0, 0, 0.15);
-      border: 1px solid #8B0000;
-      border-radius: 12px;
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 13px;
-      color: #FF6B6B;
-      margin-bottom: 16px;
-    }
-    .info-banner .icon { font-size: 20px; }
-
-    /* Toggle Switch */
-    .toggle-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 14px 0;
-      border-bottom: 1px solid #2C2C2E;
-    }
-    .toggle-row:last-child { border-bottom: none; }
-    .toggle-label { font-size: 14px; font-weight: 600; }
-    .toggle-sublabel { font-size: 12px; color: #8E8E93; margin-top: 2px; }
-    
-    .toggle-switch {
-      position: relative;
-      width: 50px;
-      height: 30px;
-      background: #3A3A3C;
-      border-radius: 15px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    .toggle-switch.on { background: #30D158; }
-    .toggle-switch::after {
-      content: '';
-      position: absolute;
-      top: 3px;
-      left: 3px;
-      width: 24px;
-      height: 24px;
-      background: #FFFFFF;
-      border-radius: 50%;
-      transition: transform 0.3s;
-    }
-    .toggle-switch.on::after { transform: translateX(20px); }
-
-    /* Forms */
+    /* Forms & Inputs */
     .dark-input {
-      width: 100%;
-      padding: 14px 16px;
-      background: #0A0A0A;
-      border: 1px solid #2C2C2E;
-      border-radius: 10px;
-      color: #FFFFFF;
-      font-size: 14px;
-      margin-bottom: 12px;
-      outline: none;
+      width: 100%; padding: 14px 16px; background: #0A0A0A; border: 1px solid #2C2C2E;
+      border-radius: 10px; color: #FFFFFF; font-size: 14px; margin-bottom: 12px; outline: none;
     }
     .dark-input:focus { border-color: #8B0000; }
-    .dark-input::placeholder { color: #636366; }
+    .dark-label { display: block; font-size: 12px; color: #8E8E93; margin-bottom: 6px; font-weight: 500; }
     
-    .dark-label {
-      display: block;
-      font-size: 12px;
-      color: #8E8E93;
-      margin-bottom: 6px;
-      font-weight: 500;
-    }
-
     .btn-dark {
-      width: 100%;
-      padding: 14px;
-      background: #8B0000;
-      color: #D4AF37;
-      border: none;
-      border-radius: 10px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      margin-top: 8px;
+      width: 100%; padding: 14px; background: #8B0000; color: #D4AF37; border: none;
+      border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 8px;
     }
     .btn-dark:active { opacity: 0.8; }
-    .btn-dark-outline {
-      background: transparent;
-      border: 1px solid #2C2C2E;
-      color: #FFFFFF;
-    }
 
-    /* Tables (Horizontal Scroll) */
-    .table-scroll {
-      overflow-x: auto;
-      border-radius: 12px;
-      border: 1px solid #2C2C2E;
-    }
-    .dark-table {
-      width: 100%;
-      min-width: 500px;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
+    /* Tables */
+    .table-scroll { overflow-x: auto; border-radius: 12px; border: 1px solid #2C2C2E; }
+    .dark-table { width: 100%; min-width: 500px; border-collapse: collapse; font-size: 13px; }
     .dark-table th {
-      background: #0A0A0A;
-      padding: 12px;
-      text-align: left;
-      font-size: 11px;
-      color: #8E8E93;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      border-bottom: 1px solid #2C2C2E;
+      background: #0A0A0A; padding: 12px; text-align: left; font-size: 11px;
+      color: #8E8E93; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #2C2C2E;
     }
-    .dark-table td {
-      padding: 14px 12px;
-      border-bottom: 1px solid #1C1C1E;
-      color: #FFFFFF;
-    }
+    .dark-table td { padding: 14px 12px; border-bottom: 1px solid #1C1C1E; color: #FFFFFF; }
     .dark-table tr:last-child td { border-bottom: none; }
 
-    /* Badges */
-    .badge-dark {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 700;
-    }
+    /* Badges & Buttons */
+    .badge-dark { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; }
     .badge-green { background: rgba(48, 209, 88, 0.15); color: #30D158; }
     .badge-yellow { background: rgba(255, 204, 0, 0.15); color: #FFCC00; }
     .badge-red { background: rgba(255, 69, 58, 0.15); color: #FF453A; }
 
-    /* Action Buttons */
     .action-btns { display: flex; gap: 6px; }
-    .btn-tiny {
-      padding: 6px 10px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-    }
+    .btn-tiny { padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; border: none; cursor: pointer; }
     .btn-tiny-approve { background: #30D158; color: #000; }
     .btn-tiny-reject { background: #FF453A; color: #fff; }
-    .btn-tiny-view { background: #FFCC00; color: #000; }
-
-    /* Modal */
-    .modal-dark {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.8);
-      display: none;
-      align-items: flex-end;
-      justify-content: center;
-      z-index: 1000;
-    }
-    .modal-dark.active { display: flex; }
-    .modal-dark-content {
-      background: #1C1C1E;
-      width: 100%;
-      max-width: 500px;
-      border-radius: 20px 20px 0 0;
-      padding: 24px;
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-    .modal-dark-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    .modal-dark-header h3 { margin: 0; font-size: 18px; }
-    .modal-close {
-      background: #2C2C2E;
-      border: none;
-      color: #fff;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      font-size: 18px;
-      cursor: pointer;
-    }
+    .btn-tiny-view { background: #FF9500; color: #000; } /* Orange for View */
 
     /* Search */
     .search-bar {
-      display: flex;
-      align-items: center;
-      background: #0A0A0A;
-      border: 1px solid #2C2C2E;
-      border-radius: 10px;
-      padding: 10px 14px;
-      margin-bottom: 16px;
+      display: flex; align-items: center; background: #0A0A0A; border: 1px solid #2C2C2E;
+      border-radius: 10px; padding: 10px 14px; margin-bottom: 16px;
     }
-    .search-bar input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      color: #fff;
-      font-size: 14px;
-      outline: none;
-      margin-left: 8px;
-    }
+    .search-bar input { flex: 1; background: transparent; border: none; color: #fff; font-size: 14px; outline: none; margin-left: 8px; }
 
-    /* Checkbox Days */
-    .days-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      margin-top: 10px;
+    /* ==========================================
+       NEW: HIGHLY VISIBLE DAY SELECTOR
+       ========================================== */
+    .days-selector {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px;
     }
-    .day-check {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px;
-      background: #0A0A0A;
-      border: 1px solid #2C2C2E;
-      border-radius: 8px;
-      font-size: 12px;
-      color: #8E8E93;
-      cursor: pointer;
+    .day-btn {
+      background: #0A0A0A; border: 1px solid #3A3A3C; color: #8E8E93;
+      padding: 14px 0; border-radius: 10px; text-align: center;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      transition: all 0.2s; user-select: none;
     }
-    .day-check.checked {
-      background: #8B0000;
-      border-color: #8B0000;
-      color: #D4AF37;
+    /* When selected, it turns Burgundy with Gold text */
+    .day-btn.selected {
+      background: #8B0000; border-color: #D4AF37; color: #D4AF37;
+      box-shadow: 0 0 12px rgba(139, 0, 0, 0.4);
     }
-    .day-check input { display: none; }
+    .day-btn input { display: none; }
 
-    /* Loading */
-    .loading-text {
-      text-align: center;
-      padding: 30px;
-      color: #8E8E93;
-      font-size: 14px;
+    /* Modal */
+    .modal-dark {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+      display: none; align-items: flex-end; justify-content: center; z-index: 1000;
     }
+    .modal-dark.active { display: flex; }
+    .modal-dark-content {
+      background: #1C1C1E; width: 100%; max-width: 500px;
+      border-radius: 20px 20px 0 0; padding: 24px; max-height: 80vh; overflow-y: auto;
+    }
+    .modal-dark-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-dark-header h3 { margin: 0; font-size: 18px; }
+    .modal-close { background: #2C2C2E; border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; font-size: 18px; cursor: pointer; }
+    .loading-text { text-align: center; padding: 30px; color: #8E8E93; font-size: 14px; }
   </style>
 </head>
 <body>
@@ -406,261 +161,180 @@
     <div class="admin-tab active" onclick="showSection('overview', this)"><span class="admin-tab-icon">📊</span> Overview</div>
     <div class="admin-tab" onclick="showSection('users', this)"><span class="admin-tab-icon">👥</span> Users</div>
     <div class="admin-tab" onclick="showSection('deposits', this)"><span class="admin-tab-icon">💰</span> Deposits</div>
-    <div class="admin-tab" onclick="showSection('withdrawals', this)"><span class="admin-tab-icon">💸</span> Withdrawals</div>
+    <div class="admin-tab" onclick="showSection('withdrawals', this)"><span class="admin-tab-icon"></span> Withdrawals</div>
     <div class="admin-tab" onclick="showSection('miners', this)"><span class="admin-tab-icon">⛏️</span> Miners</div>
     <div class="admin-tab" onclick="showSection('giftcodes', this)"><span class="admin-tab-icon">🎁</span> Gift Codes</div>
     <div class="admin-tab" onclick="showSection('settings', this)"><span class="admin-tab-icon">⚙️</span> Settings</div>
   </nav>
 
-  <!-- ==================== OVERVIEW SECTION ==================== -->
+  <!-- ==================== OVERVIEW ==================== -->
   <section id="section-overview" class="admin-section active">
     <div class="stats-grid-dark">
-      <div class="stat-box-dark">
-        <div class="lbl">Total Users</div>
-        <div class="val" id="statUsers">...</div>
-      </div>
-      <div class="stat-box-dark">
-        <div class="lbl">Pending Deposits</div>
-        <div class="val gold" id="statDeps">...</div>
-      </div>
-      <div class="stat-box-dark">
-        <div class="lbl">Pending Withdrawals</div>
-        <div class="val red" id="statWiths">...</div>
-      </div>
-      <div class="stat-box-dark">
-        <div class="lbl">Total Revenue</div>
-        <div class="val green" id="statRevenue">...</div>
-      </div>
-      <div class="stat-box-dark">
-        <div class="lbl">Active Miners</div>
-        <div class="val" id="statActiveMiners">...</div>
-      </div>
-      <div class="stat-box-dark">
-        <div class="lbl">Total Payouts</div>
-        <div class="val gold" id="statTotalPayouts">...</div>
-      </div>
+      <div class="stat-box-dark"><div class="lbl">Total Users</div><div class="val" id="statUsers">...</div></div>
+      <div class="stat-box-dark"><div class="lbl">Pending Deposits</div><div class="val gold" id="statDeps">...</div></div>
+      <div class="stat-box-dark"><div class="lbl">Pending Withdrawals</div><div class="val red" id="statWiths">...</div></div>
+      <div class="stat-box-dark"><div class="lbl">Total Revenue</div><div class="val green" id="statRevenue">...</div></div>
+      <div class="stat-box-dark"><div class="lbl">Active Miners</div><div class="val" id="statActiveMiners">...</div></div>
+      <div class="stat-box-dark"><div class="lbl">Total Payouts</div><div class="val gold" id="statTotalPayouts">...</div></div>
     </div>
-
     <div class="dark-card">
       <div class="dark-card-title">Recent Activity</div>
       <div class="table-scroll">
         <table class="dark-table">
-          <thead>
-            <tr><th>User</th><th>Type</th><th>Amount</th><th>Status</th><th>Date</th></tr>
-          </thead>
-          <tbody id="activityTableBody">
-            <tr><td colspan="5" class="loading-text">Loading...</td></tr>
-          </tbody>
+          <thead><tr><th>User</th><th>Type</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+          <tbody id="activityTableBody"><tr><td colspan="5" class="loading-text">Loading...</td></tr></tbody>
         </table>
       </div>
     </div>
   </section>
 
-  <!-- ==================== USERS SECTION ==================== -->
+  <!-- ==================== USERS ==================== -->
   <section id="section-users" class="admin-section">
-    <div class="search-bar">
-      <span>🔍</span>
-      <input type="text" id="userSearch" placeholder="Search by name or email..." onkeyup="filterUsers()" />
-    </div>
-
+    <div class="search-bar"><span>🔍</span><input type="text" id="userSearch" placeholder="Search by name or email..." onkeyup="filterUsers()" /></div>
     <div class="dark-card">
       <div class="table-scroll">
         <table class="dark-table">
-          <thead>
-            <tr><th>User</th><th>Balance</th><th>Status</th><th>Joined</th><th>Actions</th></tr>
-          </thead>
-          <tbody id="usersTableBody">
-            <tr><td colspan="5" class="loading-text">Loading users...</td></tr>
-          </tbody>
+          <thead><tr><th>User</th><th>Balance</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
+          <tbody id="usersTableBody"><tr><td colspan="5" class="loading-text">Loading users...</td></tr></tbody>
         </table>
       </div>
     </div>
   </section>
 
-  <!-- ==================== DEPOSITS SECTION ==================== -->
+  <!-- ==================== DEPOSITS ==================== -->
   <section id="section-deposits" class="admin-section">
     <div class="dark-card">
       <div class="dark-card-title">Filter</div>
       <select id="depositFilter" class="dark-input" onchange="loadDeposits()" style="margin-bottom:0;">
-        <option value="pending">Pending Only</option>
-        <option value="approved">Approved</option>
-        <option value="rejected">Rejected</option>
-        <option value="all">All</option>
+        <option value="pending">Pending Only</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="all">All</option>
       </select>
     </div>
-
     <div class="dark-card">
       <div class="dark-card-title">Deposit Requests</div>
       <div class="table-scroll">
         <table class="dark-table">
-          <thead>
-            <tr><th>User</th><th>Amount</th><th>Reference</th><th>Status</th><th>Actions</th></tr>
-          </thead>
-          <tbody id="depositBody">
-            <tr><td colspan="5" class="loading-text">Loading...</td></tr>
-          </tbody>
+          <thead><tr><th>User</th><th>Amount</th><th>Reference</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="depositBody"><tr><td colspan="5" class="loading-text">Loading...</td></tr></tbody>
         </table>
       </div>
     </div>
   </section>
 
-  <!-- ==================== WITHDRAWALS SECTION ==================== -->
+  <!-- ==================== WITHDRAWALS ==================== -->
   <section id="section-withdrawals" class="admin-section">
     <div class="dark-card">
       <div class="dark-card-title">Filter</div>
       <select id="withdrawalFilter" class="dark-input" onchange="loadWithdrawals()" style="margin-bottom:0;">
-        <option value="pending">Pending Only</option>
-        <option value="approved">Approved</option>
-        <option value="rejected">Rejected</option>
-        <option value="all">All</option>
+        <option value="pending">Pending Only</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="all">All</option>
       </select>
     </div>
-
     <div class="dark-card">
       <div class="dark-card-title">Withdrawal Requests</div>
       <div class="table-scroll">
         <table class="dark-table">
-          <thead>
-            <tr><th>User</th><th>Amount</th><th>Fee</th><th>Net</th><th>Bank</th><th>Status</th><th>Actions</th></tr>
-          </thead>
-          <tbody id="withdrawalBody">
-            <tr><td colspan="7" class="loading-text">Loading...</td></tr>
-          </tbody>
+          <thead><tr><th>User</th><th>Amount</th><th>Fee</th><th>Net</th><th>Bank</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="withdrawalBody"><tr><td colspan="7" class="loading-text">Loading...</td></tr></tbody>
         </table>
       </div>
     </div>
   </section>
 
-  <!-- ==================== MINERS SECTION ==================== -->
+  <!-- ==================== MINERS ==================== -->
   <section id="section-miners" class="admin-section">
     <div class="dark-card">
       <div class="dark-card-title">➕ Add New Mining Plan</div>
-      <label class="dark-label">Plan Name</label>
-      <input type="text" id="newMinerName" class="dark-input" placeholder="e.g. Pro Miner" />
-      <label class="dark-label">Price (₦)</label>
-      <input type="number" id="newMinerPrice" class="dark-input" placeholder="6200" />
-      <label class="dark-label">Daily Revenue (₦)</label>
-      <input type="number" id="newMinerDaily" class="dark-input" placeholder="310" />
-      <label class="dark-label">Duration (Days)</label>
-      <input type="number" id="newMinerDuration" class="dark-input" placeholder="180" />
-      <label class="dark-label">Purchase Limit</label>
-      <input type="number" id="newMinerLimit" class="dark-input" value="1" />
+      <label class="dark-label">Plan Name</label><input type="text" id="newMinerName" class="dark-input" placeholder="e.g. Pro Miner" />
+      <label class="dark-label">Price (₦)</label><input type="number" id="newMinerPrice" class="dark-input" placeholder="6200" />
+      <label class="dark-label">Daily Revenue (₦)</label><input type="number" id="newMinerDaily" class="dark-input" placeholder="310" />
+      <label class="dark-label">Duration (Days)</label><input type="number" id="newMinerDuration" class="dark-input" placeholder="180" />
+      <label class="dark-label">Purchase Limit</label><input type="number" id="newMinerLimit" class="dark-input" value="1" />
       <button class="btn-dark" onclick="addMiner()">Save New Plan</button>
     </div>
-
     <div class="dark-card">
       <div class="dark-card-title">Active Plans</div>
       <div class="table-scroll">
         <table class="dark-table">
-          <thead>
-            <tr><th>Name</th><th>Price</th><th>Daily</th><th>Duration</th><th>Status</th><th>Actions</th></tr>
-          </thead>
-          <tbody id="minersTableBody">
-            <tr><td colspan="6" class="loading-text">Loading...</td></tr>
-          </tbody>
+          <thead><tr><th>Name</th><th>Price</th><th>Daily</th><th>Duration</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="minersTableBody"><tr><td colspan="6" class="loading-text">Loading...</td></tr></tbody>
         </table>
       </div>
     </div>
   </section>
 
-  <!-- ==================== GIFT CODES SECTION ==================== -->
+  <!-- ==================== GIFT CODES ==================== -->
   <section id="section-giftcodes" class="admin-section">
     <div class="dark-card">
-      <div class="dark-card-title">🎁 Generate Gift Code</div>
-      <label class="dark-label">Code (Leave blank to auto-generate)</label>
-      <input type="text" id="newCode" class="dark-input" placeholder="WELCOME2024" style="text-transform:uppercase;" />
-      <label class="dark-label">Amount (₦)</label>
-      <input type="number" id="newAmount" class="dark-input" placeholder="1000" />
-      <label class="dark-label">Max Uses</label>
-      <input type="number" id="newMaxUses" class="dark-input" value="1" />
-      <label class="dark-label">Expires (Optional)</label>
-      <input type="date" id="newExpiry" class="dark-input" />
+      <div class="dark-card-title"> Generate Gift Code</div>
+      <label class="dark-label">Code (Leave blank to auto-generate)</label><input type="text" id="newCode" class="dark-input" placeholder="WELCOME2024" style="text-transform:uppercase;" />
+      <label class="dark-label">Amount ()</label><input type="number" id="newAmount" class="dark-input" placeholder="1000" />
+      <label class="dark-label">Max Uses</label><input type="number" id="newMaxUses" class="dark-input" value="1" />
+      <label class="dark-label">Expires (Optional)</label><input type="date" id="newExpiry" class="dark-input" />
       <button class="btn-dark" onclick="createGiftCode()">Generate Code</button>
     </div>
-
     <div class="dark-card">
       <div class="dark-card-title">All Gift Codes</div>
       <div class="table-scroll">
         <table class="dark-table">
-          <thead>
-            <tr><th>Code</th><th>Amount</th><th>Usage</th><th>Expires</th><th>Status</th><th>Actions</th></tr>
-          </thead>
-          <tbody id="codesTableBody">
-            <tr><td colspan="6" class="loading-text">Loading...</td></tr>
-          </tbody>
+          <thead><tr><th>Code</th><th>Amount</th><th>Usage</th><th>Expires</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="codesTableBody"><tr><td colspan="6" class="loading-text">Loading...</td></tr></tbody>
         </table>
       </div>
     </div>
   </section>
 
-  <!-- ==================== SETTINGS SECTION ==================== -->
+  <!-- ==================== SETTINGS ==================== -->
   <section id="section-settings" class="admin-section">
     <div class="dark-card">
       <div class="dark-card-title">💰 Financial Rules</div>
-      <label class="dark-label">Minimum Deposit (₦)</label>
-      <input type="number" id="set_min_deposit" class="dark-input" />
-      <label class="dark-label">Minimum Withdrawal (₦)</label>
-      <input type="number" id="set_min_withdrawal" class="dark-input" />
-      <label class="dark-label">Withdrawal Fee (%)</label>
-      <input type="number" id="set_withdrawal_fee_percent" class="dark-input" step="0.1" />
+      <label class="dark-label">Minimum Deposit (₦)</label><input type="number" id="set_min_deposit" class="dark-input" />
+      <label class="dark-label">Minimum Withdrawal (₦)</label><input type="number" id="set_min_withdrawal" class="dark-input" />
+      <label class="dark-label">Withdrawal Fee (%)</label><input type="number" id="set_withdrawal_fee_percent" class="dark-input" step="0.1" />
     </div>
 
     <div class="dark-card">
       <div class="dark-card-title">🎁 Bonuses & Referrals</div>
-      <label class="dark-label">Welcome Bonus (₦)</label>
-      <input type="number" id="set_welcome_bonus" class="dark-input" />
-      <label class="dark-label">Direct Registration Bonus (%)</label>
-      <input type="number" id="set_referral_bonus_direct" class="dark-input" step="0.1" />
-      <label class="dark-label">Level 1 Commission (%)</label>
-      <input type="number" id="set_referral_level_1" class="dark-input" step="0.1" />
-      <label class="dark-label">Level 2 Commission (%)</label>
-      <input type="number" id="set_referral_level_2" class="dark-input" step="0.1" />
-      <label class="dark-label">Level 3 Commission (%)</label>
-      <input type="number" id="set_referral_level_3" class="dark-input" step="0.1" />
+      <label class="dark-label">Welcome Bonus (₦)</label><input type="number" id="set_welcome_bonus" class="dark-input" />
+      <label class="dark-label">Direct Registration Bonus (%)</label><input type="number" id="set_referral_bonus_direct" class="dark-input" step="0.1" />
+      <label class="dark-label">Level 1 Commission (%)</label><input type="number" id="set_referral_level_1" class="dark-input" step="0.1" />
+      <label class="dark-label">Level 2 Commission (%)</label><input type="number" id="set_referral_level_2" class="dark-input" step="0.1" />
+      <label class="dark-label">Level 3 Commission (%)</label><input type="number" id="set_referral_level_3" class="dark-input" step="0.1" />
     </div>
 
     <div class="dark-card">
       <div class="dark-card-title">⏰ Withdrawal Time Window</div>
-      <label class="dark-label">Opening Hour (24h)</label>
-      <input type="number" id="set_withdrawal_start_hour" class="dark-input" min="0" max="23" />
-      <label class="dark-label">Closing Hour (24h)</label>
-      <input type="number" id="set_withdrawal_end_hour" class="dark-input" min="0" max="23" />
-      <label class="dark-label" style="margin-top:12px;">Allowed Days</label>
-      <div class="days-grid" id="daysGrid">
-        <label class="day-check"><input type="checkbox" value="1"> Mon</label>
-        <label class="day-check"><input type="checkbox" value="2"> Tue</label>
-        <label class="day-check"><input type="checkbox" value="3"> Wed</label>
-        <label class="day-check"><input type="checkbox" value="4"> Thu</label>
-        <label class="day-check"><input type="checkbox" value="5"> Fri</label>
-        <label class="day-check"><input type="checkbox" value="6"> Sat</label>
-        <label class="day-check"><input type="checkbox" value="0"> Sun</label>
+      <label class="dark-label">Opening Hour (24h)</label><input type="number" id="set_withdrawal_start_hour" class="dark-input" min="0" max="23" />
+      <label class="dark-label">Closing Hour (24h)</label><input type="number" id="set_withdrawal_end_hour" class="dark-input" min="0" max="23" />
+      
+      <label class="dark-label" style="margin-top:16px; font-size: 14px; color: #fff; font-weight: 700;">Allowed Days (Tap to select)</label>
+      <!-- NEW: Highly Visible Day Selector -->
+      <div class="days-selector" id="daysGrid">
+        <label class="day-btn"><input type="checkbox" value="1"> Mon</label>
+        <label class="day-btn"><input type="checkbox" value="2"> Tue</label>
+        <label class="day-btn"><input type="checkbox" value="3"> Wed</label>
+        <label class="day-btn"><input type="checkbox" value="4"> Thu</label>
+        <label class="day-btn"><input type="checkbox" value="5"> Fri</label>
+        <label class="day-btn"><input type="checkbox" value="6"> Sat</label>
+        <label class="day-btn"><input type="checkbox" value="0"> Sun</label>
       </div>
     </div>
 
     <div class="dark-card">
       <div class="dark-card-title">🏦 Deposit Bank Details</div>
-      <label class="dark-label">Bank Name</label>
-      <input type="text" id="set_bank_name" class="dark-input" />
-      <label class="dark-label">Account Number</label>
-      <input type="text" id="set_account_number" class="dark-input" />
-      <label class="dark-label">Account Name</label>
-      <input type="text" id="set_account_name" class="dark-input" />
+      <label class="dark-label">Bank Name</label><input type="text" id="set_bank_name" class="dark-input" />
+      <label class="dark-label">Account Number</label><input type="text" id="set_account_number" class="dark-input" />
+      <label class="dark-label">Account Name</label><input type="text" id="set_account_name" class="dark-input" />
     </div>
 
     <div class="dark-card">
       <div class="dark-card-title">🔗 Support Links</div>
-      <label class="dark-label">Telegram Link</label>
-      <input type="url" id="set_telegram_link" class="dark-input" />
-      <label class="dark-label">WhatsApp Link</label>
-      <input type="url" id="set_customer_service_link" class="dark-input" />
+      <label class="dark-label">Telegram Link</label><input type="url" id="set_telegram_link" class="dark-input" />
+      <label class="dark-label">WhatsApp Link</label><input type="url" id="set_customer_service_link" class="dark-input" />
     </div>
 
     <button class="btn-dark" onclick="saveAllSettings()" style="margin-bottom:20px;">💾 Save All Settings</button>
   </section>
 
   <!-- ==================== MODALS ==================== -->
-  
-  <!-- Balance Modal -->
   <div id="balanceModal" class="modal-dark">
     <div class="modal-dark-content">
       <div class="modal-dark-header">
@@ -668,33 +342,23 @@
         <button class="modal-close" onclick="closeModal('balanceModal')">&times;</button>
       </div>
       <p style="font-size:13px;color:#8E8E93;margin-bottom:16px;">User: <strong id="balModalEmail" style="color:#fff;">-</strong></p>
-      <p style="font-size:13px;color:#8E8E93;margin-bottom:20px;background:#0A0A0A;padding:10px;border-radius:8px;">
-        Current: <strong id="balModalCurrent" style="color:#D4AF37;">₦0</strong>
-      </p>
+      <p style="font-size:13px;color:#8E8E93;margin-bottom:20px;background:#0A0A0A;padding:10px;border-radius:8px;">Current: <strong id="balModalCurrent" style="color:#D4AF37;">₦0</strong></p>
       <input type="hidden" id="balModalUserId" />
       <label class="dark-label">Action</label>
-      <select id="balAction" class="dark-input">
-        <option value="credit">➕ Credit (Add Money)</option>
-        <option value="debit">➖ Debit (Remove Money)</option>
-      </select>
-      <label class="dark-label">Amount (₦)</label>
-      <input type="number" id="balAmount" class="dark-input" placeholder="0.00" />
-      <label class="dark-label">Reason</label>
-      <input type="text" id="balReason" class="dark-input" placeholder="e.g. Manual Bonus" />
+      <select id="balAction" class="dark-input"><option value="credit">➕ Credit (Add Money)</option><option value="debit">➖ Debit (Remove Money)</option></select>
+      <label class="dark-label">Amount (₦)</label><input type="number" id="balAmount" class="dark-input" placeholder="0.00" />
+      <label class="dark-label">Reason</label><input type="text" id="balReason" class="dark-input" placeholder="e.g. Manual Bonus" />
       <button class="btn-dark" onclick="submitBalanceUpdate()">Confirm Update</button>
     </div>
   </div>
 
-  <!-- Team Modal -->
   <div id="teamModal" class="modal-dark">
     <div class="modal-dark-content">
       <div class="modal-dark-header">
         <h3>User's Referral Team</h3>
         <button class="modal-close" onclick="closeModal('teamModal')">&times;</button>
       </div>
-      <div id="teamModalContent" style="max-height:300px;overflow-y:auto;">
-        <p class="loading-text">Loading...</p>
-      </div>
+      <div id="teamModalContent" style="max-height:300px;overflow-y:auto;"><p class="loading-text">Loading...</p></div>
     </div>
   </div>
 
@@ -710,7 +374,6 @@
       document.getElementById('section-' + sectionId).classList.add('active');
       tabEl.classList.add('active');
       
-      // Load data for the section
       if(sectionId === 'overview') loadOverview();
       if(sectionId === 'users') loadUsers();
       if(sectionId === 'deposits') loadDeposits();
@@ -720,28 +383,31 @@
       if(sectionId === 'settings') loadSettings();
     };
 
+    // ===== DAY SELECTOR LOGIC (Makes them highly visible) =====
+    document.querySelectorAll('.day-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault(); // Prevent default label behavior
+        this.classList.toggle('selected');
+        const checkbox = this.querySelector('input');
+        checkbox.checked = !checkbox.checked;
+      });
+    });
+
     // ===== OVERVIEW =====
     async function loadOverview() {
       const { count: userCount } = await window.supabase.from('profiles').select('*', { count: 'exact', head: true });
       document.getElementById('statUsers').innerText = userCount || 0;
-
       const { count: depCount } = await window.supabase.from('transactions').select('*', { count: 'exact', head: true }).eq('type', 'deposit').eq('status', 'pending');
       document.getElementById('statDeps').innerText = depCount || 0;
-
       const { count: withCount } = await window.supabase.from('transactions').select('*', { count: 'exact', head: true }).eq('type', 'withdrawal').eq('status', 'pending');
       document.getElementById('statWiths').innerText = withCount || 0;
-
       const { data: approvedDeps } = await window.supabase.from('transactions').select('amount').eq('type', 'deposit').eq('status', 'approved');
-      let totalRev = 0;
-      if(approvedDeps) approvedDeps.forEach(t => totalRev += Number(t.amount));
+      let totalRev = 0; if(approvedDeps) approvedDeps.forEach(t => totalRev += Number(t.amount));
       document.getElementById('statRevenue').innerText = '₦' + totalRev.toLocaleString();
-
       const { count: activeMiners } = await window.supabase.from('user_miners').select('*', { count: 'exact', head: true }).eq('status', 'active');
       document.getElementById('statActiveMiners').innerText = activeMiners || 0;
-
       const { data: approvedWiths } = await window.supabase.from('transactions').select('amount').eq('type', 'withdrawal').eq('status', 'approved');
-      let totalPayouts = 0;
-      if(approvedWiths) approvedWiths.forEach(t => totalPayouts += Number(t.amount));
+      let totalPayouts = 0; if(approvedWiths) approvedWiths.forEach(t => totalPayouts += Number(t.amount));
       document.getElementById('statTotalPayouts').innerText = '₦' + totalPayouts.toLocaleString();
 
       const { data: recentTx } = await window.supabase.from('transactions').select('*, profiles(email)').order('created_at', { ascending: false }).limit(5);
@@ -751,32 +417,19 @@
           let badgeClass = 'badge-yellow';
           if(tx.status === 'approved' || tx.status === 'completed') badgeClass = 'badge-green';
           if(tx.status === 'rejected') badgeClass = 'badge-red';
-          return `<tr>
-            <td>${tx.profiles?.email || 'Unknown'}</td>
-            <td style="text-transform:capitalize;">${tx.type.replace('_',' ')}</td>
-            <td style="font-weight:700;">₦${Number(tx.amount).toLocaleString()}</td>
-            <td><span class="badge-dark ${badgeClass}">${tx.status}</span></td>
-            <td style="color:#8E8E93;">${new Date(tx.created_at).toLocaleDateString()}</td>
-          </tr>`;
+          return `<tr><td>${tx.profiles?.email || 'Unknown'}</td><td style="text-transform:capitalize;">${tx.type.replace('_',' ')}</td><td style="font-weight:700;">₦${Number(tx.amount).toLocaleString()}</td><td><span class="badge-dark ${badgeClass}">${tx.status}</span></td><td style="color:#8E8E93;">${new Date(tx.created_at).toLocaleDateString()}</td></tr>`;
         }).join('');
-      } else {
-        tbody.innerHTML = '<tr><td colspan="5" class="loading-text">No recent activity.</td></tr>';
-      }
+      } else { tbody.innerHTML = '<tr><td colspan="5" class="loading-text">No recent activity.</td></tr>'; }
     }
 
     // ===== USERS =====
-    let allUsers = [];
-    let adminUserId = null;
-
+    let allUsers = []; let adminUserId = null;
     async function loadUsers() {
       const { data: { session } } = await window.supabase.auth.getSession();
       if (session) adminUserId = session.user.id;
-
       const { data: profiles } = await window.supabase.from('profiles').select('id, full_name, email, is_active, created_at, wallets(balance)').order('created_at', { ascending: false });
-      allUsers = profiles || [];
-      renderUsers(allUsers);
+      allUsers = profiles || []; renderUsers(allUsers);
     }
-
     function renderUsers(users) {
       const tbody = document.getElementById('usersTableBody');
       if (users.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="loading-text">No users found.</td></tr>'; return; }
@@ -793,75 +446,71 @@
             <div class="action-btns">
               <button class="btn-tiny btn-tiny-view" onclick="openBalanceModal('${u.id}','${u.email||'Unknown'}',${balance})">💰</button>
               <button class="btn-tiny" style="background:#2C2C2E;color:#fff;" onclick="openTeamModal('${u.id}','${u.full_name||'User'}')">👥</button>
+              <button class="btn-tiny" style="background:#FF9500;color:#000;" onclick="impersonateUser('${u.email}')">👁️</button>
               ${!isSelf ? `<button class="btn-tiny ${u.is_active ? 'btn-tiny-reject' : 'btn-tiny-approve'}" onclick="toggleBan('${u.id}',${u.is_active})">${u.is_active?'Ban':'Unban'}</button>` : ''}
             </div>
           </td>
         </tr>`;
       }).join('');
     }
-
     window.filterUsers = function() {
       const q = document.getElementById('userSearch').value.toLowerCase();
       renderUsers(allUsers.filter(u => (u.email?.toLowerCase().includes(q)) || (u.full_name?.toLowerCase().includes(q))));
     };
-
     window.openBalanceModal = function(userId, email, balance) {
       document.getElementById('balModalUserId').value = userId;
       document.getElementById('balModalEmail').innerText = email;
       document.getElementById('balModalCurrent').innerText = '₦' + Number(balance).toLocaleString();
-      document.getElementById('balAmount').value = '';
-      document.getElementById('balReason').value = '';
+      document.getElementById('balAmount').value = ''; document.getElementById('balReason').value = '';
       document.getElementById('balanceModal').classList.add('active');
     };
-
     window.submitBalanceUpdate = async function() {
       const userId = document.getElementById('balModalUserId').value;
       const action = document.getElementById('balAction').value;
       const amount = parseFloat(document.getElementById('balAmount').value);
       const reason = document.getElementById('balReason').value || 'Admin adjustment';
       const btn = event.target;
-
       if (!amount || amount <= 0) return alert('Enter a valid amount');
       btn.innerText = 'Processing...'; btn.disabled = true;
-
       try {
         const { data: wallet } = await window.supabase.from('wallets').select('balance').eq('user_id', userId).single();
         let newBalance = wallet.balance;
-        if (action === 'credit') newBalance += amount;
-        else newBalance -= amount;
+        if (action === 'credit') newBalance += amount; else newBalance -= amount;
         if (newBalance < 0) throw new Error('Insufficient funds');
-
         await window.supabase.from('wallets').update({ balance: newBalance }).eq('user_id', userId);
-        await window.supabase.from('transactions').insert({
-          user_id: userId, type: 'admin_adjustment', amount: action === 'credit' ? amount : -amount,
-          status: 'completed', description: `Admin ${action}: ${reason}`
-        });
-
-        alert('✅ Balance updated!');
-        closeModal('balanceModal');
-        loadUsers();
+        await window.supabase.from('transactions').insert({ user_id: userId, type: 'admin_adjustment', amount: action === 'credit' ? amount : -amount, status: 'completed', description: `Admin ${action}: ${reason}` });
+        alert('✅ Balance updated!'); closeModal('balanceModal'); loadUsers();
       } catch (err) { alert('❌ ' + err.message); }
       btn.innerText = 'Confirm Update'; btn.disabled = false;
     };
-
     window.openTeamModal = async function(userId, userName) {
       document.getElementById('teamModal').classList.add('active');
       const content = document.getElementById('teamModalContent');
       content.innerHTML = '<p class="loading-text">Loading...</p>';
       const { data: team } = await window.supabase.from('profiles').select('full_name, email, created_at').eq('referred_by', userId).order('created_at', { ascending: false });
       if (!team || team.length === 0) { content.innerHTML = '<p class="loading-text">No referrals found.</p>'; return; }
-      content.innerHTML = team.map(m => `
-        <div style="padding:12px 0;border-bottom:1px solid #2C2C2E;">
-          <div style="font-weight:600;">${m.full_name || 'Unnamed'}</div>
-          <div style="font-size:12px;color:#8E8E93;">${m.email || 'No email'} • ${new Date(m.created_at).toLocaleDateString()}</div>
-        </div>
-      `).join('');
+      content.innerHTML = team.map(m => `<div style="padding:12px 0;border-bottom:1px solid #2C2C2E;"><div style="font-weight:600;">${m.full_name || 'Unnamed'}</div><div style="font-size:12px;color:#8E8E93;">${m.email || 'No email'} • ${new Date(m.created_at).toLocaleDateString()}</div></div>`).join('');
     };
-
     window.toggleBan = async function(userId, status) {
       if (!confirm(`${status ? 'Ban' : 'Unban'} this user?`)) return;
-      await window.supabase.from('profiles').update({ is_active: !status }).eq('id', userId);
-      loadUsers();
+      await window.supabase.from('profiles').update({ is_active: !status }).eq('id', userId); loadUsers();
+    };
+    
+    // ===== IMPERSONATE USER (VIEW AS) =====
+    window.impersonateUser = async function(email) {
+      if(!email || email === 'No email') return alert('Cannot view user without an email address.');
+      if(!confirm(`Open a new session as ${email}?`)) return;
+      const { data: { session } } = await window.supabase.auth.getSession();
+      if(!session) return alert('Please log in again.');
+      try {
+        const response = await fetch('/api/impersonate', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+          body: JSON.stringify({ email: email })
+        });
+        const result = await response.json();
+        if (result.magic_link) { window.open(result.magic_link, '_blank'); } 
+        else { alert('❌ Error: ' + (result.error || 'Failed to generate link.')); }
+      } catch (err) { alert('❌ Network Error: Make sure api/impersonate.js is deployed and SUPABASE_SERVICE_ROLE_KEY is set in Vercel.'); }
     };
 
     // ===== DEPOSITS =====
@@ -874,19 +523,11 @@
       if (!txs || txs.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="loading-text">No deposits found.</td></tr>'; return; }
       tbody.innerHTML = txs.map(tx => {
         let badgeClass = 'badge-yellow';
-        if(tx.status === 'approved') badgeClass = 'badge-green';
-        if(tx.status === 'rejected') badgeClass = 'badge-red';
+        if(tx.status === 'approved') badgeClass = 'badge-green'; if(tx.status === 'rejected') badgeClass = 'badge-red';
         let actions = tx.status === 'pending' ? `<div class="action-btns"><button class="btn-tiny btn-tiny-approve" onclick="approveDeposit('${tx.id}','${tx.user_id}',${tx.amount})">Approve</button><button class="btn-tiny btn-tiny-reject" onclick="rejectDeposit('${tx.id}')">Reject</button></div>` : '<span style="color:#8E8E93;font-size:11px;">Done</span>';
-        return `<tr>
-          <td>${tx.profiles?.email || 'Unknown'}</td>
-          <td style="font-weight:700;color:#D4AF37;">₦${Number(tx.amount).toLocaleString()}</td>
-          <td style="font-size:11px;color:#8E8E93;">${tx.description || 'N/A'}</td>
-          <td><span class="badge-dark ${badgeClass}">${tx.status}</span></td>
-          <td>${actions}</td>
-        </tr>`;
+        return `<tr><td>${tx.profiles?.email || 'Unknown'}</td><td style="font-weight:700;color:#D4AF37;">₦${Number(tx.amount).toLocaleString()}</td><td style="font-size:11px;color:#8E8E93;">${tx.description || 'N/A'}</td><td><span class="badge-dark ${badgeClass}">${tx.status}</span></td><td>${actions}</td></tr>`;
       }).join('');
     }
-
     window.approveDeposit = async function(id, userId, amount) {
       if(!confirm(`Approve ₦${amount.toLocaleString()}?`)) return;
       const { data: wallet } = await window.supabase.from('wallets').select('balance').eq('user_id', userId).single();
@@ -894,11 +535,9 @@
       await window.supabase.from('transactions').update({ status: 'approved' }).eq('id', id);
       alert('✅ Approved!'); loadDeposits();
     };
-
     window.rejectDeposit = async function(id) {
       if(!confirm('Reject this deposit?')) return;
-      await window.supabase.from('transactions').update({ status: 'rejected' }).eq('id', id);
-      loadDeposits();
+      await window.supabase.from('transactions').update({ status: 'rejected' }).eq('id', id); loadDeposits();
     };
 
     // ===== WITHDRAWALS =====
@@ -910,33 +549,20 @@
       const tbody = document.getElementById('withdrawalBody');
       if (!txs || txs.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="loading-text">No withdrawals found.</td></tr>'; return; }
       tbody.innerHTML = txs.map(tx => {
-        const amount = Number(tx.amount);
-        const fee = amount * 0.08;
-        const net = amount - fee;
+        const amount = Number(tx.amount); const fee = amount * 0.08; const net = amount - fee;
         let badgeClass = 'badge-yellow';
-        if(tx.status === 'approved') badgeClass = 'badge-green';
-        if(tx.status === 'rejected') badgeClass = 'badge-red';
+        if(tx.status === 'approved') badgeClass = 'badge-green'; if(tx.status === 'rejected') badgeClass = 'badge-red';
         let actions = tx.status === 'pending' ? `<div class="action-btns"><button class="btn-tiny btn-tiny-approve" onclick="approveWithdrawal('${tx.id}')">Paid</button><button class="btn-tiny btn-tiny-reject" onclick="rejectWithdrawal('${tx.id}','${tx.user_id}',${amount})">Reject</button></div>` : '<span style="color:#8E8E93;font-size:11px;">Done</span>';
-        return `<tr>
-          <td>${tx.profiles?.email || 'Unknown'}</td>
-          <td style="font-weight:700;">₦${amount.toLocaleString()}</td>
-          <td style="color:#FF453A;">-₦${fee.toLocaleString()}</td>
-          <td style="color:#30D158;font-weight:700;">₦${net.toLocaleString()}</td>
-          <td style="font-size:11px;color:#8E8E93;">${tx.description || 'N/A'}</td>
-          <td><span class="badge-dark ${badgeClass}">${tx.status}</span></td>
-          <td>${actions}</td>
-        </tr>`;
+        return `<tr><td>${tx.profiles?.email || 'Unknown'}</td><td style="font-weight:700;">₦${amount.toLocaleString()}</td><td style="color:#FF453A;">-₦${fee.toLocaleString()}</td><td style="color:#30D158;font-weight:700;">₦${net.toLocaleString()}</td><td style="font-size:11px;color:#8E8E93;">${tx.description || 'N/A'}</td><td><span class="badge-dark ${badgeClass}">${tx.status}</span></td><td>${actions}</td></tr>`;
       }).join('');
     }
-
     window.approveWithdrawal = async function(id) {
       if(!confirm('Mark as paid?')) return;
       await window.supabase.from('transactions').update({ status: 'approved' }).eq('id', id);
       alert('✅ Marked as paid!'); loadWithdrawals();
     };
-
     window.rejectWithdrawal = async function(id, userId, amount) {
-      if(!confirm(`Reject and refund ₦${amount.toLocaleString()}?`)) return;
+      if(!confirm(`Reject and refund ${amount.toLocaleString()}?`)) return;
       const { data: wallet } = await window.supabase.from('wallets').select('balance').eq('user_id', userId).single();
       await window.supabase.from('wallets').update({ balance: wallet.balance + amount }).eq('user_id', userId);
       await window.supabase.from('transactions').update({ status: 'rejected' }).eq('id', id);
@@ -948,18 +574,8 @@
       const { data: miners } = await window.supabase.from('miners').select('*').order('price', { ascending: true });
       const tbody = document.getElementById('minersTableBody');
       if (!miners) { tbody.innerHTML = '<tr><td colspan="6" class="loading-text">Error.</td></tr>'; return; }
-      tbody.innerHTML = miners.map(m => `
-        <tr>
-          <td style="font-weight:600;">${m.name}</td>
-          <td>₦${Number(m.price).toLocaleString()}</td>
-          <td>₦${Number(m.daily_revenue).toLocaleString()}</td>
-          <td>${m.duration_days}d</td>
-          <td><span class="badge-dark ${m.is_active ? 'badge-green' : 'badge-red'}">${m.is_active ? 'Active' : 'Locked'}</span></td>
-          <td><button class="btn-tiny ${m.is_active ? 'btn-tiny-reject' : 'btn-tiny-approve'}" onclick="toggleMiner('${m.id}',${m.is_active})">${m.is_active ? 'Lock' : 'Activate'}</button></td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = miners.map(m => `<tr><td style="font-weight:600;">${m.name}</td><td>₦${Number(m.price).toLocaleString()}</td><td>₦${Number(m.daily_revenue).toLocaleString()}</td><td>${m.duration_days}d</td><td><span class="badge-dark ${m.is_active ? 'badge-green' : 'badge-red'}">${m.is_active ? 'Active' : 'Locked'}</span></td><td><button class="btn-tiny ${m.is_active ? 'btn-tiny-reject' : 'btn-tiny-approve'}" onclick="toggleMiner('${m.id}',${m.is_active})">${m.is_active ? 'Lock' : 'Activate'}</button></td></tr>`).join('');
     }
-
     window.addMiner = async function() {
       const name = document.getElementById('newMinerName').value;
       const price = parseFloat(document.getElementById('newMinerPrice').value) || 0;
@@ -968,13 +584,10 @@
       const limit = parseInt(document.getElementById('newMinerLimit').value) || 1;
       if(!name || !price) return alert('Name and Price required');
       const { error } = await window.supabase.from('miners').insert({ name, price, daily_revenue: daily, duration_days: duration, purchase_limit: limit, is_active: true });
-      if(error) alert('Error: ' + error.message);
-      else { alert('✅ Plan added!'); loadMiners(); }
+      if(error) alert('Error: ' + error.message); else { alert('✅ Plan added!'); loadMiners(); }
     };
-
     window.toggleMiner = async function(id, status) {
-      await window.supabase.from('miners').update({ is_active: !status }).eq('id', id);
-      loadMiners();
+      await window.supabase.from('miners').update({ is_active: !status }).eq('id', id); loadMiners();
     };
 
     // ===== GIFT CODES =====
@@ -987,17 +600,9 @@
         const isFull = c.used_count >= c.max_uses;
         const status = !c.is_active ? 'Inactive' : isExpired ? 'Expired' : isFull ? 'Full' : 'Active';
         const badgeClass = status === 'Active' ? 'badge-green' : 'badge-red';
-        return `<tr>
-          <td style="font-weight:700;font-family:monospace;">${c.code}</td>
-          <td>₦${Number(c.amount).toLocaleString()}</td>
-          <td>${c.used_count}/${c.max_uses}</td>
-          <td style="color:#8E8E93;">${c.expires_at ? new Date(c.expires_at).toLocaleDateString() : 'Never'}</td>
-          <td><span class="badge-dark ${badgeClass}">${status}</span></td>
-          <td><div class="action-btns"><button class="btn-tiny ${c.is_active ? 'btn-tiny-reject' : 'btn-tiny-approve'}" onclick="toggleCode('${c.id}',${c.is_active})">${c.is_active ? 'Off' : 'On'}</button><button class="btn-tiny btn-tiny-reject" onclick="deleteCode('${c.id}')">Del</button></div></td>
-        </tr>`;
+        return `<tr><td style="font-weight:700;font-family:monospace;">${c.code}</td><td>₦${Number(c.amount).toLocaleString()}</td><td>${c.used_count}/${c.max_uses}</td><td style="color:#8E8E93;">${c.expires_at ? new Date(c.expires_at).toLocaleDateString() : 'Never'}</td><td><span class="badge-dark ${badgeClass}">${status}</span></td><td><div class="action-btns"><button class="btn-tiny ${c.is_active ? 'btn-tiny-reject' : 'btn-tiny-approve'}" onclick="toggleCode('${c.id}',${c.is_active})">${c.is_active ? 'Off' : 'On'}</button><button class="btn-tiny btn-tiny-reject" onclick="deleteCode('${c.id}')">Del</button></div></td></tr>`;
       }).join('');
     }
-
     window.createGiftCode = async function() {
       let code = document.getElementById('newCode').value.trim().toUpperCase();
       const amount = document.getElementById('newAmount').value;
@@ -1006,20 +611,10 @@
       if (!code) code = 'JTR-' + Math.random().toString(36).substring(2, 8).toUpperCase();
       if (!amount) return alert('Enter amount');
       const { error } = await window.supabase.from('gift_codes').insert({ code, amount, max_uses: maxUses || 1, expires_at: expiry ? new Date(expiry).toISOString() : null, is_active: true });
-      if (error) alert('Error: ' + error.message);
-      else { alert('✅ Code generated!'); loadGiftCodes(); }
+      if (error) alert('Error: ' + error.message); else { alert('✅ Code generated!'); loadGiftCodes(); }
     };
-
-    window.toggleCode = async function(id, status) {
-      await window.supabase.from('gift_codes').update({ is_active: !status }).eq('id', id);
-      loadGiftCodes();
-    };
-
-    window.deleteCode = async function(id) {
-      if (!confirm('Delete this code?')) return;
-      await window.supabase.from('gift_codes').delete().eq('id', id);
-      loadGiftCodes();
-    };
+    window.toggleCode = async function(id, status) { await window.supabase.from('gift_codes').update({ is_active: !status }).eq('id', id); loadGiftCodes(); };
+    window.deleteCode = async function(id) { if (!confirm('Delete this code?')) return; await window.supabase.from('gift_codes').delete().eq('id', id); loadGiftCodes(); };
 
     // ===== SETTINGS =====
     async function loadSettings() {
@@ -1041,26 +636,27 @@
       document.getElementById('set_account_name').value = getVal('account_name');
       document.getElementById('set_telegram_link').value = getVal('telegram_link');
       document.getElementById('set_customer_service_link').value = getVal('customer_service_link');
+      
+      // Load selected days into the new visible buttons
       try {
         const days = JSON.parse(getVal('withdrawal_days') || '[]');
-        document.querySelectorAll('.day-check').forEach(cb => {
-          if (days.includes(parseInt(cb.value))) cb.classList.add('checked');
+        document.querySelectorAll('.day-btn').forEach(btn => {
+          const checkbox = btn.querySelector('input');
+          if (days.includes(parseInt(checkbox.value))) {
+            btn.classList.add('selected');
+            checkbox.checked = true;
+          } else {
+            btn.classList.remove('selected');
+            checkbox.checked = false;
+          }
         });
       } catch(e) {}
     }
 
-    // Day checkbox toggle
-    document.querySelectorAll('.day-check').forEach(cb => {
-      cb.addEventListener('click', function() {
-        this.classList.toggle('checked');
-        this.querySelector('input').checked = !this.querySelector('input').checked;
-      });
-    });
-
     window.saveAllSettings = async function() {
-      const btn = event.target;
-      btn.innerText = 'Saving...'; btn.disabled = true;
-      const days = Array.from(document.querySelectorAll('.day-check.checked input')).map(cb => parseInt(cb.value));
+      const btn = event.target; btn.innerText = 'Saving...'; btn.disabled = true;
+      // Get values from the visible buttons
+      const days = Array.from(document.querySelectorAll('.day-btn.selected input')).map(cb => parseInt(cb.value));
       const settingsToSave = [
         { key: 'min_deposit', value: document.getElementById('set_min_deposit').value },
         { key: 'min_withdrawal', value: document.getElementById('set_min_withdrawal').value },
@@ -1080,15 +676,12 @@
         { key: 'customer_service_link', value: document.getElementById('set_customer_service_link').value }
       ];
       for (const s of settingsToSave) await window.supabase.from('settings').upsert(s, { onConflict: 'key' });
-      alert('✅ Settings saved!');
-      btn.innerText = '💾 Save All Settings'; btn.disabled = false;
+      alert('✅ Settings saved!'); btn.innerText = '💾 Save All Settings'; btn.disabled = false;
     };
 
     // ===== HELPERS =====
     window.closeModal = function(id) { document.getElementById(id).classList.remove('active'); };
     window.logout = async function() { await window.supabase.auth.signOut(); window.location.href = '../login.html'; };
-
-    // Load overview on start
     document.addEventListener('DOMContentLoaded', loadOverview);
   </script>
 </body>
