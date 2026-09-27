@@ -7,20 +7,22 @@
   <link rel="stylesheet" href="assets/css/styles.css" />
   <style>
     .auth-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); }
-    .auth-card { width: 100%; max-width: 420px; background: #fff; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-lg); border-top: 4px solid var(--primary); }
-    .auth-header { text-align: center; margin-bottom: 30px; }
-    .auth-header h2 { color: var(--primary); margin-bottom: 8px; }
+    .auth-card { width: 100%; max-width: 420px; background: #fff; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-lg); border-top: 5px solid var(--primary); }
+    .auth-logo { text-align: center; margin-bottom: 30px; }
+    .auth-logo h2 { color: var(--primary); margin-bottom: 5px; font-size: 24px; }
+    .auth-logo p { color: var(--text-muted); font-size: 14px; }
     .auth-links { text-align: center; margin-top: 20px; font-size: 14px; color: var(--text-muted); }
-    .auth-links a { color: var(--primary); font-weight: 600; }
+    .auth-links a { color: var(--primary); font-weight: 600; text-decoration: none; }
+    .auth-links a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
 
   <div class="auth-wrapper">
     <div class="auth-card">
-      <div class="auth-header">
+      <div class="auth-logo">
         <h2>Welcome Back</h2>
-        <p class="text-muted">Sign in to manage your miners</p>
+        <p>Sign in to manage your mining portfolio</p>
       </div>
 
       <div id="alert" class="alert"></div>
@@ -36,10 +38,10 @@
         </div>
         
         <div style="text-align: right; margin-bottom: 20px;">
-          <a href="forgot-password.html" style="font-size: 13px; color: var(--primary); font-weight: 600;">Forgot Password?</a>
+          <a href="forgot-password.html" style="font-size: 13px; color: var(--primary); font-weight: 600; text-decoration: none;">Forgot Password?</a>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+        <button type="submit" id="loginBtn" class="btn btn-primary btn-block">Sign In</button>
       </form>
 
       <div class="auth-links">
@@ -49,27 +51,42 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/api-client.js"></script>
   <script>
-    // Initialize Supabase (Replace with your actual keys)
-    const supabaseUrl = 'YOUR_SUPABASE_URL';
-    const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
-    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = document.getElementById('email').value;
+      
+      const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
       const alertBox = document.getElementById('alert');
+      const btn = document.getElementById('loginBtn');
 
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      // Reset alert
+      alertBox.className = 'alert';
+      alertBox.style.display = 'none';
 
-      if (error) {
-        alertBox.textContent = error.message;
+      // Loading state
+      btn.disabled = true;
+      btn.innerText = 'Signing in...';
+
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+        if (error) {
+          alertBox.textContent = error.message;
+          alertBox.className = 'alert alert-error show';
+          btn.disabled = false;
+          btn.innerText = 'Sign In';
+        } else {
+          alertBox.textContent = 'Login successful! Redirecting...';
+          alertBox.className = 'alert alert-success show';
+          setTimeout(() => window.location.href = 'dashboard.html', 1000);
+        }
+      } catch (err) {
+        alertBox.textContent = 'An unexpected error occurred.';
         alertBox.className = 'alert alert-error show';
-      } else {
-        alertBox.textContent = 'Login successful! Redirecting...';
-        alertBox.className = 'alert alert-success show';
-        setTimeout(() => window.location.href = 'dashboard.html', 1000);
+        btn.disabled = false;
+        btn.innerText = 'Sign In';
       }
     });
   </script>
