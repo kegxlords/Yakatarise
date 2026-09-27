@@ -17,6 +17,7 @@
       <a href="deposits.html">💰 Deposits</a>
       <a href="withdrawals.html">💸 Withdrawals</a>
       <a href="miners.html">⛏️ Mining Plans</a>
+      <a href="gift-codes.html">🎁 Gift Codes</a>
       <a href="settings.html" class="active">⚙️ Settings</a>
       <a href="../index.html" class="view-site">🌐 View Live Site</a>
     </nav>
@@ -30,15 +31,29 @@
     <div id="loadingMsg" style="text-align:center; padding: 40px; color: var(--admin-text-muted);">Loading settings...</div>
 
     <form id="settingsForm" style="display:none;">
+      <!-- Financial Rules -->
       <div class="form-card">
         <h3>💰 Financial Rules</h3>
         <div class="form-grid">
-          <div class="form-group"><label class="form-label">Minimum Deposit (₦)</label><input type="number" id="set_min_deposit" class="form-input" /></div>
+          <div class="form-group"><label class="form-label">Minimum Deposit ()</label><input type="number" id="set_min_deposit" class="form-input" /></div>
           <div class="form-group"><label class="form-label">Minimum Withdrawal (₦)</label><input type="number" id="set_min_withdrawal" class="form-input" /></div>
           <div class="form-group"><label class="form-label">Withdrawal Fee (%)</label><input type="number" id="set_withdrawal_fee_percent" class="form-input" step="0.1" /></div>
         </div>
       </div>
 
+      <!-- NEW: Referral & Bonus Settings -->
+      <div class="form-card">
+        <h3> Bonuses & Referrals</h3>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Welcome Bonus (₦)</label><input type="number" id="set_welcome_bonus" class="form-input" /></div>
+          <div class="form-group"><label class="form-label">Direct Registration Bonus (%)</label><input type="number" id="set_referral_bonus_direct" class="form-input" step="0.1" /></div>
+          <div class="form-group"><label class="form-label">Level 1 Commission (%)</label><input type="number" id="set_referral_level_1" class="form-input" step="0.1" /></div>
+          <div class="form-group"><label class="form-label">Level 2 Commission (%)</label><input type="number" id="set_referral_level_2" class="form-input" step="0.1" /></div>
+          <div class="form-group"><label class="form-label">Level 3 Commission (%)</label><input type="number" id="set_referral_level_3" class="form-input" step="0.1" /></div>
+        </div>
+      </div>
+
+      <!-- Time Window -->
       <div class="form-card">
         <h3>⏰ Withdrawal Time Window</h3>
         <div class="form-grid">
@@ -57,8 +72,9 @@
         </div>
       </div>
 
+      <!-- Bank Details -->
       <div class="form-card">
-        <h3>🏦 Deposit Bank Details</h3>
+        <h3> Deposit Bank Details</h3>
         <div class="form-grid">
           <div class="form-group"><label class="form-label">Bank Name</label><input type="text" id="set_bank_name" class="form-input" /></div>
           <div class="form-group"><label class="form-label">Account Number</label><input type="text" id="set_account_number" class="form-input" /></div>
@@ -66,17 +82,22 @@
         </div>
       </div>
 
-      <div class="form-card">
-        <h3>🔗 Support Links</h3>
-        <div class="form-grid">
-          <div class="form-group"><label class="form-label">Telegram Link</label><input type="url" id="set_telegram_link" class="form-input" /></div>
-          <div class="form-group"><label class="form-label">WhatsApp Link</label><input type="url" id="set_customer_service_link" class="form-input" /></div>
-        </div>
-      </div>
-
       <button type="button" class="btn btn-primary" style="padding: 12px 24px; font-size: 14px;" onclick="saveAllSettings()">💾 Save All Settings</button>
     </form>
   </main>
+
+  <!-- Mobile Bottom Nav (Add this to all admin pages) -->
+  <nav class="admin-bottom-nav">
+    <div class="admin-bottom-nav-inner">
+      <a href="index.html" class="admin-nav-item"><svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>Overview</a>
+      <a href="users.html" class="admin-nav-item"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>Users</a>
+      <a href="deposits.html" class="admin-nav-item"><svg viewBox="0 0 24 24"><path d="M19 14V6c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zm-9-1c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm13-6v11c0 1.1-.9 2-2 2H4v-2h17V7h2z"/></svg>Deposits</a>
+      <a href="withdrawals.html" class="admin-nav-item"><svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>Withdrawals</a>
+      <a href="miners.html" class="admin-nav-item"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>Miners</a>
+      <a href="gift-codes.html" class="admin-nav-item"><svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/></svg>Gift Codes</a>
+      <a href="settings.html" class="admin-nav-item active"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L3.16 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>Settings</a>
+    </div>
+  </nav>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/api-client.js"></script>
@@ -90,13 +111,19 @@
       document.getElementById('set_min_deposit').value = getVal('min_deposit');
       document.getElementById('set_min_withdrawal').value = getVal('min_withdrawal');
       document.getElementById('set_withdrawal_fee_percent').value = getVal('withdrawal_fee_percent');
+      
+      // New Settings
+      document.getElementById('set_welcome_bonus').value = getVal('welcome_bonus');
+      document.getElementById('set_referral_bonus_direct').value = getVal('referral_bonus_direct');
+      document.getElementById('set_referral_level_1').value = getVal('referral_level_1');
+      document.getElementById('set_referral_level_2').value = getVal('referral_level_2');
+      document.getElementById('set_referral_level_3').value = getVal('referral_level_3');
+
       document.getElementById('set_withdrawal_start_hour').value = getVal('withdrawal_start_hour');
       document.getElementById('set_withdrawal_end_hour').value = getVal('withdrawal_end_hour');
       document.getElementById('set_bank_name').value = getVal('bank_name');
       document.getElementById('set_account_number').value = getVal('account_number');
       document.getElementById('set_account_name').value = getVal('account_name');
-      document.getElementById('set_telegram_link').value = getVal('telegram_link');
-      document.getElementById('set_customer_service_link').value = getVal('customer_service_link');
 
       try {
         const days = JSON.parse(getVal('withdrawal_days') || '[]');
@@ -116,14 +143,17 @@
         { key: 'min_deposit', value: document.getElementById('set_min_deposit').value },
         { key: 'min_withdrawal', value: document.getElementById('set_min_withdrawal').value },
         { key: 'withdrawal_fee_percent', value: document.getElementById('set_withdrawal_fee_percent').value },
+        { key: 'welcome_bonus', value: document.getElementById('set_welcome_bonus').value },
+        { key: 'referral_bonus_direct', value: document.getElementById('set_referral_bonus_direct').value },
+        { key: 'referral_level_1', value: document.getElementById('set_referral_level_1').value },
+        { key: 'referral_level_2', value: document.getElementById('set_referral_level_2').value },
+        { key: 'referral_level_3', value: document.getElementById('set_referral_level_3').value },
         { key: 'withdrawal_start_hour', value: document.getElementById('set_withdrawal_start_hour').value },
         { key: 'withdrawal_end_hour', value: document.getElementById('set_withdrawal_end_hour').value },
         { key: 'withdrawal_days', value: JSON.stringify(days) },
         { key: 'bank_name', value: document.getElementById('set_bank_name').value },
         { key: 'account_number', value: document.getElementById('set_account_number').value },
-        { key: 'account_name', value: document.getElementById('set_account_name').value },
-        { key: 'telegram_link', value: document.getElementById('set_telegram_link').value },
-        { key: 'customer_service_link', value: document.getElementById('set_customer_service_link').value }
+        { key: 'account_name', value: document.getElementById('set_account_name').value }
       ];
 
       for (const s of settingsToSave) await window.supabase.from('settings').upsert(s, { onConflict: 'key' });
@@ -131,43 +161,6 @@
       alert('✅ Settings saved!');
       btn.innerText = '💾 Save All Settings'; btn.disabled = false;
     };
-  </script>
-  <!-- Admin Mobile Bottom Navigation -->
-  <nav class="admin-bottom-nav">
-    <div class="admin-bottom-nav-inner">
-      <a href="index.html" class="admin-nav-item">
-        <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
-        Overview
-      </a>
-      <a href="users.html" class="admin-nav-item">
-        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-        Users
-      </a>
-      <a href="deposits.html" class="admin-nav-item">
-        <svg viewBox="0 0 24 24"><path d="M19 14V6c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zm-9-1c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm13-6v11c0 1.1-.9 2-2 2H4v-2h17V7h2z"/></svg>
-        Deposits
-      </a>
-      <a href="withdrawals.html" class="admin-nav-item">
-        <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
-        Withdrawals
-      </a>
-      <a href="settings.html" class="admin-nav-item">
-        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L3.16 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-        Settings
-      </a>
-    </div>
-  </nav>
-
-  <!-- Auto-Highlight Active Link Script -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const currentPath = window.location.pathname.split('/').pop() || 'index.html';
-      document.querySelectorAll('.admin-nav-item').forEach(link => {
-        if (link.getAttribute('href') === currentPath) {
-          link.classList.add('active');
-        }
-      });
-    });
   </script>
 </body>
 </html>
