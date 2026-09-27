@@ -9,8 +9,12 @@
 </head>
 <body>
 
+  <!-- Sidebar (Desktop) -->
   <aside class="admin-sidebar">
-    <div class="admin-logo"><div class="admin-logo-icon">J</div>JaKaTaRise</div>
+    <div class="admin-logo">
+      <div class="admin-logo-icon">J</div>
+      JaKaTaRise
+    </div>
     <nav class="admin-nav">
       <a href="index.html">📊 Overview</a>
       <a href="users.html" class="active">👥 Users</a>
@@ -22,10 +26,14 @@
     </nav>
   </aside>
 
+  <!-- Main Content -->
   <main class="admin-main">
     <div class="admin-header">
-      <h2>User Management</h2>
-      <input type="text" id="userSearch" placeholder="🔍 Search users..." class="form-input" style="width: 300px;" onkeyup="filterUsers()" />
+      <div>
+        <h2>User Management</h2>
+        <p style="color: var(--admin-text-muted); margin: 4px 0 0; font-size: 14px;">Manage accounts, balances, and referrals.</p>
+      </div>
+      <input type="text" id="userSearch" placeholder="🔍 Search by name or email..." class="form-input" style="width: 300px;" onkeyup="filterUsers()" />
     </div>
 
     <div class="table-container">
@@ -46,25 +54,26 @@
     </div>
   </main>
 
-  <!-- Update Balance Modal -->
+  <!-- Modal: Update Balance -->
   <div id="balanceModal" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-header">
         <h3>Update Wallet Balance</h3>
         <button class="close-modal" onclick="closeModal('balanceModal')">&times;</button>
       </div>
-      <p style="font-size: 14px; color: var(--admin-text-muted); margin-bottom: 20px;">
+      <p style="font-size: 14px; color: var(--admin-text-muted); margin-bottom: 10px;">
         User: <strong id="balModalEmail" style="color: var(--admin-text-main);">-</strong>
       </p>
-      <p style="font-size: 13px; color: var(--admin-text-muted); margin-bottom: 20px;">
+      <p style="font-size: 13px; color: var(--admin-text-muted); margin-bottom: 20px; background: #F8FAFC; padding: 10px; border-radius: 8px;">
         Current Balance: <strong id="balModalCurrent" style="color: var(--brand-primary);">₦0</strong>
       </p>
       <input type="hidden" id="balModalUserId" />
+      
       <div class="form-group" style="margin-bottom: 16px;">
         <label class="form-label">Action</label>
         <select id="balAction" class="form-input">
           <option value="credit">➕ Credit (Add Money)</option>
-          <option value="debit"> Debit (Remove Money)</option>
+          <option value="debit">➖ Debit (Remove Money)</option>
         </select>
       </div>
       <div class="form-group" style="margin-bottom: 16px;">
@@ -79,36 +88,65 @@
     </div>
   </div>
 
-  <!-- Team Modal -->
+  <!-- Modal: View Team -->
   <div id="teamModal" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-header">
         <h3>User's Referral Team</h3>
         <button class="close-modal" onclick="closeModal('teamModal')">&times;</button>
       </div>
-      <div id="teamModalContent" style="max-height: 300px; overflow-y: auto;"></div>
+      <div id="teamModalContent" style="max-height: 300px; overflow-y: auto;">
+        <p style="text-align:center; color: var(--admin-text-muted); padding: 20px;">Loading...</p>
+      </div>
     </div>
   </div>
+
+  <!-- Mobile Bottom Navigation -->
+  <nav class="admin-bottom-nav">
+    <div class="admin-bottom-nav-inner">
+      <a href="index.html" class="admin-nav-item">
+        <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+        Overview
+      </a>
+      <a href="users.html" class="admin-nav-item active">
+        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+        Users
+      </a>
+      <a href="deposits.html" class="admin-nav-item">
+        <svg viewBox="0 0 24 24"><path d="M19 14V6c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zm-9-1c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm13-6v11c0 1.1-.9 2-2 2H4v-2h17V7h2z"/></svg>
+        Deposits
+      </a>
+      <a href="withdrawals.html" class="admin-nav-item">
+        <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
+        Withdrawals
+      </a>
+      <a href="settings.html" class="admin-nav-item">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L3.16 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+        Settings
+      </a>
+    </div>
+  </nav>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/api-client.js"></script>
   <script src="../assets/js/admin-guard.js"></script>
+  
   <script>
     let allUsers = [];
     let adminUserId = null;
 
-    // Get admin user ID on load
+    // 1. Initialize
     document.addEventListener('DOMContentLoaded', async () => {
       const { data: { session } } = await window.supabase.auth.getSession();
       if (session) adminUserId = session.user.id;
       await loadUsers();
     });
 
+    // 2. Load Users from Database
     async function loadUsers() {
       const tbody = document.getElementById('usersTableBody');
       tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 40px;">Loading users...</td></tr>';
 
-      // Fetch profiles with wallet balance
       const { data: profiles, error } = await window.supabase
         .from('profiles')
         .select('id, full_name, email, is_active, created_at, wallets(balance)')
@@ -123,6 +161,7 @@
       renderUsers(allUsers);
     }
 
+    // 3. Render Table
     function renderUsers(users) {
       const tbody = document.getElementById('usersTableBody');
       
@@ -144,19 +183,23 @@
               <div style="font-weight:600;">${u.full_name || 'Unnamed'}</div>
               <div style="font-size:13px;color:var(--admin-text-muted);">${u.email || 'No email'}</div>
             </td>
-            <td style="font-weight:700; color: var(--brand-primary);">${Number(balance).toLocaleString()}</td>
+            <td style="font-weight:700; color: var(--brand-primary);">₦${Number(balance).toLocaleString()}</td>
             <td>${statusBadge}</td>
             <td style="color: var(--admin-text-muted);">${new Date(u.created_at).toLocaleDateString()}</td>
             <td style="text-align: right;">
-              <button class="btn btn-sm btn-outline" onclick="openBalanceModal('${u.id}', '${u.email || 'Unknown'}', ${balance})">💰 Balance</button>
-              <button class="btn btn-sm btn-outline" onclick="openTeamModal('${u.id}', '${u.full_name || 'User'}')">👥 Team</button>
-              ${!isSelf ? `<button class="btn btn-sm ${u.is_active ? 'btn-reject' : 'btn-approve'}" onclick="toggleBan('${u.id}', ${u.is_active})">${u.is_active ? 'Ban' : 'Unban'}</button>` : '<span style="font-size:11px;color:var(--admin-text-muted);">You</span>'}
+              <div style="display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap;">
+                <button class="btn btn-sm btn-outline" onclick="openBalanceModal('${u.id}', '${u.email || 'Unknown'}', ${balance})">💰 Balance</button>
+                <button class="btn btn-sm btn-outline" onclick="openTeamModal('${u.id}', '${u.full_name || 'User'}')">👥 Team</button>
+                <button class="btn btn-sm btn-outline" style="color: #D97706; border-color: #FCD34D;" onclick="impersonateUser('${u.email}')">👁️ View</button>
+                ${!isSelf ? `<button class="btn btn-sm ${u.is_active ? 'btn-reject' : 'btn-approve'}" onclick="toggleBan('${u.id}', ${u.is_active})">${u.is_active ? 'Ban' : 'Unban'}</button>` : ''}
+              </div>
             </td>
           </tr>
         `;
       }).join('');
     }
 
+    // 4. Search Filter
     window.filterUsers = function() {
       const query = document.getElementById('userSearch').value.toLowerCase();
       renderUsers(allUsers.filter(u => 
@@ -165,7 +208,7 @@
       ));
     };
 
-    // Balance Modal
+    // 5. Balance Modal Logic
     window.openBalanceModal = function(userId, email, currentBalance) {
       document.getElementById('balModalUserId').value = userId;
       document.getElementById('balModalEmail').innerText = email;
@@ -188,14 +231,10 @@
       btn.disabled = true;
 
       try {
-        // 1. Get current wallet balance
+        // Get current balance
         const { data: wallet, error: wErr } = await window.supabase
-          .from('wallets')
-          .select('balance')
-          .eq('user_id', userId)
-          .single();
-
-        if (wErr) throw new Error('Could not fetch wallet: ' + wErr.message);
+          .from('wallets').select('balance').eq('user_id', userId).single();
+        if (wErr) throw new Error('Could not fetch wallet');
 
         let newBalance = wallet.balance;
         if (action === 'credit') newBalance += amount;
@@ -203,39 +242,30 @@
 
         if (newBalance < 0) throw new Error('Insufficient funds for this debit');
 
-        // 2. Update wallet balance
-        const { error: updateErr } = await window.supabase
-          .from('wallets')
-          .update({ balance: newBalance })
-          .eq('user_id', userId);
+        // Update Wallet
+        await window.supabase.from('wallets').update({ balance: newBalance }).eq('user_id', userId);
 
-        if (updateErr) throw new Error('Failed to update balance: ' + updateErr.message);
-
-        // 3. Create transaction record
-        const { error: txErr } = await window.supabase
-          .from('transactions')
-          .insert({
-            user_id: userId,
-            type: 'admin_adjustment',
-            amount: action === 'credit' ? amount : -amount,
-            status: 'completed',
-            description: `Admin ${action}: ${reason}`
-          });
-
-        if (txErr) throw new Error('Failed to create record: ' + txErr.message);
+        // Create Transaction Record
+        await window.supabase.from('transactions').insert({
+          user_id: userId,
+          type: 'admin_adjustment',
+          amount: action === 'credit' ? amount : -amount,
+          status: 'completed',
+          description: `Admin ${action}: ${reason}`
+        });
 
         alert('✅ Balance updated successfully!');
         closeModal('balanceModal');
         await loadUsers();
       } catch (err) {
-        alert(' Error: ' + err.message);
+        alert('❌ Error: ' + err.message);
       }
 
       btn.innerText = 'Confirm Update';
       btn.disabled = false;
     };
 
-    // Team Modal
+    // 6. Team Modal Logic
     window.openTeamModal = async function(userId, userName) {
       document.getElementById('teamModal').classList.add('active');
       const content = document.getElementById('teamModalContent');
@@ -273,7 +303,25 @@
       `;
     };
 
-    // Ban/Unban
+    // 7. Impersonate Logic (Safe Fallback)
+    window.impersonateUser = async function(email) {
+      if(!email || email === 'No email') return alert('Cannot view user without an email address.');
+      if(!confirm(`Generate a magic login link for ${email}?`)) return;
+      
+      try {
+        const result = await callApi('/api/impersonate', { email });
+        if(result.magic_link) {
+          window.open(result.magic_link, '_blank');
+          alert('✅ Magic link opened in new tab.');
+        } else {
+          alert('⚠️ API not ready. Please ensure api/impersonate.js is deployed.');
+        }
+      } catch (err) {
+        alert('⚠️ Network Error: The impersonation API is not deployed yet. Please deploy api/impersonate.js to Vercel.');
+      }
+    };
+
+    // 8. Ban/Unban Logic
     window.toggleBan = async function(userId, currentStatus) {
       const action = currentStatus ? 'BAN' : 'UNBAN';
       if (!confirm(`Are you sure you want to ${action} this user?`)) return;
@@ -291,6 +339,7 @@
       }
     };
 
+    // Helper
     window.closeModal = function(id) {
       document.getElementById(id).classList.remove('active');
     };
