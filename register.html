@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Forgot Password - JaKaTaRise Capital</title>
+  <title>Register - JaKaTaRise Capital</title>
   <link rel="stylesheet" href="assets/css/styles.css" />
   <style>
     .auth-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); }
@@ -19,23 +19,39 @@
   <div class="auth-wrapper">
     <div class="auth-card">
       <div class="auth-header">
-        <h2>Reset Password</h2>
-        <p class="text-muted">Enter your email to receive a reset link</p>
+        <h2>Create Account</h2>
+        <p class="text-muted">Start your mining journey today</p>
       </div>
 
       <div id="alert" class="alert"></div>
 
-      <form id="forgotForm">
+      <form id="registerForm">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" id="fullName" class="form-input" placeholder="John Doe" required />
+        </div>
         <div class="form-group">
           <label class="form-label">Email Address</label>
           <input type="email" id="email" class="form-input" placeholder="you@example.com" required />
         </div>
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <input type="tel" id="phone" class="form-input" placeholder="+234..." required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="password" class="form-input" placeholder="Min. 6 characters" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Referral Code <span class="text-muted" style="font-weight: 400;">(Optional)</span></label>
+          <input type="text" id="refCode" class="form-input" placeholder="Enter referral code" style="text-transform: uppercase;" />
+        </div>
 
-        <button type="submit" class="btn btn-primary btn-block">Send Reset Link</button>
+        <button type="submit" class="btn btn-primary btn-block">Create Account</button>
       </form>
 
       <div class="auth-links">
-        Remember your password? <a href="login.html">Sign In</a>
+        Already have an account? <a href="login.html">Sign In</a>
       </div>
     </div>
   </div>
@@ -46,21 +62,34 @@
     const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
     const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-    document.getElementById('forgotForm').addEventListener('submit', async (e) => {
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
       e.preventDefault();
+      const fullName = document.getElementById('fullName').value;
       const email = document.getElementById('email').value;
+      const phone = document.getElementById('phone').value;
+      const password = document.getElementById('password').value;
+      const refCode = document.getElementById('refCode').value.trim().toUpperCase();
       const alertBox = document.getElementById('alert');
 
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + '/change-password.html'
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+            phone: phone,
+            referral_code: refCode
+          }
+        }
       });
 
       if (error) {
         alertBox.textContent = error.message;
         alertBox.className = 'alert alert-error show';
       } else {
-        alertBox.textContent = 'If an account exists, a reset link has been sent.';
+        alertBox.textContent = 'Account created! Please check your email to verify.';
         alertBox.className = 'alert alert-success show';
+        document.getElementById('registerForm').reset();
       }
     });
   </script>
