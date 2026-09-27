@@ -4,7 +4,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --admin-bg: #F8FAFC;
+  --admin-bg: #F5F7FA; /* Dreamy Soft Cloud Blue - Easy on the eyes */
   --admin-surface: #FFFFFF;
   --admin-border: #E2E8F0;
   --admin-text-main: #0F172A;
@@ -22,7 +22,25 @@
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
 }
+/* Update the bottom nav to be scrollable for 7 items */
+.admin-bottom-nav-inner {
+  display: flex;
+  justify-content: flex-start; /* Changed from space-around */
+  align-items: center;
+  max-width: 100%;
+  margin: 0 auto;
+  overflow-x: auto; /* Allows scrolling on mobile */
+  gap: 8px;
+  padding: 0 10px;
+  scrollbar-width: none; /* Hide scrollbar Firefox */
+}
+.admin-bottom-nav-inner::-webkit-scrollbar { display: none; } /* Hide scrollbar Chrome */
 
+.admin-nav-item {
+  min-width: 70px; /* Fixed width so they don't squish */
+  flex-shrink: 0;
+  /* ... keep the rest the same ... */
+}
 * { box-sizing: border-box; }
 
 body {
