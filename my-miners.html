@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Miners - JaKaTaRise Capital</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <style>
+    .page-header { padding: 40px 0; text-align: center; }
+    .page-header h1 { color: var(--primary); margin-bottom: 10px; }
+    
+    .miners-list { display: flex; flex-direction: column; gap: 20px; padding-bottom: 60px; }
+    .active-miner-card { background: #fff; padding: 25px; border-radius: var(--radius); box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 15px; border-left: 4px solid var(--success); }
+    
+    .miner-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .miner-title { font-size: 20px; font-weight: 800; color: var(--text-main); }
+    .status-badge { background: #F0FDF4; color: var(--success); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+    
+    .miner-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; background: var(--bg); padding: 15px; border-radius: 8px; }
+    .mini-stat-label { font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
+    .mini-stat-val { font-size: 16px; font-weight: 700; color: var(--text-main); }
+    
+    .progress-container { margin-top: 10px; }
+    .progress-header { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; font-weight: 600; }
+    .progress-bar { width: 100%; height: 10px; background: var(--border); border-radius: 5px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 5px; transition: width 0.5s ease; }
+    
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+    .empty-state h3 { color: var(--text-main); margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <div id="app-header"></div>
+
+  <header class="page-header">
+    <div class="container">
+      <h1>My Active Miners</h1>
+      <p class="text-muted">Monitor your rented mining rigs and track your daily earnings.</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="miners-list" id="myMinersContainer">
+      <!-- Mock Data for UI Demonstration -->
+      <div class="active-miner-card">
+        <div class="miner-top">
+          <div class="miner-title">1st Grade Miner</div>
+          <div class="status-badge">● Active</div>
+        </div>
+        <div class="miner-stats">
+          <div><div class="mini-stat-label">Daily Yield</div><div class="mini-stat-val text-primary">₦690</div></div>
+          <div><div class="mini-stat-label">Total Collected</div><div class="mini-stat-val">₦6,900</div></div>
+          <div><div class="mini-stat-label">End Date</div><div class="mini-stat-val">Oct 24, 2025</div></div>
+        </div>
+        <div class="progress-container">
+          <div class="progress-header">
+            <span>Day 10 of 180</span>
+            <span>5.5%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width: 5.5%;"></div></div>
+        </div>
+      </div>
+      
+      <!-- Empty State Example (Uncomment to test) -->
+      <!-- 
+      <div class="empty-state">
+        <h3>No Active Miners</h3>
+        <p>You haven't rented any mining rigs yet.</p>
+        <a href="rent-miners.html" class="btn btn-primary" style="margin-top: 20px;">Rent Your First Miner</a>
+      </div> 
+      -->
+    </div>
+  </main>
+
+  <div id="app-footer"></div>
+  <script src="assets/js/components.js"></script>
+</body>
+</html>
