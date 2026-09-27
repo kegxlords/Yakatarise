@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rent Miners - JaKaTaRise Capital</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <style>
+    .page-header { padding: 40px 0; text-align: center; }
+    .page-header h1 { color: var(--primary); margin-bottom: 10px; }
+    
+    .miners-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; padding-bottom: 60px; }
+    .miner-card { background: #fff; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); border-top: 4px solid var(--accent); transition: transform 0.3s; }
+    .miner-card:hover { transform: translateY(-5px); }
+    .miner-body { padding: 25px; }
+    .miner-name { font-size: 22px; font-weight: 800; color: var(--text-main); margin-bottom: 10px; }
+    .miner-price { font-size: 32px; font-weight: 800; color: var(--primary); margin-bottom: 20px; }
+    .miner-specs { margin-bottom: 25px; }
+    .spec-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 15px; }
+    .spec-row:last-child { border-bottom: none; }
+  </style>
+</head>
+<body>
+  <div id="app-header"></div>
+
+  <header class="page-header">
+    <div class="container">
+      <h1>Mining Marketplace</h1>
+      <p class="text-muted">Choose a powerful mining rig to start generating daily passive income.</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="miners-grid" id="minersContainer">
+      <!-- Miners will be injected here by JS -->
+    </div>
+  </main>
+
+  <div id="app-footer"></div>
+  <script src="assets/js/components.js"></script>
+  <script>
+    // Mock Data (Replace with Supabase fetch in Phase 3)
+    const miners = [
+      { name: 'Pre Grade Miner', price: 6200, daily: 310, duration: 180, limit: 1, total: 55800 },
+      { name: '1st Grade Miner', price: 13800, daily: 690, duration: 180, limit: 1, total: 124200 }
+    ];
+
+    const container = document.getElementById('minersContainer');
+    container.innerHTML = miners.map(m => `
+      <div class="miner-card">
+        <div class="miner-body">
+          <div class="miner-name">${m.name}</div>
+          <div class="miner-price">₦${m.price.toLocaleString()}</div>
+          <div class="miner-specs">
+            <div class="spec-row"><span class="text-muted">Daily Revenue</span><strong class="text-primary">₦${m.daily}</strong></div>
+            <div class="spec-row"><span class="text-muted">Contract Duration</span><strong>${m.duration} Days</strong></div>
+            <div class="spec-row"><span class="text-muted">Total Return</span><strong>₦${m.total.toLocaleString()}</strong></div>
+            <div class="spec-row"><span class="text-muted">Purchase Limit</span><strong>${m.limit} per user</strong></div>
+          </div>
+          <button class="btn btn-primary btn-block" onclick="alert('Rental logic coming in Phase 3!')">Rent Miner</button>
+        </div>
+      </div>
+    `).join('');
+  </script>
+</body>
+</html>
