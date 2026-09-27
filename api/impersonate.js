@@ -10,6 +10,11 @@ export default async function handler(req, res) {
   }
 
   // 1. Verify Admin
+  // Inside api/impersonate.js
+// Change this:
+// const authHeader = req.headers.get('authorization');
+
+// To this:
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ error: 'No token provided' });
 
