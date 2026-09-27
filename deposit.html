@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deposit Funds - JaKaTaRise Capital</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <style>
+    .wallet-header { background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); color: #fff; padding: 40px 0; margin-bottom: 30px; }
+    .wallet-header h1 { color: #fff; }
+    
+    .deposit-card { max-width: 600px; margin: 0 auto; }
+    .bank-details { background: #FEF3C7; border: 1px solid #FCD34D; padding: 20px; border-radius: var(--radius); margin-bottom: 20px; }
+    .bank-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 15px; }
+    .bank-row:last-child { margin-bottom: 0; }
+    .copy-btn { background: var(--primary); color: #fff; border: none; padding: 4px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div id="app-header"></div>
+
+  <header class="wallet-header">
+    <div class="container">
+      <h1>Fund Your Wallet</h1>
+      <p>Make a transfer to the account details below to activate your mining power.</p>
+    </div>
+  </header>
+
+  <main class="container" style="padding-bottom: 60px;">
+    <div class="card deposit-card">
+      <h3 style="margin-bottom: 20px; color: var(--primary);">Bank Transfer Details</h3>
+      
+      <div class="bank-details">
+        <div class="bank-row"><span class="text-muted">Bank Name:</span> <strong>Opay / Moniepoint</strong></div>
+        <div class="bank-row"><span class="text-muted">Account Number:</span> <strong>8012345678 <button class="copy-btn">Copy</button></strong></div>
+        <div class="bank-row"><span class="text-muted">Account Name:</span> <strong>JaKaTaRise Capital</strong></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Amount Sent (₦)</label>
+        <input type="number" class="form-input" placeholder="e.g. 6200" />
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Transaction Reference / Sender Name</label>
+        <input type="text" class="form-input" placeholder="Helps us identify your payment" />
+      </div>
+
+      <button class="btn btn-primary btn-block">I Have Made This Transfer</button>
+      
+      <p class="text-muted" style="font-size: 12px; text-align: center; margin-top: 15px;">
+        Deposits are typically credited within 5-30 minutes during working hours.
+      </p>
+    </div>
+  </main>
+
+  <div id="app-footer"></div>
+  <script src="assets/js/components.js"></script>
+</body>
+</html>
