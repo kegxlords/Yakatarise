@@ -18,8 +18,8 @@
       <a href="index.html">📊 Overview</a>
       <a href="users.html">👥 Users</a>
       <a href="deposits.html">💰 Deposits</a>
-      <a href="withdrawals.html"> Withdrawals</a>
-      <a href="miners.html">⛏️ Mining Plans</a>
+      <a href="withdrawals.html">💸 Withdrawals</a>
+      <a href="miners.html">️ Mining Plans</a>
       <a href="settings.html" class="active">⚙️ Global Settings</a>
       <a href="../index.html" style="margin-top: 20px; border-top: 1px solid #1E293B; padding-top: 20px;">🌐 View Live Site</a>
     </nav>
@@ -30,26 +30,24 @@
       <h2>Global Platform Settings</h2>
     </div>
 
-    <form id="settingsForm">
+    <div id="loadingMsg" style="text-align:center; padding: 20px; color: #64748B;">Loading settings from database...</div>
+
+    <form id="settingsForm" style="display:none;">
       <!-- Financial Rules -->
       <div class="form-card">
-        <h3>💰 Financial Rules</h3>
+        <h3> Financial Rules</h3>
         <div class="form-grid">
           <div class="form-group">
             <label class="form-label">Minimum Deposit (₦)</label>
-            <input type="number" class="form-input" value="1000" />
+            <input type="number" id="set_min_deposit" class="form-input" />
           </div>
           <div class="form-group">
             <label class="form-label">Minimum Withdrawal (₦)</label>
-            <input type="number" class="form-input" value="1000" />
+            <input type="number" id="set_min_withdrawal" class="form-input" />
           </div>
           <div class="form-group">
             <label class="form-label">Withdrawal Fee (%)</label>
-            <input type="number" class="form-input" value="8" step="0.1" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Direct Referral Bonus (%)</label>
-            <input type="number" class="form-input" value="8" />
+            <input type="number" id="set_withdrawal_fee_percent" class="form-input" step="0.1" />
           </div>
         </div>
       </div>
@@ -60,50 +58,138 @@
         <div class="form-grid">
           <div class="form-group">
             <label class="form-label">Opening Hour (24h format)</label>
-            <input type="number" class="form-input" value="9" min="0" max="23" />
+            <input type="number" id="set_withdrawal_start_hour" class="form-input" min="0" max="23" />
           </div>
           <div class="form-group">
             <label class="form-label">Closing Hour (24h format)</label>
-            <input type="number" class="form-input" value="17" min="0" max="23" />
+            <input type="number" id="set_withdrawal_end_hour" class="form-input" min="0" max="23" />
           </div>
-          <div class="form-group">
-            <label class="form-label">Allowed Days</label>
-            <select class="form-input" multiple style="height: 100px;">
-              <option value="1" selected>Monday</option>
-              <option value="2" selected>Tuesday</option>
-              <option value="3" selected>Wednesday</option>
-              <option value="4" selected>Thursday</option>
-              <option value="5" selected>Friday</option>
-              <option value="6" selected>Saturday</option>
-              <option value="0">Sunday</option>
-            </select>
-            <small class="text-muted">Hold Ctrl/Cmd to select multiple days.</small>
-          </div>
+        </div>
+        
+        <label class="form-label" style="margin-top: 15px;">Allowed Withdrawal Days</label>
+        <div style="display: flex; gap: 15px; flex-wrap: wrap; background: #F8FAFC; padding: 15px; border-radius: 8px;">
+          <label style="display:flex;align-items:center;gap:5px;"><input type="checkbox" class="day-check" value="1"> Monday</label>
+          <label style="display:flex;align-items:center;gap:5px;"><input type="checkbox" class="day-check" value="2"> Tuesday</label>
+          <label style="display:flex;align-items:center;gap:5px;"><input type="checkbox" class="day-check" value="3"> Wednesday</label>
+          <label style="display:flex;align-items:center;gap:5px;"><input type="checkbox" class="day-check" value="4"> Thursday</label>
+          <label style="display:flex;align-items:center;gap:5px;"><input type="checkbox" class="day-check" value="5"> Friday</label>
+          <label style="display:flex;align-items:center;gap:5px;"><input type="checkbox" class="day-check" value="6"> Saturday</label>
+          <label style="display:flex;align-items:center;gap:5px;"><input type="checkbox" class="day-check" value="0"> Sunday</label>
         </div>
       </div>
 
-      <!-- Contact & Links -->
+      <!-- Deposit Bank Details -->
       <div class="form-card">
-        <h3>🔗 Contact & Support Links</h3>
+        <h3>🏦 User Deposit Account Details</h3>
+        <p style="font-size: 13px; color: #64748B; margin-bottom: 15px;">These details will be shown to users on the Deposit page.</p>
         <div class="form-grid">
           <div class="form-group">
-            <label class="form-label">Telegram Channel Link</label>
-            <input type="url" class="form-input" value="https://t.me/jakatarise" />
+            <label class="form-label">Bank Name</label>
+            <input type="text" id="set_bank_name" class="form-input" />
           </div>
           <div class="form-group">
-            <label class="form-label">WhatsApp Support Link</label>
-            <input type="url" class="form-input" value="https://wa.me/1234567890" />
+            <label class="form-label">Account Number</label>
+            <input type="text" id="set_account_number" class="form-input" />
           </div>
           <div class="form-group">
-            <label class="form-label">Support Email</label>
-            <input type="email" class="form-input" value="support@jakatarise.com" />
+            <label class="form-label">Account Name</label>
+            <input type="text" id="set_account_name" class="form-input" />
           </div>
         </div>
       </div>
 
-      <button type="button" class="btn btn-primary" onclick="alert('Settings saved to database!')">💾 Save All Settings</button>
+      <!-- Support Links -->
+      <div class="form-card">
+        <h3>🔗 Support Links</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Telegram Link</label>
+            <input type="url" id="set_telegram_link" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">WhatsApp/Customer Service Link</label>
+            <input type="url" id="set_customer_service_link" class="form-input" />
+          </div>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-primary" onclick="saveAllSettings()" style="padding: 15px 30px; font-size: 16px;">💾 Save All Settings</button>
     </form>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/js/api-client.js"></script>
+  <script src="../assets/js/admin-guard.js"></script>
+  
+  <script>
+    // 1. Load Settings from Database
+    document.addEventListener('DOMContentLoaded', async () => {
+      const { data: settings, error } = await window.supabase.from('settings').select('*');
+      
+      if (error) {
+        document.getElementById('loadingMsg').innerText = 'Error loading settings.';
+        return;
+      }
+
+      // Helper to find value by key
+      const getVal = (key) => settings.find(s => s.key === key)?.value || '';
+
+      // Map DB keys to Input IDs
+      document.getElementById('set_min_deposit').value = getVal('min_deposit');
+      document.getElementById('set_min_withdrawal').value = getVal('min_withdrawal');
+      document.getElementById('set_withdrawal_fee_percent').value = getVal('withdrawal_fee_percent');
+      document.getElementById('set_withdrawal_start_hour').value = getVal('withdrawal_start_hour');
+      document.getElementById('set_withdrawal_end_hour').value = getVal('withdrawal_end_hour');
+      document.getElementById('set_bank_name').value = getVal('bank_name');
+      document.getElementById('set_account_number').value = getVal('account_number');
+      document.getElementById('set_account_name').value = getVal('account_name');
+      document.getElementById('set_telegram_link').value = getVal('telegram_link');
+      document.getElementById('set_customer_service_link').value = getVal('customer_service_link');
+
+      // Handle Days (JSON Array string)
+      try {
+        const allowedDays = JSON.parse(getVal('withdrawal_days') || '[]');
+        document.querySelectorAll('.day-check').forEach(cb => {
+          if (allowedDays.includes(parseInt(cb.value))) cb.checked = true;
+        });
+      } catch(e) { console.error('Days parse error', e); }
+
+      document.getElementById('loadingMsg').style.display = 'none';
+      document.getElementById('settingsForm').style.display = 'block';
+    });
+
+    // 2. Save Settings to Database
+    window.saveAllSettings = async function() {
+      const btn = event.target;
+      btn.innerText = 'Saving...';
+      btn.disabled = true;
+
+      // Gather Days
+      const selectedDays = Array.from(document.querySelectorAll('.day-check:checked')).map(cb => parseInt(cb.value));
+
+      const settingsToSave = [
+        { key: 'min_deposit', value: document.getElementById('set_min_deposit').value },
+        { key: 'min_withdrawal', value: document.getElementById('set_min_withdrawal').value },
+        { key: 'withdrawal_fee_percent', value: document.getElementById('set_withdrawal_fee_percent').value },
+        { key: 'withdrawal_start_hour', value: document.getElementById('set_withdrawal_start_hour').value },
+        { key: 'withdrawal_end_hour', value: document.getElementById('set_withdrawal_end_hour').value },
+        { key: 'withdrawal_days', value: JSON.stringify(selectedDays) },
+        { key: 'bank_name', value: document.getElementById('set_bank_name').value },
+        { key: 'account_number', value: document.getElementById('set_account_number').value },
+        { key: 'account_name', value: document.getElementById('set_account_name').value },
+        { key: 'telegram_link', value: document.getElementById('set_telegram_link').value },
+        { key: 'customer_service_link', value: document.getElementById('set_customer_service_link').value }
+      ];
+
+      // Upsert each setting
+      for (const setting of settingsToSave) {
+        await window.supabase.from('settings').upsert(setting, { onConflict: 'key' });
+      }
+
+      alert('✅ Settings saved successfully! Changes will reflect on the user app immediately.');
+      btn.innerText = '💾 Save All Settings';
+      btn.disabled = false;
+    };
+  </script>
 </body>
 </html>
