@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Withdraw Funds - JaKaTaRise Capital</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <style>
+    .wallet-header { background: linear-gradient(135deg, #8B0000 0%, #4A0404 100%); color: #fff; padding: 40px 0; margin-bottom: 30px; }
+    .wallet-header h1 { color: #fff; }
+    
+    .withdraw-card { max-width: 600px; margin: 0 auto; }
+    .calc-box { background: var(--bg); padding: 20px; border-radius: var(--radius); margin-bottom: 20px; border: 1px solid var(--border); }
+    .calc-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 15px; }
+    .calc-row.total { border-top: 1px solid var(--border); padding-top: 10px; margin-top: 10px; font-weight: 800; font-size: 18px; color: var(--primary); }
+  </style>
+</head>
+<body>
+  <div id="app-header"></div>
+
+  <header class="wallet-header">
+    <div class="container">
+      <h1>Withdraw Earnings</h1>
+      <p>Available Balance: <strong style="color: var(--accent);">₦0.00</strong></p>
+    </div>
+  </header>
+
+  <main class="container" style="padding-bottom: 60px;">
+    <div class="card withdraw-card">
+      
+      <!-- Time Status Container -->
+      <div id="withdrawStatusMsg"></div>
+
+      <form id="withdrawForm">
+        <div class="form-group">
+          <label class="form-label">Amount to Withdraw ()</label>
+          <input type="number" id="withdrawAmount" class="form-input" placeholder="Min. ₦1,000" required />
+          <small id="minDisplay" class="text-muted" style="font-size: 12px;"> </small>
+        </div>
+
+        <!-- Live Calculation Box -->
+        <div class="calc-box">
+          <div class="calc-row"><span class="text-muted">Withdrawal Charge (8%):</span> <span id="feeDisplay">₦0.00</span></div>
+          <div class="calc-row total"><span>You Will Receive:</span> <span id="netDisplay">₦0.00</span></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Bank Name</label>
+          <input type="text" class="form-input" placeholder="e.g. GTBank" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Account Number</label>
+          <input type="tel" class="form-input" placeholder="10 digits" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Account Name</label>
+          <input type="text" class="form-input" placeholder="Name on account" required />
+        </div>
+
+        <button type="submit" id="submitWithdrawBtn" class="btn btn-primary btn-block">Submit Withdrawal Request</button>
+      </form>
+    </div>
+  </main>
+
+  <div id="app-footer"></div>
+  <script src="assets/js/components.js"></script>
+  <script src="assets/js/wallet.js"></script>
+</body>
+</html>
