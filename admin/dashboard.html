@@ -528,20 +528,24 @@
         return `<tr><td>${tx.profiles?.email || 'Unknown'}</td><td style="font-weight:700;color:#D4AF37;">₦${Number(tx.amount).toLocaleString()}</td><td style="font-size:11px;color:#8E8E93;">${tx.description || 'N/A'}</td><td><span class="badge-dark ${badgeClass}">${tx.status}</span></td><td>${actions}</td></tr>`;
       }).join('');
     }
-    // ===== SAFE DEPOSIT APPROVAL (FIXED) =====
+    // ===== FIXED DEPOSIT APPROVAL (Updates Total Deposits) =====
     window.approveDeposit = async function(id, userId, amount) {
       if(!confirm(`Approve ₦${Number(amount).toLocaleString()}?`)) return;
       
       try {
-        // 1. Find the user's wallet
+        // 1. Find the user's wallet safely
         let { data: wallet, error: wErr } = await window.supabase
           .from('wallets').select('balance, total_deposited').eq('user_id', userId).single();
           
         if (wErr || !wallet) throw new Error("User wallet not found.");
 
-        // 2. Calculate new totals
-        const newBalance = Number(wallet.balance) + Number(amount);
-        const newTotalDeposited = Number(wallet.total_deposited || 0) + Number(amount);
+        // 2. Calculate new totals (Ensure they are treated as numbers)
+        const currentBalance = Number(wallet.balance) || 0;
+        const currentTotalDeposited = Number(wallet.total_deposited) || 0;
+        const depositAmount = Number(amount);
+
+        const newBalance = currentBalance + depositAmount;
+        const newTotalDeposited = currentTotalDeposited + depositAmount;
 
         // 3. Update Wallet (Balance AND Total Deposited)
         const { error: uErr } = await window.supabase
@@ -559,33 +563,12 @@
           .from('transactions').update({ status: 'approved' }).eq('id', id);
         if (tErr) throw new Error("Failed to update transaction: " + tErr.message);
 
-        alert('✅ Approved successfully!');
-        loadDeposits(); 
+        alert('✅ Approved successfully! Total deposits updated.');
+        loadDeposits(); // Refresh the list
       } catch (err) {
         alert('❌ Error: ' + err.message);
       }
     };
-    window.rejectDeposit = async function(id) {
-      if(!confirm('Reject this deposit?')) return;
-      await window.supabase.from('transactions').update({ status: 'rejected' }).eq('id', id); loadDeposits();
-    };
-
-    // ===== WITHDRAWALS =====
-    async function loadWithdrawals() {
-      const filter = document.getElementById('withdrawalFilter').value;
-      let query = window.supabase.from('transactions').select('*, profiles(email)').eq('type', 'withdrawal').order('created_at', { ascending: false });
-      if (filter !== 'all') query = query.eq('status', filter);
-      const { data: txs } = await query;
-      const tbody = document.getElementById('withdrawalBody');
-      if (!txs || txs.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="loading-text">No withdrawals found.</td></tr>'; return; }
-      tbody.innerHTML = txs.map(tx => {
-        const amount = Number(tx.amount); const fee = amount * 0.08; const net = amount - fee;
-        let badgeClass = 'badge-yellow';
-        if(tx.status === 'approved') badgeClass = 'badge-green'; if(tx.status === 'rejected') badgeClass = 'badge-red';
-        let actions = tx.status === 'pending' ? `<div class="action-btns"><button class="btn-tiny btn-tiny-approve" onclick="approveWithdrawal('${tx.id}')">Paid</button><button class="btn-tiny btn-tiny-reject" onclick="rejectWithdrawal('${tx.id}','${tx.user_id}',${amount})">Reject</button></div>` : '<span style="color:#8E8E93;font-size:11px;">Done</span>';
-        return `<tr><td>${tx.profiles?.email || 'Unknown'}</td><td style="font-weight:700;">₦${amount.toLocaleString()}</td><td style="color:#FF453A;">-₦${fee.toLocaleString()}</td><td style="color:#30D158;font-weight:700;">₦${net.toLocaleString()}</td><td style="font-size:11px;color:#8E8E93;">${tx.description || 'N/A'}</td><td><span class="badge-dark ${badgeClass}">${tx.status}</span></td><td>${actions}</td></tr>`;
-      }).join('');
-    }
     window.approveWithdrawal = async function(id) {
       if(!confirm('Mark as paid?')) return;
       await window.supabase.from('transactions').update({ status: 'approved' }).eq('id', id);
