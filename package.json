@@ -1,0 +1,8 @@
+{
+  "name": "jakatarise-capital-api",
+  "version": "1.0.0",
+  "description": "Backend API for JaKaTaRise Capital",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.3"
+  }
+}
