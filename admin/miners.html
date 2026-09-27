@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Miners - JaKaTaRise Admin</title>
+  <link rel="stylesheet" href="../assets/css/styles.css" />
+  <link rel="stylesheet" href="../assets/css/admin.css" />
+</head>
+<body>
+
+  <aside class="admin-sidebar">
+    <div class="admin-logo">
+      <div style="width:30px;height:30px;background:var(--primary);color:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;">J</div>
+      JaKaTaRise Admin
+    </div>
+    <nav class="admin-nav">
+      <a href="index.html">📊 Overview</a>
+      <a href="users.html">👥 Users</a>
+      <a href="deposits.html">💰 Deposits</a>
+      <a href="withdrawals.html"> Withdrawals</a>
+      <a href="miners.html" class="active">⛏️ Mining Plans</a>
+      <a href="settings.html">⚙️ Global Settings</a>
+      <a href="../index.html" style="margin-top: 20px; border-top: 1px solid #1E293B; padding-top: 20px;">🌐 View Live Site</a>
+    </nav>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-header">
+      <h2>Mining Plans Management</h2>
+    </div>
+
+    <!-- Add New Miner Form -->
+    <div class="form-card">
+      <h3>➕ Add New Mining Plan</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Plan Name</label>
+          <input type="text" id="newMinerName" class="form-input" placeholder="e.g. 2nd Grade Miner" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Price (₦)</label>
+          <input type="number" id="newMinerPrice" class="form-input" placeholder="e.g. 25000" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Daily Revenue (₦)</label>
+          <input type="number" id="newMinerDaily" class="form-input" placeholder="e.g. 1200" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Duration (Days)</label>
+          <input type="number" id="newMinerDuration" class="form-input" placeholder="e.g. 180" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Purchase Limit</label>
+          <input type="number" id="newMinerLimit" class="form-input" value="1" />
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="addMiner()" style="margin-top: 15px;">Save New Plan</button>
+    </div>
+
+    <!-- Miners List -->
+    <div class="form-card" style="padding: 0; overflow: hidden;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Plan Name</th>
+            <th>Price</th>
+            <th>Daily Revenue</th>
+            <th>Duration</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="minersTableBody">
+          <tr><td colspan="6" style="text-align:center; padding: 30px;">Loading miners...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/js/api-client.js"></script>
+  <script src="../assets/js/admin-guard.js"></script>
+  
+  <script>
+    // 1. Load Miners
+    async function loadMiners() {
+      const { data: miners, error } = await window.supabase.from('miners').select('*').order('price', { ascending: true });
+      const tbody = document.getElementById('minersTableBody');
+
+      if (error || !miners) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Error loading miners.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = miners.map(m => `
+        <tr>
+          <td style="font-weight:700;">${m.name}</td>
+          <td>₦${Number(m.price).toLocaleString()}</td>
+          <td>₦${Number(m.daily_revenue).toLocaleString()}</td>
+          <td>${m.duration_days} Days</td>
+          <td>
+            <span style="padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; background: ${m.is_active ? '#F0FDF4' : '#FEF2F2'}; color: ${m.is_active ? 'var(--success)' : 'var(--danger)'};">
+              ${m.is_active ? 'ACTIVE' : 'LOCKED'}
+            </span>
+          </td>
+          <td>
+            <button class="btn btn-sm ${m.is_active ? 'btn-reject' : 'btn-approve'}" onclick="toggleMiner('${m.id}', ${m.is_active})">
+              ${m.is_active ? 'Lock' : 'Activate'}
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // 2. Add New Miner
+    window.addMiner = async function() {
+      const name = document.getElementById('newMinerName').value;
+      const price = document.getElementById('newMinerPrice').value;
+      const daily = document.getElementById('newMinerDaily').value;
+      const duration = document.getElementById('newMinerDuration').value;
+      const limit = document.getElementById('newMinerLimit').value;
+
+      if(!name || !price || !daily || !duration) {
+        alert('Please fill in all required fields.');
+        return;
+      }
+
+      const { error } = await window.supabase.from('miners').insert({
+        name, price, daily_revenue: daily, duration_days: duration, purchase_limit: limit, is_active: true
+      });
+
+      if(error) {
+        alert('Error adding miner: ' + error.message);
+      } else {
+        alert('✅ Miner added successfully!');
+        document.getElementById('newMinerName').value = '';
+        document.getElementById('newMinerPrice').value = '';
+        document.getElementById('newMinerDaily').value = '';
+        document.getElementById('newMinerDuration').value = '';
+        loadMiners();
+      }
+    };
+
+    // 3. Toggle Miner Status
+    window.toggleMiner = async function(id, currentStatus) {
+      const newStatus = !currentStatus;
+      const { error } = await window.supabase.from('miners').update({ is_active: newStatus }).eq('id', id);
+      
+      if(error) alert('Error updating status.');
+      else loadMiners();
+    };
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', loadMiners);
+  </script>
+</body>
+</html>
