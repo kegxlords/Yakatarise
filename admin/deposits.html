@@ -93,10 +93,42 @@
       }).join('');
     }
 
+    // ===== SAFE DEPOSIT APPROVAL (FIXED) =====
     window.approveDeposit = async function(id, userId, amount) {
-      if(!confirm(`Approve ₦${amount.toLocaleString()} deposit?`)) return;
-      const result = await callApi('/api/approve-deposit', { transaction_id: id, user_id: userId, amount });
-      if(result.success) { alert('✅ Approved!'); loadDeposits(); } else alert(' ' + result.error);
+      if(!confirm(`Approve ₦${Number(amount).toLocaleString()}?`)) return;
+      
+      try {
+        // 1. Find the user's wallet
+        let { data: wallet, error: wErr } = await window.supabase
+          .from('wallets').select('balance, total_deposited').eq('user_id', userId).single();
+          
+        if (wErr || !wallet) throw new Error("User wallet not found.");
+
+        // 2. Calculate new totals
+        const newBalance = Number(wallet.balance) + Number(amount);
+        const newTotalDeposited = Number(wallet.total_deposited || 0) + Number(amount);
+
+        // 3. Update Wallet (Balance AND Total Deposited)
+        const { error: uErr } = await window.supabase
+          .from('wallets')
+          .update({ 
+            balance: newBalance, 
+            total_deposited: newTotalDeposited 
+          })
+          .eq('user_id', userId);
+          
+        if (uErr) throw new Error("Failed to update wallet: " + uErr.message);
+
+        // 4. Mark transaction as approved
+        const { error: tErr } = await window.supabase
+          .from('transactions').update({ status: 'approved' }).eq('id', id);
+        if (tErr) throw new Error("Failed to update transaction: " + tErr.message);
+
+        alert('✅ Approved successfully!');
+        loadDeposits(); 
+      } catch (err) {
+        alert('❌ Error: ' + err.message);
+      }
     };
 
     window.rejectDeposit = async function(id) {
