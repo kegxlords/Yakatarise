@@ -8,14 +8,12 @@
   <style>
     .page-header { padding: 40px 0; text-align: center; }
     .page-header h1 { color: var(--primary); margin-bottom: 10px; }
-    
     .miners-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; padding-bottom: 60px; }
     .miner-card { background: #fff; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); border-top: 4px solid var(--accent); transition: transform 0.3s; }
     .miner-card:hover { transform: translateY(-5px); }
     .miner-body { padding: 25px; }
     .miner-name { font-size: 22px; font-weight: 800; color: var(--text-main); margin-bottom: 10px; }
     .miner-price { font-size: 32px; font-weight: 800; color: var(--primary); margin-bottom: 20px; }
-    .miner-specs { margin-bottom: 25px; }
     .spec-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 15px; }
     .spec-row:last-child { border-bottom: none; }
   </style>
@@ -32,35 +30,68 @@
 
   <main class="container">
     <div class="miners-grid" id="minersContainer">
-      <!-- Miners will be injected here by JS -->
+      <div style="text-align:center; padding: 40px; grid-column: 1/-1;">Loading available miners...</div>
     </div>
   </main>
 
   <div id="app-footer"></div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/components.js"></script>
+  <script src="assets/js/api-client.js"></script>
+  <script src="assets/js/auth-guard.js"></script>
+  
   <script>
-    // Mock Data (Replace with Supabase fetch in Phase 3)
-    const miners = [
-      { name: 'Pre Grade Miner', price: 6200, daily: 310, duration: 180, limit: 1, total: 55800 },
-      { name: '1st Grade Miner', price: 13800, daily: 690, duration: 180, limit: 1, total: 124200 }
-    ];
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Fetch Active Miners from Database
+      const { data: miners, error } = await supabase.from('miners').select('*').eq('is_active', true).order('price', { ascending: true });
+      const container = document.getElementById('minersContainer');
 
-    const container = document.getElementById('minersContainer');
-    container.innerHTML = miners.map(m => `
-      <div class="miner-card">
-        <div class="miner-body">
-          <div class="miner-name">${m.name}</div>
-          <div class="miner-price">₦${m.price.toLocaleString()}</div>
-          <div class="miner-specs">
-            <div class="spec-row"><span class="text-muted">Daily Revenue</span><strong class="text-primary">₦${m.daily}</strong></div>
-            <div class="spec-row"><span class="text-muted">Contract Duration</span><strong>${m.duration} Days</strong></div>
-            <div class="spec-row"><span class="text-muted">Total Return</span><strong>₦${m.total.toLocaleString()}</strong></div>
-            <div class="spec-row"><span class="text-muted">Purchase Limit</span><strong>${m.limit} per user</strong></div>
+      if (error || !miners || miners.length === 0) {
+        container.innerHTML = '<div style="text-align:center; grid-column: 1/-1;">No miners available at the moment.</div>';
+        return;
+      }
+
+      // 2. Render Miners
+      container.innerHTML = miners.map(m => {
+        const totalReturn = Number(m.daily_revenue) * Number(m.duration_days);
+        return `
+          <div class="miner-card">
+            <div class="miner-body">
+              <div class="miner-name">${m.name}</div>
+              <div class="miner-price">₦${Number(m.price).toLocaleString()}</div>
+              <div class="miner-specs">
+                <div class="spec-row"><span class="text-muted">Daily Revenue</span><strong class="text-primary">₦${Number(m.daily_revenue).toLocaleString()}</strong></div>
+                <div class="spec-row"><span class="text-muted">Contract Duration</span><strong>${m.duration_days} Days</strong></div>
+                <div class="spec-row"><span class="text-muted">Total Return</span><strong>₦${totalReturn.toLocaleString()}</strong></div>
+                <div class="spec-row"><span class="text-muted">Purchase Limit</span><strong>${m.purchase_limit} per user</strong></div>
+              </div>
+              <button class="btn btn-primary btn-block" onclick="rentMiner('${m.id}', this)">Rent Miner</button>
+            </div>
           </div>
-          <button class="btn btn-primary btn-block" onclick="alert('Rental logic coming in Phase 3!')">Rent Miner</button>
-        </div>
-      </div>
-    `).join('');
+        `;
+      }).join('');
+    });
+
+    // 3. Handle Renting via API
+    window.rentMiner = async function(minerId, btn) {
+      if(!confirm("Are you sure you want to rent this miner? The cost will be deducted from your wallet.")) return;
+
+      const originalText = btn.innerText;
+      btn.innerText = "Processing...";
+      btn.disabled = true;
+
+      const result = await callApi('/api/rent-miner', { miner_id: minerId });
+
+      if (result.success) {
+        alert('✅ Success! Miner rented and your team commissions have been paid.');
+        window.location.href = 'my-miners.html';
+      } else {
+        alert('❌ Error: ' + (result.error || 'Transaction failed.'));
+        btn.innerText = originalText;
+        btn.disabled = false;
+      }
+    };
   </script>
 </body>
 </html>
