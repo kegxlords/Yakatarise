@@ -328,45 +328,43 @@
     // Welcome Popup Logic
     function closeWelcomePopup() {
       document.getElementById('welcomePopup').classList.remove('active');
-      // Save to localStorage so it doesn't show every time they refresh
-      localStorage.setItem('welcomeSeen', 'true');
+      // Note: We removed the localStorage saving so it shows every visit!
     }
 
     async function showWelcomePopup() {
-      // Check if user has already seen it
-      if (localStorage.getItem('welcomeSeen') === 'true') return;
-
-      // Fetch settings
+      // Fetch settings from database
       const { data: settings } = await window.supabase.from('settings').select('*');
       if (!settings) return;
 
       const getVal = (key, def) => settings.find(s => s.key === key)?.value || def;
 
-      // Populate data
+      // Populate Min Deposit & Withdrawal
       document.getElementById('popMinDep').innerText = '₦' + Number(getVal('min_deposit', 1000)).toLocaleString();
       document.getElementById('popMinWith').innerText = '₦' + Number(getVal('min_withdrawal', 1000)).toLocaleString();
       
-      const refBonus = getVal('referral_bonus_direct', 8);
-      document.getElementById('popRefBonus').innerText = refBonus + '% Direct Bonus';
+      // Populate Level 1, 2, 3 Bonuses
+      document.getElementById('popL1Bonus').innerText = getVal('referral_level_1', 5) + '%';
+      document.getElementById('popL2Bonus').innerText = getVal('referral_level_2', 2) + '%';
+      document.getElementById('popL3Bonus').innerText = getVal('referral_level_3', 1) + '%';
       
+      // Populate Telegram Link
       const tgLink = getVal('telegram_link', '#');
       document.getElementById('popTelegramLink').href = tgLink;
 
-      // Show popup
+      // Show popup immediately
       document.getElementById('welcomePopup').classList.add('active');
     }
 
-    // Add this line inside your existing document.addEventListener('DOMContentLoaded', ...)
-    // OR just add this line at the very end of your script:
-    setTimeout(showWelcomePopup, 1000); // Show 1 second after page loads
+    // Trigger the popup 500ms after the page loads
+    setTimeout(showWelcomePopup, 500);
   </script>
   <!-- Welcome Popup Modal -->
   <div id="welcomePopup" class="welcome-overlay">
     <div class="welcome-box">
       <button class="welcome-close" onclick="closeWelcomePopup()">✕</button>
-      <div class="welcome-icon">👋</div>
-      <h2 class="welcome-title">Welcome to JaKaTaRise!</h2>
-      <p style="font-size: 14px; color: #64748B; margin-bottom: 20px;">Here is what you need to know to start earning:</p>
+      <div class="welcome-icon"></div>
+      <h2 class="welcome-title">Welcome Back!</h2>
+      <p style="font-size: 14px; color: #64748B; margin-bottom: 20px;">Here is your platform overview and earning rules:</p>
       
       <div class="welcome-info">
         <div class="info-row">
@@ -377,16 +375,25 @@
           <span class="info-label">Min. Withdrawal:</span>
           <span class="info-val" id="popMinWith">Loading...</span>
         </div>
+        <div style="border-top: 1px solid #E2E8F0; margin: 10px 0;"></div>
         <div class="info-row">
-          <span class="info-label">Referral Bonus:</span>
-          <span class="info-val" id="popRefBonus">Loading...</span>
+          <span class="info-label">Level 1 Bonus:</span>
+          <span class="info-val" id="popL1Bonus" style="color: var(--primary);">Loading...</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Level 2 Bonus:</span>
+          <span class="info-val" id="popL2Bonus" style="color: var(--primary);">Loading...</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Level 3 Bonus:</span>
+          <span class="info-val" id="popL3Bonus" style="color: var(--primary);">Loading...</span>
         </div>
       </div>
 
       <a href="#" id="popTelegramLink" target="_blank" class="btn-telegram">
-        ️ Join our Telegram Group
+        ✈️ Join our Telegram Group
       </a>
-      <button class="btn btn-outline btn-block" style="border-radius: 12px;" onclick="closeWelcomePopup()">Start Mining</button>
+      <button class="btn btn-outline btn-block" style="border-radius: 12px; margin-top: 10px;" onclick="closeWelcomePopup()">Close & Start Mining</button>
     </div>
   </div>
 </body>
