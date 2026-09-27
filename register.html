@@ -7,20 +7,22 @@
   <link rel="stylesheet" href="assets/css/styles.css" />
   <style>
     .auth-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); }
-    .auth-card { width: 100%; max-width: 420px; background: #fff; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-lg); border-top: 4px solid var(--accent); }
-    .auth-header { text-align: center; margin-bottom: 30px; }
-    .auth-header h2 { color: var(--primary); margin-bottom: 8px; }
+    .auth-card { width: 100%; max-width: 420px; background: #fff; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-lg); border-top: 5px solid var(--accent); }
+    .auth-logo { text-align: center; margin-bottom: 30px; }
+    .auth-logo h2 { color: var(--primary); margin-bottom: 5px; font-size: 24px; }
+    .auth-logo p { color: var(--text-muted); font-size: 14px; }
     .auth-links { text-align: center; margin-top: 20px; font-size: 14px; color: var(--text-muted); }
-    .auth-links a { color: var(--primary); font-weight: 600; }
+    .auth-links a { color: var(--primary); font-weight: 600; text-decoration: none; }
+    .auth-links a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
 
   <div class="auth-wrapper">
     <div class="auth-card">
-      <div class="auth-header">
+      <div class="auth-logo">
         <h2>Create Account</h2>
-        <p class="text-muted">Start your mining journey today</p>
+        <p>Start your mining journey today</p>
       </div>
 
       <div id="alert" class="alert"></div>
@@ -47,7 +49,7 @@
           <input type="text" id="refCode" class="form-input" placeholder="Enter referral code" style="text-transform: uppercase;" />
         </div>
 
-        <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+        <button type="submit" id="registerBtn" class="btn btn-primary btn-block">Create Account</button>
       </form>
 
       <div class="auth-links">
@@ -57,39 +59,74 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/api-client.js"></script>
   <script>
-    const supabaseUrl = 'YOUR_SUPABASE_URL';
-    const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
-    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    // 1. Auto-fill Referral Code from URL (e.g., register.html?ref=ABC123)
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const refCode = urlParams.get('ref');
+      if (refCode) {
+        document.getElementById('refCode').value = refCode.toUpperCase();
+      }
+    });
 
+    // 2. Handle Form Submission
     document.getElementById('registerForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const fullName = document.getElementById('fullName').value;
-      const email = document.getElementById('email').value;
-      const phone = document.getElementById('phone').value;
+      
+      const fullName = document.getElementById('fullName').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
       const password = document.getElementById('password').value;
       const refCode = document.getElementById('refCode').value.trim().toUpperCase();
+      
       const alertBox = document.getElementById('alert');
+      const btn = document.getElementById('registerBtn');
 
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-            phone: phone,
-            referral_code: refCode
-          }
-        }
-      });
+      // Reset alert
+      alertBox.className = 'alert';
+      alertBox.style.display = 'none';
 
-      if (error) {
-        alertBox.textContent = error.message;
+      // Basic validation
+      if (password.length < 6) {
+        alertBox.textContent = 'Password must be at least 6 characters.';
         alertBox.className = 'alert alert-error show';
-      } else {
-        alertBox.textContent = 'Account created! Please check your email to verify.';
-        alertBox.className = 'alert alert-success show';
-        document.getElementById('registerForm').reset();
+        return;
+      }
+
+      // Loading state
+      btn.disabled = true;
+      btn.innerText = 'Creating account...';
+
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: fullName,
+              phone: phone,
+              referral_code: refCode || null
+            }
+          }
+        });
+
+        if (error) {
+          alertBox.textContent = error.message;
+          alertBox.className = 'alert alert-error show';
+          btn.disabled = false;
+          btn.innerText = 'Create Account';
+        } else {
+          alertBox.textContent = 'Account created successfully! Please check your email to verify your account, then login.';
+          alertBox.className = 'alert alert-success show';
+          btn.innerText = 'Account Created';
+          document.getElementById('registerForm').reset();
+        }
+      } catch (err) {
+        alertBox.textContent = 'An unexpected error occurred.';
+        alertBox.className = 'alert alert-error show';
+        btn.disabled = false;
+        btn.innerText = 'Create Account';
       }
     });
   </script>
