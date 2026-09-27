@@ -16,6 +16,33 @@ const headerHTML = `
 `;
 
 // ... (Keep the footerHTML exactly as it was in Phase 2) ...
+const footerHTML = `
+  <nav class="bottom-nav-floating">
+    <a href="dashboard.html" class="nav-item-floating active">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      <span>Home</span>
+    </a>
+    <a href="rent-miners.html" class="nav-item-floating">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+      <span>Miners</span>
+    </a>
+    
+    <!-- Center Pop-out Button (Treasure/Wallet) -->
+    <a href="wallet.html" class="nav-item-floating nav-center-btn">
+      <svg viewBox="0 0 24 24"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path></svg>
+      <span>Wallet</span>
+    </a>
+
+    <a href="team.html" class="nav-item-floating">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+      <span>Team</span>
+    </a>
+    <a href="profile.html" class="nav-item-floating">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      <span>Profile</span>
+    </a>
+  </nav>
+`;
 
 function loadComponents() {
   const headerContainer = document.getElementById('app-header');
