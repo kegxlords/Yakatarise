@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Dashboard - JaKaTaRise</title>
+  <title>Dashboard - JaKaTaRise Admin</title>
   <link rel="stylesheet" href="../assets/css/styles.css" />
   <link rel="stylesheet" href="../assets/css/admin.css" />
 </head>
@@ -11,67 +11,64 @@
 
   <aside class="admin-sidebar">
     <div class="admin-logo">
-      <div style="width:30px;height:30px;background:var(--primary);color:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;">J</div>
-      JaKaTaRise Admin
+      <div class="admin-logo-icon">J</div>
+      JaKaTaRise
     </div>
     <nav class="admin-nav">
-      <a href="index.html" class="active"> Overview</a>
+      <a href="index.html" class="active">📊 Overview</a>
       <a href="users.html">👥 Users</a>
       <a href="deposits.html">💰 Deposits</a>
       <a href="withdrawals.html">💸 Withdrawals</a>
-      <a href="miners.html">⛏️ Mining Plans</a>
-      <a href="settings.html">⚙️ Global Settings</a>
-      <a href="../index.html" style="margin-top: 20px; border-top: 1px solid #1E293B; padding-top: 20px;">🌐 View Live Site</a>
+      <a href="miners.html">️ Mining Plans</a>
+      <a href="settings.html">⚙️ Settings</a>
+      <a href="../index.html" class="view-site">🌐 View Live Site</a>
     </nav>
   </aside>
 
   <main class="admin-main">
     <div class="admin-header">
-      <h2>Dashboard Overview</h2>
-      <button class="btn btn-outline btn-sm" onclick="location.reload()">🔄 Refresh Data</button>
+      <div>
+        <h2>Dashboard Overview</h2>
+        <p style="color: var(--admin-text-muted); margin: 4px 0 0; font-size: 14px;">Welcome back, Admin. Here's what's happening today.</p>
+      </div>
+      <button class="btn btn-outline" onclick="location.reload()">🔄 Refresh</button>
     </div>
 
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-label">Total Users</div>
+        <div class="stat-label">👥 Total Users</div>
         <div class="stat-value" id="statUsers">...</div>
       </div>
-      <div class="stat-card gold">
-        <div class="stat-label">Pending Deposits</div>
-        <div class="stat-value" id="statDeps">...</div>
-      </div>
-      <div class="stat-card red">
-        <div class="stat-label">Pending Withdrawals</div>
-        <div class="stat-value" id="statWiths">...</div>
-      </div>
-      <div class="stat-card green">
-        <div class="stat-label">Total Platform Revenue</div>
-        <div class="stat-value" id="statRevenue">...</div>
+      <div class="stat-card">
+        <div class="stat-label">⏳ Pending Deposits</div>
+        <div class="stat-value" id="statDeps" style="color: var(--warning);">...</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Active Miners Running</div>
-        <div class="stat-value" id="statActiveMiners">...</div>
+        <div class="stat-label">💸 Pending Withdrawals</div>
+        <div class="stat-value" id="statWiths" style="color: var(--danger);">...</div>
       </div>
-      <div class="stat-card gold">
-        <div class="stat-label">Total Payouts (Withdrawals)</div>
-        <div class="stat-value" id="statTotalPayouts">...</div>
+      <div class="stat-card">
+        <div class="stat-label">💰 Total Revenue</div>
+        <div class="stat-value" id="statRevenue" style="color: var(--brand-primary);">...</div>
       </div>
     </div>
 
-    <div class="form-card">
-      <h3>Recent Platform Activity</h3>
+    <div class="table-container">
+      <div style="padding: 20px 24px; border-bottom: 1px solid var(--admin-border);">
+        <h3 style="margin:0; font-size: 16px;">Recent Platform Activity</h3>
+      </div>
       <table class="data-table">
         <thead>
           <tr>
-            <th>User Email</th>
-            <th>Activity Type</th>
+            <th>User</th>
+            <th>Activity</th>
             <th>Amount</th>
             <th>Status</th>
             <th>Date</th>
           </tr>
         </thead>
         <tbody id="activityTableBody">
-          <tr><td colspan="5" style="text-align:center;">Loading activity...</td></tr>
+          <tr><td colspan="5" style="text-align:center; padding: 40px; color: var(--admin-text-muted);">Loading activity...</td></tr>
         </tbody>
       </table>
     </div>
@@ -80,53 +77,42 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/api-client.js"></script>
   <script src="../assets/js/admin-guard.js"></script>
-  
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
-      // 1. Count Users
       const { count: userCount } = await window.supabase.from('profiles').select('*', { count: 'exact', head: true });
       document.getElementById('statUsers').innerText = userCount || 0;
 
-      // 2. Count Pending Deposits
       const { count: depCount } = await window.supabase.from('transactions').select('*', { count: 'exact', head: true }).eq('type', 'deposit').eq('status', 'pending');
       document.getElementById('statDeps').innerText = depCount || 0;
 
-      // 3. Count Pending Withdrawals
       const { count: withCount } = await window.supabase.from('transactions').select('*', { count: 'exact', head: true }).eq('type', 'withdrawal').eq('status', 'pending');
       document.getElementById('statWiths').innerText = withCount || 0;
 
-      // 4. Calculate Total Revenue (Approved Deposits)
       const { data: approvedDeps } = await window.supabase.from('transactions').select('amount').eq('type', 'deposit').eq('status', 'approved');
       let totalRev = 0;
       if(approvedDeps) approvedDeps.forEach(t => totalRev += Number(t.amount));
       document.getElementById('statRevenue').innerText = '₦' + totalRev.toLocaleString();
 
-      // 5. Count Active Miners
-      const { count: activeMiners } = await window.supabase.from('user_miners').select('*', { count: 'exact', head: true }).eq('status', 'active');
-      document.getElementById('statActiveMiners').innerText = activeMiners || 0;
-
-      // 6. Calculate Total Payouts (Approved Withdrawals)
-      const { data: approvedWiths } = await window.supabase.from('transactions').select('amount').eq('type', 'withdrawal').eq('status', 'approved');
-      let totalPayouts = 0;
-      if(approvedWiths) approvedWiths.forEach(t => totalPayouts += Number(t.amount));
-      document.getElementById('statTotalPayouts').innerText = '₦' + totalPayouts.toLocaleString();
-
-      // 7. Load Recent Activity
       const { data: recentTx } = await window.supabase.from('transactions').select('*, profiles(email)').order('created_at', { ascending: false }).limit(5);
       const tbody = document.getElementById('activityTableBody');
       
       if(recentTx && recentTx.length > 0) {
-        tbody.innerHTML = recentTx.map(tx => `
+        tbody.innerHTML = recentTx.map(tx => {
+          let badgeClass = 'badge-warning';
+          if(tx.status === 'approved' || tx.status === 'completed') badgeClass = 'badge-success';
+          if(tx.status === 'rejected') badgeClass = 'badge-danger';
+          
+          return `
           <tr>
-            <td>${tx.profiles?.email || 'Unknown'}</td>
+            <td><div style="font-weight:500;">${tx.profiles?.email || 'Unknown'}</div></td>
             <td style="text-transform: capitalize;">${tx.type.replace('_', ' ')}</td>
-            <td style="font-weight:700;">₦${Number(tx.amount).toLocaleString()}</td>
-            <td><span style="color: ${tx.status === 'approved' ? 'var(--success)' : tx.status === 'pending' ? '#D97706' : 'var(--danger)'}; font-weight:600; text-transform:capitalize;">${tx.status}</span></td>
-            <td>${new Date(tx.created_at).toLocaleDateString()}</td>
-          </tr>
-        `).join('');
+            <td style="font-weight:600;">${Number(tx.amount).toLocaleString()}</td>
+            <td><span class="badge ${badgeClass}">${tx.status}</span></td>
+            <td style="color: var(--admin-text-muted);">${new Date(tx.created_at).toLocaleDateString()}</td>
+          </tr>`;
+        }).join('');
       } else {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No recent activity.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 40px; color: var(--admin-text-muted);">No recent activity.</td></tr>';
       }
     });
   </script>
