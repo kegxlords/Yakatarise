@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Deposits - JaKaTaRise Admin</title>
+  <link rel="stylesheet" href="../assets/css/styles.css" />
+  <link rel="stylesheet" href="../assets/css/admin.css" />
+  <style>
+    /* Specific styles for deposit rows */
+    .ref-box { 
+      background: #FEF3C7; border: 1px solid #FCD34D; padding: 4px 8px; 
+      border-radius: 4px; font-family: monospace; font-size: 12px; color: #92400E; 
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .copy-btn { background: none; border: none; color: #92400E; cursor: pointer; font-weight: bold; font-size: 11px; }
+    .copy-btn:hover { text-decoration: underline; }
+    
+    .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+    .status-pending { background: #FEF3C7; color: #D97706; }
+    .status-approved { background: #F0FDF4; color: var(--success); }
+    .status-rejected { background: #FEF2F2; color: var(--danger); }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="admin-logo">
+      <div style="width:30px;height:30px;background:var(--primary);color:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;">J</div>
+      JaKaTaRise Admin
+    </div>
+    <nav class="admin-nav">
+      <a href="index.html">📊 Overview</a>
+      <a href="users.html"> Users</a>
+      <a href="deposits.html" class="active">💰 Deposits</a>
+      <a href="withdrawals.html">💸 Withdrawals</a>
+      <a href="miners.html">⛏️ Mining Plans</a>
+      <a href="settings.html">⚙️ Global Settings</a>
+      <a href="../index.html" style="margin-top: 20px; border-top: 1px solid #1E293B; padding-top: 20px;">🌐 View Live Site</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    <div class="admin-header">
+      <h2>Deposit Requests</h2>
+      <div style="display: flex; gap: 10px;">
+        <select id="statusFilter" class="form-input" style="width: auto; padding: 8px 12px;" onchange="loadDeposits()">
+          <option value="pending">Pending Only</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+          <option value="all">All Transactions</option>
+        </select>
+        <button class="btn btn-outline btn-sm" onclick="loadDeposits()">🔄 Refresh</button>
+      </div>
+    </div>
+
+    <div class="form-card" style="padding: 0; overflow: hidden;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Amount</th>
+            <th>Reference / Sender</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="depositBody">
+          <tr><td colspan="6" style="text-align:center; padding: 30px;">Loading deposits...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/js/api-client.js"></script>
+  <script src="../assets/js/admin-guard.js"></script>
+  
+  <script>
+    // 1. Load Deposits on Page Load
+    document.addEventListener('DOMContentLoaded', () => {
+      loadDeposits();
+    });
+
+    async function loadDeposits() {
+      const filter = document.getElementById('statusFilter').value;
+      const tbody = document.getElementById('depositBody');
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 30px;">Loading...</td></tr>';
+
+      // Build Query
+      let query = supabase
+        .from('transactions')
+        .select('*, profiles(full_name, email)')
+        .eq('type', 'deposit')
+        .order('created_at', { ascending: false });
+
+      // Apply Filter
+      if (filter !== 'all') {
+        query = query.eq('status', filter);
+      }
+
+      const { data: txs, error } = await query;
+
+      if (error || !txs || txs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 30px; color: var(--text-muted);">No deposit requests found.</td></tr>';
+        return;
+      }
+
+      // Render Table
+      tbody.innerHTML = txs.map(tx => {
+        const amount = Number(tx.amount).toLocaleString();
+        const date = new Date(tx.created_at).toLocaleDateString() + ' ' + new Date(tx.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        const email = tx.profiles?.email || 'Unknown';
+        const name = tx.profiles?.full_name || '';
+        const reference = tx.description || tx.reference || 'No reference provided';
+        
+        let statusBadge = '';
+        if(tx.status === 'pending') statusBadge = '<span class="status-badge status-pending">Pending</span>';
+        else if(tx.status === 'approved') statusBadge = '<span class="status-badge status-approved">Approved</span>';
+        else if(tx.status === 'rejected') statusBadge = '<span class="status-badge status-rejected">Rejected</span>';
+
+        let actions = '';
+        if(tx.status === 'pending') {
+          actions = `
+            <button class="btn btn-sm btn-approve" onclick="approveDeposit('${tx.id}', '${tx.user_id}', ${tx.amount})">Approve</button>
+            <button class="btn btn-sm btn-reject" onclick="rejectDeposit('${tx.id}', '${tx.user_id}', ${tx.amount})">Reject</button>
+          `;
+        } else {
+          actions = '<span style="color: var(--text-muted); font-size: 12px;">Processed</span>';
+        }
+
+        return `
+          <tr>
+            <td>
+              <div style="font-weight:600;">${name}</div>
+              <div style="font-size:12px;color:var(--text-muted);">${email}</div>
+            </td>
+            <td style="font-weight:800; color: var(--primary);">₦${amount}</td>
+            <td>
+              <div class="ref-box">
+                ${reference.substring(0, 20)}${reference.length > 20 ? '...' : ''}
+                <button class="copy-btn" onclick="copyText('${reference.replace(/'/g, "\\'")}')">Copy</button>
+              </div>
+            </td>
+            <td style="font-size: 13px;">${date}</td>
+            <td>${statusBadge}</td>
+            <td>${actions}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // 2. Approve Deposit Function
+    window.approveDeposit = async function(transactionId, userId, amount) {
+      if(!confirm(`Approve deposit of ₦${Number(amount).toLocaleString()}? This will credit the user's wallet.`)) return;
+      
+      // Disable buttons temporarily
+      event.target.disabled = true;
+      event.target.innerText = 'Processing...';
+
+      const result = await callApi('/api/approve-deposit', { 
+        transaction_id: transactionId, 
+        user_id: userId, 
+        amount: amount 
+      });
+      
+      if (result.success) {
+        alert('✅ Deposit Approved! User wallet has been credited.');
+        loadDeposits(); // Refresh table
+      } else {
+        alert('❌ Error: ' + (result.error || 'Failed to approve.'));
+        event.target.disabled = false;
+        event.target.innerText = 'Approve';
+      }
+    };
+
+    // 3. Reject Deposit Function
+    window.rejectDeposit = async function(transactionId, userId, amount) {
+      if(!confirm(`Reject this deposit? The transaction will be marked as failed.`)) return;
+      
+      event.target.disabled = true;
+      event.target.innerText = 'Processing...';
+
+      // Note: You should create an /api/reject-deposit.js endpoint similar to approve-deposit.js
+      // For now, we will call a generic endpoint or you can implement the reject logic.
+      const result = await callApi('/api/reject-deposit', { 
+        transaction_id: transactionId 
+      });
+      
+      if (result.success) {
+        alert('🚫 Deposit Rejected.');
+        loadDeposits();
+      } else {
+        alert('❌ Error: ' + (result.error || 'Failed to reject.'));
+        event.target.disabled = false;
+        event.target.innerText = 'Reject';
+      }
+    };
+
+    // Helper: Copy text to clipboard
+    window.copyText = function(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Reference copied to clipboard!');
+      });
+    };
+  </script>
+
+</body>
+</html>
