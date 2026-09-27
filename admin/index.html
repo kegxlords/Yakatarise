@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard - JaKaTaRise</title>
+  <link rel="stylesheet" href="../assets/css/styles.css" />
+  <link rel="stylesheet" href="../assets/css/admin.css" />
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="admin-logo">
+      <div style="width:30px;height:30px;background:var(--primary);color:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;">J</div>
+      JaKaTaRise Admin
+    </div>
+    <nav class="admin-nav">
+      <a href="index.html" class="active">📊 Overview</a>
+      <a href="users.html">👥 Users</a>
+      <a href="deposits.html">💰 Deposits</a>
+      <a href="withdrawals.html">💸 Withdrawals</a>
+      <a href="miners.html">️ Mining Plans</a>
+      <a href="settings.html">⚙️ Global Settings</a>
+      <a href="../index.html" style="margin-top: 20px; border-top: 1px solid #1E293B; padding-top: 20px;"> View Live Site</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    <div class="admin-header">
+      <h2>Dashboard Overview</h2>
+      <button class="btn btn-outline btn-sm">Export Report</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Users</div>
+        <div class="stat-value">1,245</div>
+      </div>
+      <div class="stat-card gold">
+        <div class="stat-label">Pending Deposits</div>
+        <div class="stat-value">12</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-label">Pending Withdrawals</div>
+        <div class="stat-value">5</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-label">Total Revenue (Platform)</div>
+        <div class="stat-value">₦450,000</div>
+      </div>
+    </div>
+
+    <!-- Recent Activity Table -->
+    <div class="form-card">
+      <h3>Recent Platform Activity</h3>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Activity</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>john.doe@email.com</td>
+            <td>Rented 'Pre Grade Miner'</td>
+            <td>6,200</td>
+            <td><span style="color:var(--success);font-weight:600;">Completed</span></td>
+            <td>Oct 24, 2024</td>
+          </tr>
+          <tr>
+            <td>alice.smith@email.com</td>
+            <td>Withdrawal Request</td>
+            <td>₦15,000</td>
+            <td><span style="color:#D97706;font-weight:600;">Pending</span></td>
+            <td>Oct 24, 2024</td>
+          </tr>
+          <tr>
+            <td>mike.ross@email.com</td>
+            <td>Deposit</td>
+            <td>₦13,800</td>
+            <td><span style="color:var(--success);font-weight:600;">Approved</span></td>
+            <td>Oct 23, 2024</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+</body>
+</html>
