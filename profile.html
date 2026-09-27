@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile - JaKaTaRise Capital</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+  <div id="app-header"></div>
+
+  <!-- Blue Header Background -->
+  <div class="profile-header-bg">
+    <div class="profile-avatar-container">
+      <div class="profile-avatar"></div>
+    </div>
+    <div class="profile-info">
+      <div class="profile-phone" id="profilePhone">+234 ...</div>
+      <div class="profile-badges">
+        <div class="badge-member">👑 Member</div>
+        <div class="badge-id" id="profileId">ID: ...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlapping Balance Card -->
+  <div class="profile-balance-card">
+    <div class="balance-title">💳 Available Balance</div>
+    <div class="balance-amount" id="profileBalance">₦0.00</div>
+    
+    <div class="balance-stats-row">
+      <div class="balance-stat-box">
+        <label>Total Recharge</label>
+        <div id="statRecharge">₦0.00</div>
+      </div>
+      <div class="balance-stat-box">
+        <label>Total Income</label>
+        <div id="statIncome">₦0.00</div>
+      </div>
+    </div>
+
+    <div class="action-buttons-row">
+      <a href="deposit.html" class="btn-action-large btn-recharge">💳 Recharge</a>
+      <a href="withdraw.html" class="btn-action-large btn-withdraw">💸 Withdraw</a>
+    </div>
+  </div>
+
+  <!-- Icon Grid Menu -->
+  <div class="icon-grid-menu">
+    <a href="transactions.html" class="icon-grid-item">
+      <div class="icon-circle">📋</div>
+      <span>Orders</span>
+    </a>
+    <a href="#" class="icon-grid-item">
+      <div class="icon-circle">🎁</div>
+      <span>Bonus</span>
+    </a>
+    <a href="contact.html" class="icon-grid-item">
+      <div class="icon-circle">🎧</div>
+      <span>Support</span>
+    </a>
+    <a href="#" class="icon-grid-item">
+      <div class="icon-circle"></div>
+      <span>Bank</span>
+    </a>
+  </div>
+
+  <!-- List Menu -->
+  <div class="list-menu-container">
+    <div style="padding: 10px 20px; font-weight: 700; font-size: 16px; border-bottom: 1px solid #f0f0f0; margin-bottom: 10px;">Account</div>
+    
+    <a href="#" class="list-menu-item">
+      <div class="list-menu-icon">👤</div>
+      <div class="list-menu-text">
+        <h4>Personal Information</h4>
+        <p>View and update your details</p>
+      </div>
+    </a>
+    
+    <a href="change-password.html" class="list-menu-item">
+      <div class="list-menu-icon">🔒</div>
+      <div class="list-menu-text">
+        <h4>Security Password</h4>
+        <p>Change your login password</p>
+      </div>
+    </a>
+
+    <a href="login.html" onclick="logout()" class="list-menu-item" style="color: var(--danger);">
+      <div class="list-menu-icon" style="background: #FEF2F2; color: var(--danger);">🚪</div>
+      <div class="list-menu-text">
+        <h4>Log Out</h4>
+        <p>Sign out of your account</p>
+      </div>
+    </a>
+  </div>
+
+  <div id="app-footer"></div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/components.js"></script>
+  <script src="assets/js/api-client.js"></script>
+  <script src="assets/js/auth-guard.js"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if(!session) return;
+
+      // Fetch Profile Data
+      const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+      const { data: wallet } = await supabase.from('wallets').select('*').eq('user_id', session.user.id).single();
+
+      if(profile) {
+        document.getElementById('profilePhone').innerText = profile.phone || session.user.email;
+        document.getElementById('profileId').innerText = 'ID: ' + profile.referral_code;
+      }
+      
+      if(wallet) {
+        document.getElementById('profileBalance').innerText = '₦' + Number(wallet.balance).toLocaleString();
+        document.getElementById('statRecharge').innerText = '₦' + Number(wallet.total_deposited).toLocaleString();
+        document.getElementById('statIncome').innerText = '₦' + Number(wallet.total_earned).toLocaleString();
+      }
+    });
+  </script>
+</body>
+</html>
