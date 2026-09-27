@@ -306,18 +306,30 @@
     // 7. Impersonate Logic (Safe Fallback)
     window.impersonateUser = async function(email) {
       if(!email || email === 'No email') return alert('Cannot view user without an email address.');
-      if(!confirm(`Generate a magic login link for ${email}?`)) return;
+      if(!confirm(`Open a new session as ${email}?`)) return;
       
+      const { data: { session } } = await window.supabase.auth.getSession();
+      if(!session) return alert('Please log in again.');
+
       try {
-        const result = await callApi('/api/impersonate', { email });
-        if(result.magic_link) {
+        const response = await fetch('/api/impersonate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`
+          },
+          body: JSON.stringify({ email: email })
+        });
+
+        const result = await response.json();
+
+        if (result.magic_link) {
           window.open(result.magic_link, '_blank');
-          alert('✅ Magic link opened in new tab.');
         } else {
-          alert('⚠️ API not ready. Please ensure api/impersonate.js is deployed.');
+          alert('❌ Error: ' + (result.error || 'Failed to generate link. Check Vercel logs.'));
         }
       } catch (err) {
-        alert('⚠️ Network Error: The impersonation API is not deployed yet. Please deploy api/impersonate.js to Vercel.');
+        alert('❌ Network Error: The API is likely missing the SUPABASE_SERVICE_ROLE_KEY in Vercel settings.');
       }
     };
 
