@@ -96,39 +96,77 @@
   
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
-      // 1. Fetch Active Miners from Database
-      const { data: miners, error } = await supabase.from('miners').select('*').eq('is_active', true).order('price', { ascending: true });
+      const { data: { session } } = await window.supabase.auth.getSession();
+      if(!session) return;
+
+      // 1. Fetch Available Miners
+      const { data: miners, error } = await window.supabase.from('miners').select('*').eq('is_active', true).order('price', { ascending: true });
       const container = document.getElementById('minersContainer');
 
       if (error || !miners || miners.length === 0) {
-        container.innerHTML = '<div style="text-align:center; grid-column: 1/-1;">No miners available at the moment.</div>';
+        container.innerHTML = '<div style="text-align:center; padding: 40px; grid-column: 1/-1;">No miners available.</div>';
         return;
       }
 
-      // 2. Render Miners
+      // 2. Fetch User's Current Miners to check limits
+      const { data: myMiners } = await window.supabase
+        .from('user_miners')
+        .select('miner_id')
+        .eq('user_id', session.user.id)
+        .eq('status', 'active');
+
+      // Count how many of each miner the user owns
+      const myMinerCounts = {};
+      if (myMiners) {
+        myMiners.forEach(m => {
+          myMinerCounts[m.miner_id] = (myMinerCounts[m.miner_id] || 0) + 1;
+        });
+      }
+
+      // 3. Render Miners with Limit Checks
       container.innerHTML = miners.map(m => {
         const totalReturn = Number(m.daily_revenue) * Number(m.duration_days);
+        const currentCount = myMinerCounts[m.id] || 0;
+        const limit = m.purchase_limit || 1;
+        const isMaxedOut = currentCount >= limit;
+
+        // Button Logic
+        let btnHtml = '';
+        if (isMaxedOut) {
+          btnHtml = `<button class="btn btn-block" style="background: #E2E8F0; color: #94A3B8; cursor: not-allowed;" disabled>Limit Reached (${currentCount}/${limit})</button>`;
+        } else {
+          btnHtml = `<button class="btn btn-primary btn-block" onclick="rentMiner('${m.id}', this)">Rent Miner (${currentCount}/${limit})</button>`;
+        }
+
         return `
-          <div class="miner-card">
-            <div class="miner-body">
-              <div class="miner-name">${m.name}</div>
-              <div class="miner-price">₦${Number(m.price).toLocaleString()}</div>
-              <div class="miner-specs">
-                <div class="spec-row"><span class="text-muted">Daily Revenue</span><strong class="text-primary">₦${Number(m.daily_revenue).toLocaleString()}</strong></div>
-                <div class="spec-row"><span class="text-muted">Contract Duration</span><strong>${m.duration_days} Days</strong></div>
-                <div class="spec-row"><span class="text-muted">Total Return</span><strong>₦${totalReturn.toLocaleString()}</strong></div>
-                <div class="spec-row"><span class="text-muted">Purchase Limit</span><strong>${m.purchase_limit} per user</strong></div>
+          <div class="miner-card-split">
+            <div class="miner-card-left">
+              <img src="https://cdn-icons-png.flaticon.com/512/2721/2721698.png" alt="Miner">
+              <div class="miner-rate">${((m.daily_revenue / m.price) * 100).toFixed(2)}%</div>
+              <div class="miner-rate-label">Daily Rate</div>
+            </div>
+            <div class="miner-card-right">
+              <div>
+                <div class="miner-header-row">
+                  <h3 class="miner-title">${m.name}</h3>
+                  <span class="miner-badge">OPEN</span>
+                </div>
+                <span class="miner-term-badge">${m.duration_days} DAYS</span>
+                <div class="miner-stats-grid">
+                  <div class="miner-stat-item"><span class="miner-stat-label">Price</span><span class="miner-stat-val">₦${Number(m.price).toLocaleString()}</span></div>
+                  <div class="miner-stat-item"><span class="miner-stat-label">Daily Return</span><span class="miner-stat-val">₦${Number(m.daily_revenue).toLocaleString()}</span></div>
+                </div>
               </div>
-              <button class="btn btn-primary btn-block" onclick="rentMiner('${m.id}', this)">Rent Miner</button>
+              ${btnHtml}
             </div>
           </div>
         `;
       }).join('');
     });
 
-    // 3. Handle Renting via API
+    // Rent Function
     window.rentMiner = async function(minerId, btn) {
-      if(!confirm("Are you sure you want to rent this miner? The cost will be deducted from your wallet.")) return;
+      if(!confirm("Are you sure? The cost will be deducted from your wallet.")) return;
 
       const originalText = btn.innerText;
       btn.innerText = "Processing...";
@@ -137,8 +175,8 @@
       const result = await callApi('/api/rent-miner', { miner_id: minerId });
 
       if (result.success) {
-        alert('✅ Success! Miner rented and your team commissions have been paid.');
-        window.location.href = 'my-miners.html';
+        alert('✅ Success! Miner rented.');
+        window.location.reload(); // Reload to update counts
       } else {
         alert('❌ Error: ' + (result.error || 'Transaction failed.'));
         btn.innerText = originalText;
