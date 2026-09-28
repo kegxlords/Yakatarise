@@ -103,23 +103,52 @@
   
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await window.supabase.auth.getSession();
       if(!session) return;
+      const userId = session.user.id;
 
-      // Fetch Profile Data
-      const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
-      const { data: wallet } = await supabase.from('wallets').select('*').eq('user_id', session.user.id).single();
-
+      // 1. Fetch Profile Data
+      const { data: profile } = await window.supabase.from('profiles').select('*').eq('id', userId).single();
       if(profile) {
         document.getElementById('profilePhone').innerText = profile.phone || session.user.email;
-        document.getElementById('profileId').innerText = 'ID: ' + profile.referral_code;
+        document.getElementById('profileId').innerText = 'ID: ' + (profile.referral_code || 'N/A');
       }
       
+      // 2. Fetch Current Wallet Balance
+      const { data: wallet } = await window.supabase.from('wallets').select('balance').eq('user_id', userId).single();
       if(wallet) {
         document.getElementById('profileBalance').innerText = '₦' + Number(wallet.balance).toLocaleString();
-        document.getElementById('statRecharge').innerText = '₦' + Number(wallet.total_deposited).toLocaleString();
-        document.getElementById('statIncome').innerText = '₦' + Number(wallet.total_earned).toLocaleString();
       }
+
+      // 3. CALCULATE TOTAL RECHARGE (The Bulletproof Way)
+      // Instead of trusting the 'total_deposited' column, we sum all approved deposits from history
+      const { data: deposits } = await window.supabase
+        .from('transactions')
+        .select('amount')
+        .eq('user_id', userId)
+        .eq('type', 'deposit')
+        .eq('status', 'approved');
+
+      let totalRecharge = 0;
+      if (deposits) {
+        deposits.forEach(tx => { totalRecharge += Number(tx.amount); });
+      }
+      document.getElementById('statRecharge').innerText = '₦' + totalRecharge.toLocaleString();
+
+      // 4. CALCULATE TOTAL INCOME (The Bulletproof Way)
+      // Sum of all mining payouts and referral bonuses
+      const { data: income } = await window.supabase
+        .from('transactions')
+        .select('amount')
+        .eq('user_id', userId)
+        .in('type', ['mining_payout', 'referral_bonus', 'welcome_bonus', 'gift_code_bonus'])
+        .eq('status', 'completed');
+
+      let totalIncome = 0;
+      if (income) {
+        income.forEach(tx => { totalIncome += Number(tx.amount); });
+      }
+      document.getElementById('statIncome').innerText = '₦' + totalIncome.toLocaleString();
     });
   </script>
 </body>
