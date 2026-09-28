@@ -6,39 +6,18 @@
   <title>My Team - JaKaTaRise Capital</title>
   <link rel="stylesheet" href="assets/css/styles.css" />
   <style>
-    .team-header-bg { 
-      background: linear-gradient(135deg, #8B0000 0%, #5c0000 100%); 
-      padding: 30px 20px 80px; 
-      color: #fff; 
-      border-bottom-left-radius: 30px; 
-      border-bottom-right-radius: 30px; 
-    }
+    .team-header-bg { background: linear-gradient(135deg, #8B0000 0%, #5c0000 100%); padding: 30px 20px 80px; color: #fff; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; }
     .team-header-bg h1 { color: #fff; margin: 0; font-size: 24px; }
     .team-header-bg p { opacity: 0.9; margin: 5px 0 0; font-size: 14px; }
     
-    .referral-card { 
-      background: #fff; margin: -50px 20px 20px; border-radius: 20px; 
-      padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
-      position: relative; z-index: 10; 
-    }
+    .referral-card { background: #fff; margin: -50px 20px 20px; border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); position: relative; z-index: 10; }
     .referral-label { font-size: 12px; color: #94A3B8; font-weight: 600; text-transform: uppercase; margin-bottom: 10px; }
     .referral-link-box { display: flex; background: #F8FAFC; border-radius: 12px; padding: 5px; border: 1px solid #E2E8F0; }
     .referral-link-box input { flex: 1; background: transparent; border: none; padding: 10px 15px; font-family: monospace; font-size: 14px; color: var(--text-main); outline: none; }
     .referral-link-box button { background: var(--primary); color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; }
     
-    /* Updated Stats Grid for 4 items */
-    .stats-row { 
-      display: grid; 
-      grid-template-columns: 1fr 1fr; 
-      gap: 12px; 
-      margin-bottom: 20px; 
-      padding: 0 20px; 
-    }
-    .stat-box-modern { 
-      background: #fff; padding: 15px; border-radius: 15px; 
-      box-shadow: 0 4px 10px rgba(0,0,0,0.03); text-align: center; 
-      border: 1px solid #F1F5F9; 
-    }
+    .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; padding: 0 20px; }
+    .stat-box-modern { background: #fff; padding: 15px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); text-align: center; border: 1px solid #F1F5F9; }
     .stat-box-modern .val { font-size: 18px; font-weight: 800; color: var(--primary); }
     .stat-box-modern .lbl { font-size: 11px; color: #64748B; margin-top: 5px; }
 
@@ -48,32 +27,15 @@
     .comm-item .pct { font-size: 18px; font-weight: 800; color: var(--accent); }
     .comm-item .lvl { font-size: 11px; color: #64748B; margin-top: 4px; font-weight: 600; }
 
-    /* Members List Styles */
     .members-section { padding: 0 20px; margin-bottom: 20px; }
     .members-section h3 { font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 15px; }
-    .member-item { 
-      background: #fff; padding: 15px; border-radius: 16px; 
-      display: flex; align-items: center; gap: 15px; 
-      margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); 
-      border: 1px solid #F1F5F9; 
-    }
-    .member-avatar { 
-      width: 40px; height: 40px; background: var(--primary); color: #fff; 
-      border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-      font-weight: 700; font-size: 16px; flex-shrink: 0; 
-    }
+    .member-item { background: #fff; padding: 15px; border-radius: 16px; display: flex; align-items: center; gap: 15px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); border: 1px solid #F1F5F9; }
+    .member-avatar { width: 40px; height: 40px; background: var(--primary); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; flex-shrink: 0; }
     .member-info { flex: 1; }
     .member-name { font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
     .member-date { font-size: 11px; color: #94A3B8; }
-    .member-deposit { 
-      font-size: 12px; color: var(--success); font-weight: 700; 
-      background: #F0FDF4; padding: 2px 8px; border-radius: 8px; 
-      display: inline-block; margin-top: 4px;
-    }
-    .member-level { 
-      background: #FEF3C7; color: #D97706; padding: 4px 10px; 
-      border-radius: 12px; font-size: 11px; font-weight: 700; 
-    }
+    .member-deposit { font-size: 12px; color: var(--success); font-weight: 700; background: #F0FDF4; padding: 2px 8px; border-radius: 8px; display: inline-block; margin-top: 4px; }
+    .member-level { background: #FEF3C7; color: #D97706; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
   </style>
 </head>
 <body>
@@ -92,29 +54,15 @@
     </div>
   </div>
 
-  <!-- 2x2 Stats Grid -->
   <div class="stats-row">
-    <div class="stat-box-modern">
-      <div class="val" id="statLevel1">0</div>
-      <div class="lbl">Level 1 Members</div>
-    </div>
-    <div class="stat-box-modern">
-      <div class="val" id="statTotal">0</div>
-      <div class="lbl">Total Team Size</div>
-    </div>
-    <div class="stat-box-modern">
-      <div class="val" id="statTeamDeposits" style="color: var(--success);">₦0</div>
-      <div class="lbl">Total Team Deposits</div>
-    </div>
-    <div class="stat-box-modern">
-      <div class="val" id="statCommissions" style="color: var(--accent);">₦0</div>
-      <div class="lbl">My Commissions</div>
-    </div>
+    <div class="stat-box-modern"><div class="val" id="statLevel1">0</div><div class="lbl">Level 1 Members</div></div>
+    <div class="stat-box-modern"><div class="val" id="statTotal">0</div><div class="lbl">Total Team Size</div></div>
+    <div class="stat-box-modern"><div class="val" id="statTeamDeposits" style="color: var(--success);">₦0</div><div class="lbl">Total Team Deposits</div></div>
+    <div class="stat-box-modern"><div class="val" id="statCommissions" style="color: var(--accent);">₦0</div><div class="lbl">My Commissions</div></div>
   </div>
 
   <div class="commission-card">
     <h3 style="margin: 0; font-size: 16px; color: var(--text-main);">Commission Structure</h3>
-    <p style="font-size: 12px; color: #64748B; margin-top: 5px;">Earn from every miner rented by your team.</p>
     <div class="comm-grid" id="commGrid">
       <div class="comm-item"><div class="pct">...</div><div class="lvl">Level 1</div></div>
       <div class="comm-item"><div class="pct">...</div><div class="lvl">Level 2</div></div>
@@ -139,10 +87,8 @@
   <script>
     function copyRef() {
       const input = document.getElementById('refLink');
-      input.select();
-      document.execCommand('copy');
-      const btn = event.target;
-      btn.innerText = 'Copied!';
+      input.select(); document.execCommand('copy');
+      const btn = event.target; btn.innerText = 'Copied!';
       setTimeout(() => btn.innerText = 'Copy', 2000);
     }
 
@@ -151,7 +97,7 @@
       if(!session) return;
       const userId = session.user.id;
 
-      // 1. Get Referral Code & Link
+      // 1. Get Referral Link
       const { data: profile } = await window.supabase.from('profiles').select('referral_code').eq('id', userId).single();
       const refCode = profile?.referral_code || '---';
       document.getElementById('refLink').value = `${window.location.origin}/register.html?ref=${refCode}`;
@@ -167,7 +113,7 @@
       let totalCommissions = 0;
       if (commissions) totalCommissions = commissions.reduce((sum, tx) => sum + Number(tx.amount), 0);
 
-      // 4. Fetch Admin Settings for Percentages
+      // 4. Fetch Admin Settings
       const { data: settings } = await window.supabase.from('settings').select('*');
       const getSetting = (key, def) => settings?.find(s => s.key === key)?.value || def;
       document.getElementById('commGrid').innerHTML = `
@@ -176,34 +122,35 @@
         <div class="comm-item"><div class="pct">${getSetting('referral_level_3', 1)}%</div><div class="lvl">Level 3</div></div>
       `;
 
-      // 5. Get Level 1 Members and their Wallets (Deposits)
-      const { data: members } = await window.supabase
-        .from('profiles')
-        .select('id, full_name, email, created_at')
-        .eq('referred_by', userId)
-        .order('created_at', { ascending: false });
-
-      let totalTeamDeposits = 0;
+      // 5. Get Level 1 Members
+      const { data: members } = await window.supabase.from('profiles').select('id, full_name, email, created_at').eq('referred_by', userId).order('created_at', { ascending: false });
       const membersContainer = document.getElementById('membersList');
+      let totalTeamDeposits = 0;
 
       if (members && members.length > 0) {
-        // Fetch wallets for these specific users to get their total_deposited
+        // BULLETPROOF DEPOSIT CALCULATION
+        // Get all approved deposits for these specific users
         const memberIds = members.map(m => m.id);
-        const { data: wallets } = await window.supabase
-          .from('wallets')
-          .select('user_id, total_deposited')
-          .in('user_id', memberIds);
+        const { data: deposits } = await window.supabase
+          .from('transactions')
+          .select('user_id, amount')
+          .in('user_id', memberIds)
+          .eq('type', 'deposit')
+          .eq('status', 'approved');
 
-        // Create a map for quick lookup
-        const walletMap = {};
-        if(wallets) wallets.forEach(w => { walletMap[w.user_id] = Number(w.total_deposited || 0); });
-
-        // Calculate total team deposits
-        members.forEach(m => { totalTeamDeposits += (walletMap[m.id] || 0); });
+        // Calculate totals per user
+        const userDeposits = {};
+        if (deposits) {
+          deposits.forEach(d => {
+            if (!userDeposits[d.user_id]) userDeposits[d.user_id] = 0;
+            userDeposits[d.user_id] += Number(d.amount);
+            totalTeamDeposits += Number(d.amount);
+          });
+        }
 
         // Render List
         membersContainer.innerHTML = members.map(m => {
-          const userDeposit = walletMap[m.id] || 0;
+          const userDeposit = userDeposits[m.id] || 0;
           return `
             <div class="member-item">
               <div class="member-avatar">${(m.full_name || m.email || 'U')[0].toUpperCase()}</div>
@@ -217,7 +164,7 @@
           `;
         }).join('');
       } else {
-        membersContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: #94A3B8; font-size: 14px; background: #fff; border-radius: 16px; border: 1px dashed #CBD5E1;">No Level 1 members yet. Share your link to start building your team!</div>';
+        membersContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: #94A3B8; font-size: 14px; background: #fff; border-radius: 16px; border: 1px dashed #CBD5E1;">No Level 1 members yet.</div>';
       }
 
       // Update UI Stats
