@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/run-payout",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}
