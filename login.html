@@ -70,7 +70,8 @@
       btn.innerText = 'Signing in...';
 
       try {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        // 1. Attempt Login
+        const { data, error } = await window.supabase.auth.signInWithPassword({ email, password });
 
         if (error) {
           alertBox.textContent = error.message;
@@ -78,9 +79,26 @@
           btn.disabled = false;
           btn.innerText = 'Sign In';
         } else {
-          alertBox.textContent = 'Login successful! Redirecting...';
-          alertBox.className = 'alert alert-success show';
-          setTimeout(() => window.location.href = 'dashboard.html', 1000);
+          // 2. Check if the user is banned
+          const { data: profile } = await window.supabase
+            .from('profiles')
+            .select('is_active')
+            .eq('id', data.user.id)
+            .single();
+
+          if (profile && profile.is_active === false) {
+            // User is banned: Log them out immediately and show message
+            await window.supabase.auth.signOut();
+            alertBox.textContent = '⚠️ Your account has been suspended. Please contact customer support.';
+            alertBox.className = 'alert alert-error show';
+            btn.disabled = false;
+            btn.innerText = 'Sign In';
+          } else {
+            // User is active: Proceed to dashboard
+            alertBox.textContent = 'Login successful! Redirecting...';
+            alertBox.className = 'alert alert-success show';
+            setTimeout(() => window.location.href = 'dashboard.html', 1000);
+          }
         }
       } catch (err) {
         alertBox.textContent = 'An unexpected error occurred.';
