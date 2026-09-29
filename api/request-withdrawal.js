@@ -1,62 +1,61 @@
 // api/request-withdrawal.js
-import { supabaseAdmin, jsonResponse } from './_utils.js';
-import { getAuthenticatedUser } from './_auth.js';
+import { createClient } from '@supabase/supabase-js';
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return jsonResponse(res, 405, { error: 'Method not allowed' });
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
   try {
-    const user = await getAuthenticatedUser(req);
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: 'No token provided' });
+    const { data: { user }, error: authErr } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
+    if (authErr || !user) return res.status(401).json({ error: 'Invalid session' });
+
     const { amount, bank_name, account_number, account_name } = req.body;
+    if (!amount || !bank_name || !account_number || !account_name)
+      return res.status(400).json({ error: 'All fields are required' });
 
-    if (!amount || amount < 1000) return jsonResponse(res, 400, { error: 'Invalid amount' });
-
-    // 🚨 RULE CHECK: Must have an active miner
-    const { count, error: minerErr } = await supabaseAdmin
-      .from('user_miners')
+    // 🛡️ RULE: Must have an active miner
+    const { count } = await supabase.from('user_miners')
       .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id)
-      .eq('status', 'active');
+      .eq('user_id', user.id).eq('status', 'active');
+    if (!count || count === 0)
+      return res.status(403).json({ error: 'You must rent an active miner before withdrawing.' });
 
-    if (minerErr) throw minerErr;
-    if (!count || count === 0) {
-      return jsonResponse(res, 403, { error: 'You must rent an active miner before you can withdraw funds.' });
-    }
+    // Settings: min + fee only (NO time window)
+    const { data: settings } = await supabase.from('settings').select('key, value');
+    const g = (k, d) => { const x = settings?.find(i => i.key === k); return x ? parseFloat(x.value) : d; };
+    const min = g('min_withdrawal', 1000);
+    const feePct = g('withdrawal_fee_percent', 8);
 
-    // 1. Get Wallet & Settings
-    const { data: wallet } = await supabaseAdmin.from('wallets').select('balance').eq('user_id', user.id).single();
-    const { data: settings } = await supabaseAdmin.from('settings').select('key, value');
-    
-    const getSetting = (key) => settings?.find(s => s.key === key)?.value;
-    const feePercent = parseFloat(getSetting('withdrawal_fee_percent') || 8);
-    const minWithdrawal = parseFloat(getSetting('min_withdrawal') || 1000);
+    if (amount < min) return res.status(400).json({ error: `Minimum withdrawal is ₦${min.toLocaleString()}` });
 
-    if (amount < minWithdrawal) return jsonResponse(res, 400, { error: `Minimum withdrawal is ₦${minWithdrawal}` });
-    if (wallet.balance < amount) return jsonResponse(res, 400, { error: 'Insufficient balance' });
+    // Balance check
+    const { data: wallet } = await supabase.from('wallets').select('balance').eq('user_id', user.id).single();
+    if (!wallet || Number(wallet.balance) < amount)
+      return res.status(400).json({ error: 'Insufficient balance' });
 
-    // 2. Calculate Fee & Deduct Balance Immediately (Lock funds)
-    const fee = amount * (feePercent / 100);
-    const netAmount = amount - fee;
-    const newBalance = wallet.balance - amount;
+    const fee = amount * (feePct / 100);
+    const net = amount - fee;
 
-    await supabaseAdmin.from('wallets').update({ balance: newBalance }).eq('user_id', user.id);
+    // Deduct full amount now (locks the funds)
+    await supabase.from('wallets').update({ balance: Number(wallet.balance) - amount }).eq('user_id', user.id);
 
-    // 3. Create Pending Withdrawal Transaction
-    const txRef = 'WD-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-    const bankDetails = `${bank_name} | ${account_number} | ${account_name}`;
-
-    await supabaseAdmin.from('transactions').insert({
+    // Pending withdrawal (stores NET amount user receives)
+    const ref = 'WD-' + Math.random().toString(36).slice(2, 9).toUpperCase();
+    await supabase.from('transactions').insert({
       user_id: user.id,
       type: 'withdrawal',
-      amount: netAmount, // Store the net amount they will receive
+      amount: net,
       status: 'pending',
-      description: bankDetails,
-      reference: txRef
+      reference: ref,
+      description: `${bank_name} | ${account_number} | ${account_name}`
     });
 
-    // 4. Record the Fee as a separate transaction (optional, but good for accounting)
+    // Fee ledger entry
     if (fee > 0) {
-      await supabaseAdmin.from('transactions').insert({
+      await supabase.from('transactions').insert({
         user_id: user.id,
         type: 'withdrawal_fee',
         amount: -fee,
@@ -65,11 +64,9 @@ export default async function handler(req, res) {
       });
     }
 
-    return jsonResponse(res, 200, { success: true, message: 'Withdrawal request submitted!' });
-
-  } catch (error) {
-    if (error.message.includes('token') || error.message.includes('Admin')) return jsonResponse(res, 401, { error: error.message });
-    console.error(error);
-    return jsonResponse(res, 500, { error: 'Internal server error' });
+    return res.status(200).json({ success: true, message: 'Withdrawal request submitted!' });
+  } catch (e) {
+    console.error('WITHDRAW ERROR:', e);
+    return res.status(500).json({ error: e.message });
   }
-    }
+}
