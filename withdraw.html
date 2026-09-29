@@ -3,26 +3,57 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Withdraw Funds - JaKaTaRise Capital</title>
+  <title>Withdraw - JaKaTaRise Capital</title>
   <link rel="stylesheet" href="assets/css/styles.css" />
   <style>
-    .page-header-simple { padding: 20px; display: flex; align-items: center; gap: 15px; background: #fff; border-bottom: 1px solid #f0f0f0; }
-    .back-btn { width: 36px; height: 36px; background: #F8FAFC; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; color: var(--text-main); font-weight: bold; }
-    
-    .balance-display { background: #fff; margin: 20px; padding: 20px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); display: flex; justify-content: space-between; align-items: center; }
-    .balance-display .lbl { font-size: 12px; color: #64748B; }
-    .balance-display .val { font-size: 24px; font-weight: 800; color: var(--primary); }
+    .page-header-simple {
+      padding: 18px 20px; display: flex; align-items: center; gap: 14px;
+      background: #fff; border-bottom: 1px solid #F1F5F9;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .back-btn {
+      width: 36px; height: 36px; background: #F8FAFC; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      text-decoration: none; color: var(--text-main); font-weight: bold; font-size: 18px;
+    }
+    .page-header-simple h2 { margin: 0; font-size: 18px; font-weight: 700; }
 
-    .time-warning { background: #FEF2F2; border: 1px solid #FECACA; color: #991B1B; padding: 12px 20px; margin: 0 20px 20px; border-radius: 12px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
-    
-    .form-container { padding: 0 20px; }
-    .input-group { margin-bottom: 15px; }
-    .input-group label { display: block; font-size: 12px; color: #64748B; margin-bottom: 8px; font-weight: 600; }
-    .input-group input { width: 100%; padding: 15px; border: 1px solid #E2E8F0; border-radius: 12px; font-size: 15px; outline: none; background: #fff; }
-    
-    .fee-breakdown { background: #F8FAFC; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
-    .fee-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; color: #64748B; }
-    .fee-row.total { border-top: 1px solid #E2E8F0; padding-top: 8px; margin-top: 8px; font-weight: 800; color: var(--text-main); font-size: 16px; }
+    .withdraw-balance-card {
+      background: linear-gradient(135deg, #8B0000 0%, #5c0000 100%);
+      margin: 16px; border-radius: 20px; padding: 24px; color: #fff;
+      box-shadow: 0 10px 25px rgba(139, 0, 0, 0.25);
+    }
+    .withdraw-balance-card .lbl { font-size: 12px; opacity: .85; letter-spacing: 1px; text-transform: uppercase; }
+    .withdraw-balance-card .val { font-size: 32px; font-weight: 800; margin: 6px 0 14px; }
+    .wb-notes { display: flex; gap: 10px; flex-wrap: wrap; }
+    .wb-note { background: rgba(255,255,255,.12); border-radius: 8px; padding: 6px 10px; font-size: 11px; }
+
+    .lock-card {
+      margin: 16px; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 20px;
+      padding: 30px 20px; text-align: center;
+    }
+    .lock-card .icon { font-size: 42px; margin-bottom: 10px; }
+    .lock-card h3 { color: #DC2626; margin: 0 0 8px; }
+    .lock-card p { color: #991B1B; font-size: 14px; margin-bottom: 18px; }
+
+    .form-container { margin: 16px; background: #fff; border-radius: 20px; padding: 22px; box-shadow: 0 4px 15px rgba(0,0,0,.05); }
+    .form-container h3 { margin: 0 0 16px; font-size: 16px; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 12px; font-weight: 600; color: #64748B; margin-bottom: 6px; }
+    .field input {
+      width: 100%; padding: 14px; border: 1px solid #E2E8F0; border-radius: 12px;
+      font-size: 15px; font-family: inherit; outline: none; background: #F8FAFC;
+    }
+    .field input:focus { border-color: #8B0000; background: #fff; }
+
+    .summary-box { background: #F8FAFC; border-radius: 12px; padding: 14px; margin-bottom: 16px; }
+    .sum-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; color: #64748B; }
+    .sum-row.total { border-top: 1px dashed #CBD5E1; margin-top: 6px; padding-top: 8px; font-weight: 700; color: var(--text-main); }
+    .sum-row.total span:last-child { color: #8B0000; }
+
+    .alert-inline { display: none; padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+    .alert-inline.error { display: block; background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; }
+    .alert-inline.success { display: block; background: #F0FDF4; color: #16A34A; border: 1px solid #BBF7D0; }
   </style>
 </head>
 <body>
@@ -30,113 +61,149 @@
 
   <div class="page-header-simple">
     <a href="wallet.html" class="back-btn">‹</a>
-    <h2 style="margin: 0; font-size: 18px;">Withdraw Funds</h2>
+    <h2>Withdraw Funds</h2>
   </div>
 
-  <div class="balance-display">
+  <!-- Balance Card -->
+  <div class="withdraw-balance-card">
     <div class="lbl">Available Balance</div>
-    <div class="val">₦0.00</div>
+    <div class="val" id="balanceDisplay">₦0.00</div>
+    <div class="wb-notes">
+      <div class="wb-note" id="noteMin">Min: —</div>
+      <div class="wb-note" id="noteFee">Fee: —</div>
+      <div class="wb-note">⏰ 24/7 Withdrawals</div>
+    </div>
   </div>
 
-  <div class="time-warning">
-     Withdrawals are only open Mon-Sat, 9AM - 5PM.
+  <!-- Miner Lock (shown only if no active miner) -->
+  <div id="minerLock" class="lock-card" style="display:none;">
+    <div class="icon">🔒</div>
+    <h3>Withdrawal Locked</h3>
+    <p>You must rent an active miner before you can withdraw your funds.</p>
+    <a href="rent-miners.html" class="btn btn-primary" style="display:inline-block;text-decoration:none;padding:12px 26px;border-radius:12px;">Rent a Miner Now</a>
   </div>
 
-  <div class="form-container">
-    <div class="input-group">
-      <label>Amount to Withdraw (₦)</label>
-      <input type="number" id="withdrawAmount" placeholder="Min. ₦1,000" oninput="calcFee()" />
-    </div>
+  <!-- Withdraw Form -->
+  <div class="form-container" id="formContainer">
+    <h3>💸 Withdrawal Details</h3>
+    <div id="alertBox" class="alert-inline"></div>
+    <form id="withdrawForm">
+      <div class="field">
+        <label>Amount (₦)</label>
+        <input type="number" id="withdrawAmount" placeholder="0.00" oninput="calcSummary()" required />
+      </div>
 
-    <div class="fee-breakdown">
-      <div class="fee-row"><span>Withdrawal Charge (8%)</span><span id="feeDisplay">₦0.00</span></div>
-      <div class="fee-row total"><span>You Will Receive</span><span id="netDisplay">₦0.00</span></div>
-    </div>
+      <div class="summary-box">
+        <div class="sum-row"><span>Processing Fee (<b id="feePctLabel">8</b>%)</span><span id="feeOut">- ₦0.00</span></div>
+        <div class="sum-row total"><span>You Will Receive</span><span id="netOut">₦0.00</span></div>
+      </div>
 
-    <div class="input-group">
-      <label>Bank Name</label>
-      <input type="text" placeholder="e.g. GTBank" />
-    </div>
-    <div class="input-group">
-      <label>Account Number</label>
-      <input type="tel" placeholder="10 digits" />
-    </div>
-    <div class="input-group">
-      <label>Account Name</label>
-      <input type="text" placeholder="Name on account" />
-    </div>
+      <div class="field">
+        <label>Bank Name</label>
+        <input type="text" id="bankName" placeholder="e.g. GTBank" required />
+      </div>
+      <div class="field">
+        <label>Account Number</label>
+        <input type="text" id="acctNumber" placeholder="10-digit number" inputmode="numeric" maxlength="10" required />
+      </div>
+      <div class="field">
+        <label>Account Name</label>
+        <input type="text" id="acctName" placeholder="Name on account" required />
+      </div>
 
-    <button class="btn btn-primary btn-block" style="border-radius: 12px; padding: 15px;">Submit Withdrawal Request</button>
+      <button type="submit" class="btn btn-primary btn-block" id="submitBtn" style="border-radius:12px;padding:15px;font-size:15px;">Submit Withdrawal Request</button>
+    </form>
   </div>
 
   <div id="app-footer"></div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/components.js"></script>
   <script src="assets/js/api-client.js"></script>
   <script src="assets/js/auth-guard.js"></script>
-  <script src="assets/js/wallet.js"></script> <!-- Keep your existing wallet.js for time/fee logic -->
-  
+
   <script>
+    let CFG = { min: 1000, fee: 8, balance: 0 };
+
     document.addEventListener('DOMContentLoaded', async () => {
       const { data: { session } } = await window.supabase.auth.getSession();
-      if(!session) return;
+      if (!session) return;
 
-      // 1. Fetch Balance
-      const { data: wallet } = await window.supabase.from('wallets').select('balance').eq('user_id', session.user.id).single();
-      if(wallet) document.querySelector('.balance-display .val').innerText = '₦' + Number(wallet.balance).toLocaleString();
+      // 1. Load balance
+      const { data: wallet } = await window.supabase.from('wallets')
+        .select('balance').eq('user_id', session.user.id).single();
+      CFG.balance = Number(wallet?.balance || 0);
+      document.getElementById('balanceDisplay').innerText = '₦' + CFG.balance.toLocaleString('en-NG', { minimumFractionDigits: 2 });
 
-      // 2.  Check Active Miner Requirement
-      const { count } = await window.supabase
-        .from('user_miners')
+      // 2. Load settings (NO time window anymore — only min + fee)
+      const { data: settings } = await window.supabase.from('settings').select('key, value');
+      const g = (k, d) => { const x = settings?.find(i => i.key === k); return x ? x.value : d; };
+      CFG.min = parseFloat(g('min_withdrawal', 1000));
+      CFG.fee = parseFloat(g('withdrawal_fee_percent', 8));
+      document.getElementById('noteMin').innerText = 'Min: ₦' + CFG.min.toLocaleString();
+      document.getElementById('noteFee').innerText = 'Fee: ' + CFG.fee + '%';
+      document.getElementById('feePctLabel').innerText = CFG.fee;
+
+      // 3. Active miner rule
+      const { count } = await window.supabase.from('user_miners')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', session.user.id)
-        .eq('status', 'active');
-
-      const formContainer = document.querySelector('.form-container');
-      const timeWarning = document.querySelector('.time-warning');
+        .eq('user_id', session.user.id).eq('status', 'active');
 
       if (!count || count === 0) {
-        // Hide form and show restriction banner
-        formContainer.innerHTML = `
-          <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 16px; padding: 30px; text-align: center; margin-top: 20px;">
-            <div style="font-size: 40px; margin-bottom: 10px;">🔒</div>
-            <h3 style="color: var(--danger); margin: 0 0 10px 0;">Withdrawal Locked</h3>
-            <p style="color: #991B1B; margin-bottom: 20px;">You must rent an active miner before you can withdraw your funds.</p>
-            <a href="rent-miners.html" class="btn btn-primary" style="display: inline-block; text-decoration: none; padding: 12px 24px; border-radius: 12px;">Rent a Miner Now</a>
-          </div>
-        `;
-        if(timeWarning) timeWarning.style.display = 'none';
-      } else {
-        // User has a miner, attach form submit handler
-        document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const btn = e.target.querySelector('button');
-          const amount = document.getElementById('withdrawAmount').value;
-          const bankName = e.target.querySelector('input[placeholder="e.g. GTBank"]').value;
-          const acctNum = e.target.querySelector('input[placeholder="10 digits"]').value;
-          const acctName = e.target.querySelector('input[placeholder="Name on account"]').value;
-
-          btn.disabled = true;
-          btn.innerText = 'Processing...';
-
-          const result = await callApi('/api/request-withdrawal', {
-            amount: parseFloat(amount),
-            bank_name: bankName,
-            account_number: acctNum,
-            account_name: acctName
-          });
-
-          if (result.success) {
-            alert('✅ Withdrawal request submitted! Admin will process it shortly.');
-            window.location.href = 'transactions.html';
-          } else {
-            alert('❌ ' + (result.error || 'Failed to submit withdrawal.'));
-            btn.disabled = false;
-            btn.innerText = 'Submit Withdrawal Request';
-          }
-        });
+        document.getElementById('formContainer').style.display = 'none';
+        document.getElementById('minerLock').style.display = 'block';
       }
     });
+
+    // Live fee calculation
+    window.calcSummary = function () {
+      const a = parseFloat(document.getElementById('withdrawAmount').value) || 0;
+      const fee = a * CFG.fee / 100;
+      document.getElementById('feeOut').innerText = '- ₦' + fee.toLocaleString('en-NG', { minimumFractionDigits: 2 });
+      document.getElementById('netOut').innerText = '₦' + (a - fee).toLocaleString('en-NG', { minimumFractionDigits: 2 });
+    };
+
+    // Submit
+    document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const alertBox = document.getElementById('alertBox');
+      const btn = document.getElementById('submitBtn');
+      alertBox.className = 'alert-inline';
+
+      const amount = parseFloat(document.getElementById('withdrawAmount').value);
+      const bankName = document.getElementById('bankName').value.trim();
+      const acctNumber = document.getElementById('acctNumber').value.trim();
+      const acctName = document.getElementById('acctName').value.trim();
+
+      // Client-side validations (no time check!)
+      if (!amount || amount <= 0) return showErr('Enter a valid amount.');
+      if (amount < CFG.min) return showErr(`Minimum withdrawal is ₦${CFG.min.toLocaleString()}.`);
+      if (amount > CFG.balance) return showErr('Insufficient balance.');
+      if (acctNumber.length !== 10) return showErr('Account number must be 10 digits.');
+
+      btn.disabled = true;
+      btn.innerText = 'Processing...';
+
+      const result = await callApi('/api/request-withdrawal', {
+        amount, bank_name: bankName, account_number: acctNumber, account_name: acctName
+      });
+
+      if (result.success) {
+        alertBox.className = 'alert-inline success';
+        alertBox.innerText = '✅ Request submitted! Admin will process it shortly.';
+        setTimeout(() => location.href = 'transactions.html', 1200);
+      } else {
+        showErr(result.error || 'Failed to submit withdrawal.');
+        btn.disabled = false;
+        btn.innerText = 'Submit Withdrawal Request';
+      }
+    });
+
+    function showErr(msg) {
+      const alertBox = document.getElementById('alertBox');
+      alertBox.className = 'alert-inline error';
+      alertBox.innerText = '❌ ' + msg;
+    }
   </script>
 </body>
 </html>
