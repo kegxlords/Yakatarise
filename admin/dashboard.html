@@ -153,7 +153,7 @@
       <div class="admin-brand">JaKaTa<span>Rise</span></div>
       <div class="admin-badge">ADMIN</div>
     </div>
-    <a href="../login.html" class="admin-signout" onclick="logout()">Sign out</a>
+    <a href="../login.html" class="admin-signout" onclick="logout(event)">Sign out</a>
   </header>
 
   <!-- Horizontal Tabs -->
@@ -161,7 +161,7 @@
     <div class="admin-tab active" onclick="showSection('overview', this)"><span class="admin-tab-icon">📊</span> Overview</div>
     <div class="admin-tab" onclick="showSection('users', this)"><span class="admin-tab-icon">👥</span> Users</div>
     <div class="admin-tab" onclick="showSection('deposits', this)"><span class="admin-tab-icon">💰</span> Deposits</div>
-    <div class="admin-tab" onclick="showSection('withdrawals', this)"><span class="admin-tab-icon"></span> Withdrawals</div>
+    <div class="admin-tab" onclick="showSection('withdrawals', this)"><span class="admin-tab-icon">↗️</span> Withdrawals</div>
     <div class="admin-tab" onclick="showSection('miners', this)"><span class="admin-tab-icon">⛏️</span> Miners</div>
     <div class="admin-tab" onclick="showSection('giftcodes', this)"><span class="admin-tab-icon">🎁</span> Gift Codes</div>
     <div class="admin-tab" onclick="showSection('settings', this)"><span class="admin-tab-icon">⚙️</span> Settings</div>
@@ -266,7 +266,7 @@
     <div class="dark-card">
       <div class="dark-card-title"> Generate Gift Code</div>
       <label class="dark-label">Code (Leave blank to auto-generate)</label><input type="text" id="newCode" class="dark-input" placeholder="WELCOME2024" style="text-transform:uppercase;" />
-      <label class="dark-label">Amount ()</label><input type="number" id="newAmount" class="dark-input" placeholder="1000" />
+      <label class="dark-label">Amount (₦)</label><input type="number" id="newAmount" class="dark-input" placeholder="1000" />
       <label class="dark-label">Max Uses</label><input type="number" id="newMaxUses" class="dark-input" value="1" />
       <label class="dark-label">Expires (Optional)</label><input type="date" id="newExpiry" class="dark-input" />
       <button class="btn-dark" onclick="createGiftCode()">Generate Code</button>
@@ -331,7 +331,7 @@
       <label class="dark-label">WhatsApp Link</label><input type="url" id="set_customer_service_link" class="dark-input" />
     </div>
 
-    <button class="btn-dark" onclick="saveAllSettings()" style="margin-bottom:20px;">💾 Save All Settings</button>
+    <button class="btn-dark" onclick="saveAllSettings(this)" style="margin-bottom:20px;">💾 Save All Settings</button>
   </section>
 
   <!-- ==================== MODALS ==================== -->
@@ -348,7 +348,7 @@
       <select id="balAction" class="dark-input"><option value="credit">➕ Credit (Add Money)</option><option value="debit">➖ Debit (Remove Money)</option></select>
       <label class="dark-label">Amount (₦)</label><input type="number" id="balAmount" class="dark-input" placeholder="0.00" />
       <label class="dark-label">Reason</label><input type="text" id="balReason" class="dark-input" placeholder="e.g. Manual Bonus" />
-      <button class="btn-dark" onclick="submitBalanceUpdate()">Confirm Update</button>
+      <button class="btn-dark" onclick="submitBalanceUpdate(this)">Confirm Update</button>
     </div>
   </div>
 
@@ -367,6 +367,12 @@
   <script src="../assets/js/admin-guard.js"></script>
   
   <script>
+    // Escape database content before placing it in HTML, and safely encode inline JS arguments.
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>\"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[ch]));
+    }
+    function jsArg(value) { return escapeHtml(JSON.stringify(String(value ?? ''))); }
+
     // ===== TAB NAVIGATION =====
     window.showSection = function(sectionId, tabEl) {
       document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
@@ -417,7 +423,7 @@
           let badgeClass = 'badge-yellow';
           if(tx.status === 'approved' || tx.status === 'completed') badgeClass = 'badge-green';
           if(tx.status === 'rejected') badgeClass = 'badge-red';
-          return `<tr><td>${tx.profiles?.email || 'Unknown'}</td><td style="text-transform:capitalize;">${tx.type.replace('_',' ')}</td><td style="font-weight:700;">₦${Number(tx.amount).toLocaleString()}</td><td><span class="badge-dark ${badgeClass}">${tx.status}</span></td><td style="color:#8E8E93;">${new Date(tx.created_at).toLocaleDateString()}</td></tr>`;
+          return `<tr><td>${escapeHtml(tx.profiles?.email || 'Unknown')}</td><td style="text-transform:capitalize;">${escapeHtml(String(tx.type || 'transaction').replace('_',' '))}</td><td style="font-weight:700;">₦${Number(tx.amount).toLocaleString()}</td><td><span class="badge-dark ${badgeClass}">${escapeHtml(tx.status || 'unknown')}</span></td><td style="color:#8E8E93;">${new Date(tx.created_at).toLocaleDateString()}</td></tr>`;
         }).join('');
       } else { tbody.innerHTML = '<tr><td colspan="5" class="loading-text">No recent activity.</td></tr>'; }
     }
@@ -438,15 +444,15 @@
         const statusBadge = u.is_active ? '<span class="badge-dark badge-green">Active</span>' : '<span class="badge-dark badge-red">Banned</span>';
         const isSelf = u.id === adminUserId;
         return `<tr>
-          <td><div style="font-weight:600;">${u.full_name || 'Unnamed'}</div><div style="font-size:11px;color:#8E8E93;">${u.email || 'No email'}</div></td>
+          <td><div style="font-weight:600;">${escapeHtml(u.full_name || 'Unnamed')}</div><div style="font-size:11px;color:#8E8E93;">${escapeHtml(u.email || 'No email')}</div></td>
           <td style="font-weight:700;color:#D4AF37;">${Number(balance).toLocaleString()}</td>
           <td>${statusBadge}</td>
           <td style="color:#8E8E93;">${new Date(u.created_at).toLocaleDateString()}</td>
           <td>
             <div class="action-btns">
-              <button class="btn-tiny btn-tiny-view" onclick="openBalanceModal('${u.id}','${u.email||'Unknown'}',${balance})">💰</button>
-              <button class="btn-tiny" style="background:#2C2C2E;color:#fff;" onclick="openTeamModal('${u.id}','${u.full_name||'User'}')">👥</button>
-              <button class="btn-tiny" style="background:#FF9500;color:#000;" onclick="impersonateUser('${u.email}')">👁️</button>
+              <button class="btn-tiny btn-tiny-view" onclick="openBalanceModal(${jsArg(u.id)},${jsArg(u.email || 'Unknown')},${Number(balance) || 0})">💰</button>
+              <button class="btn-tiny" style="background:#2C2C2E;color:#fff;" onclick="openTeamModal(${jsArg(u.id)},${jsArg(u.full_name || 'User')})">👥</button>
+              <button class="btn-tiny" style="background:#FF9500;color:#000;" onclick="impersonateUser(${jsArg(u.email)})">👁️</button>
               ${!isSelf ? `<button class="btn-tiny ${u.is_active ? 'btn-tiny-reject' : 'btn-tiny-approve'}" onclick="toggleBan('${u.id}',${u.is_active})">${u.is_active?'Ban':'Unban'}</button>` : ''}
             </div>
           </td>
@@ -464,24 +470,27 @@
       document.getElementById('balAmount').value = ''; document.getElementById('balReason').value = '';
       document.getElementById('balanceModal').classList.add('active');
     };
-    window.submitBalanceUpdate = async function() {
+    window.submitBalanceUpdate = async function(button) {
       const userId = document.getElementById('balModalUserId').value;
       const action = document.getElementById('balAction').value;
       const amount = parseFloat(document.getElementById('balAmount').value);
       const reason = document.getElementById('balReason').value || 'Admin adjustment';
-      const btn = event.target;
-      if (!amount || amount <= 0) return alert('Enter a valid amount');
+      const btn = button || document.querySelector('#balanceModal .btn-dark');
+      if (!Number.isFinite(amount) || amount <= 0) return alert('Enter a valid amount');
       btn.innerText = 'Processing...'; btn.disabled = true;
       try {
-        const { data: wallet } = await window.supabase.from('wallets').select('balance').eq('user_id', userId).single();
-        let newBalance = wallet.balance;
-        if (action === 'credit') newBalance += amount; else newBalance -= amount;
+        const { data: wallet, error: walletError } = await window.supabase.from('wallets').select('balance').eq('user_id', userId).single();
+        if (walletError || !wallet) throw new Error(walletError?.message || 'Wallet not found');
+        const currentBalance = Number(wallet.balance) || 0;
+        const newBalance = action === 'credit' ? currentBalance + amount : currentBalance - amount;
         if (newBalance < 0) throw new Error('Insufficient funds');
-        await window.supabase.from('wallets').update({ balance: newBalance }).eq('user_id', userId);
-        await window.supabase.from('transactions').insert({ user_id: userId, type: 'admin_adjustment', amount: action === 'credit' ? amount : -amount, status: 'completed', description: `Admin ${action}: ${reason}` });
+        const { error: updateError } = await window.supabase.from('wallets').update({ balance: newBalance }).eq('user_id', userId);
+        if (updateError) throw updateError;
+        const { error: transactionError } = await window.supabase.from('transactions').insert({ user_id: userId, type: 'admin_adjustment', amount: action === 'credit' ? amount : -amount, status: 'completed', description: `Admin ${action}: ${reason}` });
+        if (transactionError) throw transactionError;
         alert('✅ Balance updated!'); closeModal('balanceModal'); loadUsers();
       } catch (err) { alert('❌ ' + err.message); }
-      btn.innerText = 'Confirm Update'; btn.disabled = false;
+      if (btn) { btn.innerText = 'Confirm Update'; btn.disabled = false; }
     };
     window.openTeamModal = async function(userId, userName) {
       document.getElementById('teamModal').classList.add('active');
@@ -489,7 +498,7 @@
       content.innerHTML = '<p class="loading-text">Loading...</p>';
       const { data: team } = await window.supabase.from('profiles').select('full_name, email, created_at').eq('referred_by', userId).order('created_at', { ascending: false });
       if (!team || team.length === 0) { content.innerHTML = '<p class="loading-text">No referrals found.</p>'; return; }
-      content.innerHTML = team.map(m => `<div style="padding:12px 0;border-bottom:1px solid #2C2C2E;"><div style="font-weight:600;">${m.full_name || 'Unnamed'}</div><div style="font-size:12px;color:#8E8E93;">${m.email || 'No email'} • ${new Date(m.created_at).toLocaleDateString()}</div></div>`).join('');
+      content.innerHTML = team.map(m => `<div style="padding:12px 0;border-bottom:1px solid #2C2C2E;"><div style="font-weight:600;">${escapeHtml(m.full_name || 'Unnamed')}</div><div style="font-size:12px;color:#8E8E93;">${escapeHtml(m.email || 'No email')} • ${new Date(m.created_at).toLocaleDateString()}</div></div>`).join('');
     };
     window.toggleBan = async function(userId, status) {
       if (!confirm(`${status ? 'Ban' : 'Unban'} this user?`)) return;
@@ -524,10 +533,18 @@
       tbody.innerHTML = txs.map(tx => {
         let badgeClass = 'badge-yellow';
         if(tx.status === 'approved') badgeClass = 'badge-green'; if(tx.status === 'rejected') badgeClass = 'badge-red';
-        let actions = tx.status === 'pending' ? `<div class="action-btns"><button class="btn-tiny btn-tiny-approve" onclick="approveDeposit('${tx.id}','${tx.user_id}',${tx.amount})">Approve</button><button class="btn-tiny btn-tiny-reject" onclick="rejectDeposit('${tx.id}')">Reject</button></div>` : '<span style="color:#8E8E93;font-size:11px;">Done</span>';
-        return `<tr><td>${tx.profiles?.email || 'Unknown'}</td><td style="font-weight:700;color:#D4AF37;">₦${Number(tx.amount).toLocaleString()}</td><td style="font-size:11px;color:#8E8E93;">${tx.description || 'N/A'}</td><td><span class="badge-dark ${badgeClass}">${tx.status}</span></td><td>${actions}</td></tr>`;
+        let actions = tx.status === 'pending' ? `<div class="action-btns"><button class="btn-tiny btn-tiny-approve" onclick="approveDeposit(${jsArg(tx.id)},${jsArg(tx.user_id)},${Number(tx.amount) || 0})">Approve</button><button class="btn-tiny btn-tiny-reject" onclick="rejectDeposit(${jsArg(tx.id)})">Reject</button></div>` : '<span style="color:#8E8E93;font-size:11px;">Done</span>';
+        return `<tr><td>${escapeHtml(tx.profiles?.email || 'Unknown')}</td><td style="font-weight:700;color:#D4AF37;">₦${Number(tx.amount || 0).toLocaleString()}</td><td style="font-size:11px;color:#8E8E93;">${escapeHtml(tx.description || 'N/A')}</td><td><span class="badge-dark ${badgeClass}">${escapeHtml(tx.status || 'unknown')}</span></td><td>${actions}</td></tr>`;
       }).join('');
     }
+    window.rejectDeposit = async function(id) {
+      if (!confirm('Reject this deposit request?')) return;
+      const { error } = await window.supabase.from('transactions').update({ status: 'rejected' }).eq('id', id).eq('type', 'deposit');
+      if (error) { alert('❌ Could not reject deposit: ' + error.message); return; }
+      alert('Deposit rejected.');
+      loadDeposits();
+    };
+
     // ===== FIXED DEPOSIT APPROVAL (Updates Total Deposits) =====
     window.approveDeposit = async function(id, userId, amount) {
       if(!confirm(`Approve ₦${Number(amount).toLocaleString()}?`)) return;
@@ -569,6 +586,25 @@
         alert('❌ Error: ' + err.message);
       }
     };
+    async function loadWithdrawals() {
+      const filter = document.getElementById('withdrawalFilter').value;
+      let query = window.supabase.from('transactions').select('*, profiles(email)').eq('type', 'withdrawal').order('created_at', { ascending: false });
+      if (filter !== 'all') query = query.eq('status', filter);
+      const { data: txs, error } = await query;
+      const tbody = document.getElementById('withdrawalBody');
+      if (error) { tbody.innerHTML = `<tr><td colspan="7" class="loading-text">Could not load withdrawals: ${escapeHtml(error.message)}</td></tr>`; return; }
+      if (!txs || txs.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="loading-text">No withdrawals found.</td></tr>'; return; }
+      tbody.innerHTML = txs.map(tx => {
+        const amount = Number(tx.amount) || 0;
+        const fee = Number(tx.fee ?? tx.withdrawal_fee) || 0;
+        const net = Number(tx.net_amount ?? tx.amount_after_fee) || Math.max(0, amount - fee);
+        const bank = [tx.bank_name, tx.account_number, tx.account_name].filter(Boolean).map(escapeHtml).join(' · ') || escapeHtml(tx.description || 'N/A');
+        const badgeClass = tx.status === 'approved' || tx.status === 'completed' ? 'badge-green' : tx.status === 'rejected' ? 'badge-red' : 'badge-yellow';
+        const actions = tx.status === 'pending' ? `<div class="action-btns"><button class="btn-tiny btn-tiny-approve" onclick="approveWithdrawal(${jsArg(tx.id)})">Paid</button><button class="btn-tiny btn-tiny-reject" onclick="rejectWithdrawal(${jsArg(tx.id)},${jsArg(tx.user_id)},${amount})">Reject</button></div>` : '<span style="color:#8E8E93;font-size:11px;">Done</span>';
+        return `<tr><td>${escapeHtml(tx.profiles?.email || 'Unknown')}</td><td>₦${amount.toLocaleString()}</td><td>₦${fee.toLocaleString()}</td><td>₦${net.toLocaleString()}</td><td style="font-size:11px;color:#8E8E93;">${bank}</td><td><span class="badge-dark ${badgeClass}">${escapeHtml(tx.status || 'unknown')}</span></td><td>${actions}</td></tr>`;
+      }).join('');
+    }
+
     window.approveWithdrawal = async function(id) {
       if(!confirm('Mark as paid?')) return;
       await window.supabase.from('transactions').update({ status: 'approved' }).eq('id', id);
@@ -576,9 +612,12 @@
     };
     window.rejectWithdrawal = async function(id, userId, amount) {
       if(!confirm(`Reject and refund ${amount.toLocaleString()}?`)) return;
-      const { data: wallet } = await window.supabase.from('wallets').select('balance').eq('user_id', userId).single();
-      await window.supabase.from('wallets').update({ balance: wallet.balance + amount }).eq('user_id', userId);
-      await window.supabase.from('transactions').update({ status: 'rejected' }).eq('id', id);
+      const { data: wallet, error: walletError } = await window.supabase.from('wallets').select('balance').eq('user_id', userId).single();
+      if (walletError || !wallet) { alert('❌ Wallet not found; withdrawal was not changed.'); return; }
+      const { error: refundError } = await window.supabase.from('wallets').update({ balance: (Number(wallet.balance) || 0) + (Number(amount) || 0) }).eq('user_id', userId);
+      if (refundError) { alert('❌ Refund failed: ' + refundError.message); return; }
+      const { error: statusError } = await window.supabase.from('transactions').update({ status: 'rejected' }).eq('id', id).eq('type', 'withdrawal');
+      if (statusError) { alert('❌ Refund was issued, but request status could not be updated: ' + statusError.message); return; }
       loadWithdrawals();
     };
 
@@ -587,7 +626,7 @@
       const { data: miners } = await window.supabase.from('miners').select('*').order('price', { ascending: true });
       const tbody = document.getElementById('minersTableBody');
       if (!miners) { tbody.innerHTML = '<tr><td colspan="6" class="loading-text">Error.</td></tr>'; return; }
-      tbody.innerHTML = miners.map(m => `<tr><td style="font-weight:600;">${m.name}</td><td>₦${Number(m.price).toLocaleString()}</td><td>₦${Number(m.daily_revenue).toLocaleString()}</td><td>${m.duration_days}d</td><td><span class="badge-dark ${m.is_active ? 'badge-green' : 'badge-red'}">${m.is_active ? 'Active' : 'Locked'}</span></td><td><button class="btn-tiny ${m.is_active ? 'btn-tiny-reject' : 'btn-tiny-approve'}" onclick="toggleMiner('${m.id}',${m.is_active})">${m.is_active ? 'Lock' : 'Activate'}</button></td></tr>`).join('');
+      tbody.innerHTML = miners.map(m => `<tr><td style="font-weight:600;">${escapeHtml(m.name)}</td><td>₦${Number(m.price).toLocaleString()}</td><td>₦${Number(m.daily_revenue).toLocaleString()}</td><td>${m.duration_days}d</td><td><span class="badge-dark ${m.is_active ? 'badge-green' : 'badge-red'}">${m.is_active ? 'Active' : 'Locked'}</span></td><td><button class="btn-tiny ${m.is_active ? 'btn-tiny-reject' : 'btn-tiny-approve'}" onclick="toggleMiner(${jsArg(m.id)},${Boolean(m.is_active)})">${m.is_active ? 'Lock' : 'Activate'}</button></td></tr>`).join('');
     }
     window.addMiner = async function() {
       const name = document.getElementById('newMinerName').value;
@@ -613,7 +652,7 @@
         const isFull = c.used_count >= c.max_uses;
         const status = !c.is_active ? 'Inactive' : isExpired ? 'Expired' : isFull ? 'Full' : 'Active';
         const badgeClass = status === 'Active' ? 'badge-green' : 'badge-red';
-        return `<tr><td style="font-weight:700;font-family:monospace;">${c.code}</td><td>₦${Number(c.amount).toLocaleString()}</td><td>${c.used_count}/${c.max_uses}</td><td style="color:#8E8E93;">${c.expires_at ? new Date(c.expires_at).toLocaleDateString() : 'Never'}</td><td><span class="badge-dark ${badgeClass}">${status}</span></td><td><div class="action-btns"><button class="btn-tiny ${c.is_active ? 'btn-tiny-reject' : 'btn-tiny-approve'}" onclick="toggleCode('${c.id}',${c.is_active})">${c.is_active ? 'Off' : 'On'}</button><button class="btn-tiny btn-tiny-reject" onclick="deleteCode('${c.id}')">Del</button></div></td></tr>`;
+        return `<tr><td style="font-weight:700;font-family:monospace;">${escapeHtml(c.code)}</td><td>₦${Number(c.amount).toLocaleString()}</td><td>${c.used_count}/${c.max_uses}</td><td style="color:#8E8E93;">${c.expires_at ? new Date(c.expires_at).toLocaleDateString() : 'Never'}</td><td><span class="badge-dark ${badgeClass}">${status}</span></td><td><div class="action-btns"><button class="btn-tiny ${c.is_active ? 'btn-tiny-reject' : 'btn-tiny-approve'}" onclick="toggleCode(${jsArg(c.id)},${Boolean(c.is_active)})">${c.is_active ? 'Off' : 'On'}</button><button class="btn-tiny btn-tiny-reject" onclick="deleteCode(${jsArg(c.id)})">Del</button></div></td></tr>`;
       }).join('');
     }
     window.createGiftCode = async function() {
@@ -666,8 +705,9 @@
       } catch(e) {}
     }
 
-    window.saveAllSettings = async function() {
-      const btn = event.target; btn.innerText = 'Saving...'; btn.disabled = true;
+    window.saveAllSettings = async function(button) {
+      const btn = button || document.querySelector('#section-settings > .btn-dark');
+      if (btn) { btn.innerText = 'Saving...'; btn.disabled = true; }
       // Get values from the visible buttons
       const days = Array.from(document.querySelectorAll('.day-btn.selected input')).map(cb => parseInt(cb.value));
       const settingsToSave = [
@@ -688,13 +728,24 @@
         { key: 'telegram_link', value: document.getElementById('set_telegram_link').value },
         { key: 'customer_service_link', value: document.getElementById('set_customer_service_link').value }
       ];
-      for (const s of settingsToSave) await window.supabase.from('settings').upsert(s, { onConflict: 'key' });
-      alert('✅ Settings saved!'); btn.innerText = '💾 Save All Settings'; btn.disabled = false;
+      try {
+        const { error } = await window.supabase.from('settings').upsert(settingsToSave, { onConflict: 'key' });
+        if (error) throw error;
+        alert('✅ Settings saved!');
+      } catch (error) {
+        alert('❌ Could not save settings: ' + error.message);
+      } finally {
+        if (btn) { btn.innerText = '💾 Save All Settings'; btn.disabled = false; }
+      }
     };
 
     // ===== HELPERS =====
     window.closeModal = function(id) { document.getElementById(id).classList.remove('active'); };
-    window.logout = async function() { await window.supabase.auth.signOut(); window.location.href = '../login.html'; };
+    window.logout = async function(event) {
+      if (event) event.preventDefault();
+      try { await window.supabase.auth.signOut(); }
+      finally { window.location.href = '../login.html'; }
+    };
     document.addEventListener('DOMContentLoaded', loadOverview);
   </script>
 </body>
