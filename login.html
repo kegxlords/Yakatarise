@@ -50,87 +50,95 @@
     </div>
   </div>
 
-  <!-- Load Supabase Library -->
+  <!-- 1. Load Supabase from CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
+  <!-- 2. WE REMOVED api-client.js TO PREVENT IT FROM BREAKING THE PAGE -->
+
   <script>
-    // ==========================================
-    // 1. DIRECT SUPABASE INITIALIZATION
-    // ==========================================
-    // PASTE YOUR ACTUAL SUPABASE URL AND ANON KEY BELOW
-    const SUPABASE_URL = 'https://oinsfepzlnfpydzdngly.supabase.co'; 
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9pbnNmZXB6bG5mcHlkemRuZ2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA0OTg2NDcsImV4cCI6MjEwNjA3NDY0N30.eXyO-ZYcThiwMIy5cAGbOsGECLSqGhLgWVxgnPDxNKQ'; 
-
-    // Create the client directly on this page
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    // ==========================================
-    // 2. LOGIN LOGIC
-    // ==========================================
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
+    // Wait for the page to fully load
+    document.addEventListener('DOMContentLoaded', () => {
       
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      const alertBox = document.getElementById('alert');
+      // CHECK 1: Did Supabase load?
+      if (typeof window.supabase === 'undefined') {
+        alert("❌ CRITICAL ERROR: Supabase library failed to load. Check your internet connection.");
+        return; // Stop here
+      }
+
+      // CHECK 2: Are your credentials filled in?
+      const SUPABASE_URL = 'https://oinsfepzlnfpydzdngly.supabase.co'; 
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9pbnNmZXB6bG5mcHlkemRuZ2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA0OTg2NDcsImV4cCI6MjEwNjA3NDY0N30.eXyO-ZYcThiwMIy5cAGbOsGECLSqGhLgWVxgnPDxNKQ'; 
+
+      if (SUPABASE_URL === 'YOUR_SUPABASE_URL') {
+        alert("❌ CRITICAL ERROR: You forgot to put your Supabase URL and Key in the code!");
+        return; // Stop here
+      }
+
+      // Initialize Supabase
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      // CHECK 3: Did the form load?
+      const form = document.getElementById('loginForm');
       const btn = document.getElementById('loginBtn');
+      const alertBox = document.getElementById('alert');
 
-      // Reset alert
-      alertBox.className = 'alert';
-      alertBox.style.display = 'none';
+      if (!form || !btn) {
+        alert("❌ HTML Error: Could not find the login form or button.");
+        return;
+      }
 
-      // Loading state
-      btn.disabled = true;
-      btn.innerText = 'Signing in...';
-
-      console.log("Step 1: Form submitted. Starting login...");
-
-      try {
-        console.log("Step 2: Calling Supabase...");
+      // 3. Attach the click listener
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault(); // Stop page reload IMMEDIATELY
         
-        // Attempt Login
-        const { data, error } = await supabase.auth.signInWithPassword({ 
-          email, 
-          password 
-        });
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
 
-        console.log("Step 3: Supabase responded.", { data, error });
+        // Reset alert
+        alertBox.className = 'alert';
+        alertBox.style.display = 'none';
 
-        if (error) {
-          alertBox.textContent = error.message;
-          alertBox.className = 'alert alert-error show';
-          btn.disabled = false;
-          btn.innerText = 'Sign In';
-        } else {
-          console.log("Step 4: Login successful. Checking profile...");
-          
-          // Check if the user is banned
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('is_active')
-            .eq('id', data.user.id)
-            .single();
+        // Update button text
+        btn.disabled = true;
+        btn.innerText = 'Signing in...';
 
-          if (profile && profile.is_active === false) {
-            await supabase.auth.signOut();
-            alertBox.textContent = '⚠️ Your account has been suspended. Please contact customer support.';
+        try {
+          const { data, error } = await supabase.auth.signInWithPassword({ 
+            email, 
+            password 
+          });
+
+          if (error) {
+            alertBox.textContent = error.message;
             alertBox.className = 'alert alert-error show';
             btn.disabled = false;
             btn.innerText = 'Sign In';
           } else {
-            console.log("Step 5: Redirecting to dashboard...");
-            alertBox.textContent = 'Login successful! Redirecting...';
-            alertBox.className = 'alert alert-success show';
-            setTimeout(() => window.location.href = 'dashboard.html', 1000);
+            // Check if banned
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('is_active')
+              .eq('id', data.user.id)
+              .single();
+
+            if (profile && profile.is_active === false) {
+              await supabase.auth.signOut();
+              alertBox.textContent = '⚠️ Your account has been suspended.';
+              alertBox.className = 'alert alert-error show';
+              btn.disabled = false;
+              btn.innerText = 'Sign In';
+            } else {
+              alertBox.textContent = 'Login successful! Redirecting...';
+              alertBox.className = 'alert alert-success show';
+              setTimeout(() => window.location.href = 'dashboard.html', 1000);
+            }
           }
+        } catch (err) {
+          alert("❌ UNEXPECTED ERROR: " + err.message);
+          btn.disabled = false;
+          btn.innerText = 'Sign In';
         }
-      } catch (err) {
-        console.error("FATAL ERROR:", err);
-        alertBox.textContent = 'Error: ' + err.message;
-        alertBox.className = 'alert alert-error show';
-        btn.disabled = false;
-        btn.innerText = 'Sign In';
-      }
+      });
     });
   </script>
 </body>
