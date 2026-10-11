@@ -51,21 +51,10 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Ensure api-client.js initializes window.supabase -->
   <script src="assets/js/api-client.js"></script>
+  
   <script>
-    // ==========================================
-    // 1. INITIALIZE SUPABASE CLIENT
-    // ==========================================
-    // Replace these with your actual Supabase project credentials
-    const supabaseUrl = 'YOUR_SUPABASE_URL'; 
-    const supabaseKey = 'YOUR_SUPABASE_ANON_KEY'; 
-    
-    // Initialize and attach to window so other scripts can use it if needed
-    window.supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
-
-    // ==========================================
-    // 2. HANDLE LOGIN FORM SUBMISSION
-    // ==========================================
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       
@@ -73,6 +62,8 @@
       const password = document.getElementById('password').value;
       const alertBox = document.getElementById('alert');
       const btn = document.getElementById('loginBtn');
+
+      console.log("🔵 Login attempt started for:", email);
 
       // Reset alert
       alertBox.className = 'alert';
@@ -83,39 +74,61 @@
       btn.innerText = 'Signing in...';
 
       try {
+        // Check if Supabase is actually loaded
+        if (!window.supabase) {
+          throw new Error("Supabase client not found. Check api-client.js");
+        }
+
+        console.log("🔵 Calling Supabase signInWithPassword...");
+        
         // 1. Attempt Login
-        const { data, error } = await window.supabaseClient.auth.signInWithPassword({ email, password });
+        const { data, error } = await window.supabase.auth.signInWithPassword({ 
+          email, 
+          password 
+        });
 
         if (error) {
+          console.error("🔴 Supabase Login Error:", error);
           alertBox.textContent = error.message;
           alertBox.className = 'alert alert-error show';
           btn.disabled = false;
           btn.innerText = 'Sign In';
         } else {
+          console.log("🟢 Supabase Login Success:", data.user);
+          
           // 2. Check if the user is banned
-          const { data: profile, error: profileError } = await window.supabaseClient
+          console.log("🔵 Checking user profile status...");
+          const { data: profile, error: profileError } = await window.supabase
             .from('profiles')
-            .select('is_active')
+            .select('is_active, is_admin')
             .eq('id', data.user.id)
             .single();
 
-          if (profileError || (profile && profile.is_active === false)) {
-            // User is banned or profile fetch failed: Log them out immediately and show message
-            await window.supabaseClient.auth.signOut();
-            alertBox.textContent = profileError ? '⚠️ Profile error. Please contact support.' : '⚠️ Your account has been suspended. Please contact customer support.';
+          if (profileError) {
+            console.error("🔴 Profile Fetch Error:", profileError);
+          }
+
+          if (profile && profile.is_active === false) {
+            // User is banned: Log them out immediately and show message
+            console.log("🟡 User is banned. Signing out.");
+            await window.supabase.auth.signOut();
+            alertBox.textContent = '⚠️ Your account has been suspended. Please contact customer support.';
             alertBox.className = 'alert alert-error show';
             btn.disabled = false;
             btn.innerText = 'Sign In';
           } else {
             // User is active: Proceed to dashboard
+            console.log("🟢 User is active. Redirecting to dashboard...");
             alertBox.textContent = 'Login successful! Redirecting...';
             alertBox.className = 'alert alert-success show';
-            setTimeout(() => window.location.href = 'dashboard.html', 1000);
+            setTimeout(() => {
+              window.location.href = 'dashboard.html';
+            }, 1000);
           }
         }
       } catch (err) {
-        console.error("Login failed with error:", err); // This will show the exact error in F12 Console
-        alertBox.textContent = 'An unexpected error occurred. Please check your internet connection or try again.';
+        console.error("🔴 Unexpected Login Error:", err);
+        alertBox.textContent = 'An unexpected error occurred. Check console (F12) for details.';
         alertBox.className = 'alert alert-error show';
         btn.disabled = false;
         btn.innerText = 'Sign In';
