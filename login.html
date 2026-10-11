@@ -50,91 +50,61 @@
     </div>
   </div>
 
-  <!-- 1. Load Supabase from CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
-  <!-- 2. WE REMOVED api-client.js TO PREVENT IT FROM BREAKING THE PAGE -->
-
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // Wait for the page to fully load
     document.addEventListener('DOMContentLoaded', () => {
-      
-      // CHECK 1: Did Supabase load?
-      if (typeof window.supabase === 'undefined') {
-        alert("❌ CRITICAL ERROR: Supabase library failed to load. Check your internet connection.");
-        return; // Stop here
-      }
-
-      // CHECK 2: Are your credentials filled in?
       const SUPABASE_URL = 'https://oinsfepzlnfpydzdngly.supabase.co'; 
       const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9pbnNmZXB6bG5mcHlkemRuZ2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA0OTg2NDcsImV4cCI6MjEwNjA3NDY0N30.eXyO-ZYcThiwMIy5cAGbOsGECLSqGhLgWVxgnPDxNKQ'; 
-
-      if (SUPABASE_URL === 'YOUR_SUPABASE_URL') {
-        alert("❌ CRITICAL ERROR: You forgot to put your Supabase URL and Key in the code!");
-        return; // Stop here
-      }
-
-      // Initialize Supabase
       const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-      // CHECK 3: Did the form load?
-      const form = document.getElementById('loginForm');
-      const btn = document.getElementById('loginBtn');
-      const alertBox = document.getElementById('alert');
-
-      if (!form || !btn) {
-        alert("❌ HTML Error: Could not find the login form or button.");
-        return;
-      }
-
-      // 3. Attach the click listener
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault(); // Stop page reload IMMEDIATELY
+      document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
         
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
+        const btn = document.getElementById('loginBtn');
+        const alertBox = document.getElementById('alert');
 
-        // Reset alert
-        alertBox.className = 'alert';
-        alertBox.style.display = 'none';
-
-        // Update button text
         btn.disabled = true;
         btn.innerText = 'Signing in...';
+        alertBox.style.display = 'none';
 
         try {
-          const { data, error } = await supabase.auth.signInWithPassword({ 
-            email, 
-            password 
-          });
+          alert("STEP 1: Starting login request...");
+          
+          // 1. Attempt Login
+          const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
           if (error) {
-            alertBox.textContent = error.message;
-            alertBox.className = 'alert alert-error show';
+            alert("STEP 2 FAILED: " + error.message);
             btn.disabled = false;
             btn.innerText = 'Sign In';
-          } else {
-            // Check if banned
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('is_active')
-              .eq('id', data.user.id)
-              .single();
-
-            if (profile && profile.is_active === false) {
-              await supabase.auth.signOut();
-              alertBox.textContent = '⚠️ Your account has been suspended.';
-              alertBox.className = 'alert alert-error show';
-              btn.disabled = false;
-              btn.innerText = 'Sign In';
-            } else {
-              alertBox.textContent = 'Login successful! Redirecting...';
-              alertBox.className = 'alert alert-success show';
-              setTimeout(() => window.location.href = 'dashboard.html', 1000);
-            }
+            return;
           }
+
+          alert("STEP 2 SUCCESS: Logged in! Now checking profile...");
+
+          // 2. Check Profile
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('is_active')
+            .eq('id', data.user.id)
+            .single();
+
+          if (profileError) {
+            alert("STEP 3 FAILED: " + profileError.message);
+            btn.disabled = false;
+            btn.innerText = 'Sign In';
+            return;
+          }
+
+          alert("STEP 3 SUCCESS: Profile checked. Redirecting now...");
+
+          // 3. Redirect
+          window.location.href = 'dashboard.html';
+
         } catch (err) {
-          alert("❌ UNEXPECTED ERROR: " + err.message);
+          alert("FATAL ERROR: " + err.message);
           btn.disabled = false;
           btn.innerText = 'Sign In';
         }
