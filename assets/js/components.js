@@ -5,7 +5,7 @@ const headerHTML = `
     <div class="container nav-content">
       <a href="index.html" class="logo">
         <div class="logo-icon">J</div>
-        <span class="logo-text">JaKaTaRise</span>
+        <span class="logo-text">T-Miner</span>
       </a>
       <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
       <div class="nav-links" id="navLinks">
