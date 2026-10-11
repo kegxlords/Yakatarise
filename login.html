@@ -3,113 +3,83 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login - T-Miner</title>
-  <link rel="stylesheet" href="assets/css/styles.css" />
+  <meta name="theme-color" content="#10234f" />
+  <title>Sign in | T-Miner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
-    .auth-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); }
-    .auth-card { width: 100%; max-width: 420px; background: #fff; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-lg); border-top: 5px solid var(--primary); }
-    .auth-logo { text-align: center; margin-bottom: 30px; }
-    .auth-logo h2 { color: var(--primary); margin-bottom: 5px; font-size: 24px; }
-    .auth-logo p { color: var(--text-muted); font-size: 14px; }
-    .auth-links { text-align: center; margin-top: 20px; font-size: 14px; color: var(--text-muted); }
-    .auth-links a { color: var(--primary); font-weight: 600; text-decoration: none; }
-    .auth-links a:hover { text-decoration: underline; }
+    :root{color-scheme:light;--navy:#10234f;--blue:#2858c5;--blue-hover:#2049a8;--gold:#e0b75a;--ink:#17233b;--muted:#718096;--line:#dce3ef;--canvas:#f4f7fc;--shadow:0 24px 70px rgba(13,32,72,.14)}
+    *{box-sizing:border-box}body{min-width:320px;min-height:100vh;margin:0;color:var(--ink);background:var(--canvas);font-family:"DM Sans",sans-serif;-webkit-font-smoothing:antialiased}a{color:inherit}
+    .page{min-height:100vh;display:grid;grid-template-columns:minmax(360px,.92fr) 1.08fr}.brand-panel{position:relative;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;min-height:100vh;padding:42px clamp(34px,6vw,88px) 34px;color:#fff;background:radial-gradient(ellipse at 12% 76%,rgba(45,92,184,.45),transparent 48%),radial-gradient(ellipse at 100% 8%,rgba(224,183,90,.13),transparent 36%),linear-gradient(145deg,#142d63,#10234f 50%,#091735)}
+    .brand-panel:before,.brand-panel:after{position:absolute;content:"";border:1px solid rgba(255,255,255,.09);border-radius:50%;pointer-events:none}.brand-panel:before{width:540px;height:540px;right:-300px;bottom:-140px}.brand-panel:after{width:390px;height:390px;right:-225px;bottom:-65px}.brand,.brand-copy,.brand-foot{position:relative;z-index:1}.brand{display:inline-flex;align-items:center;gap:12px;width:max-content;color:#fff;text-decoration:none;font:800 19px/1 "Manrope",sans-serif;letter-spacing:-.04em}.brand-mark{display:grid;width:42px;height:42px;place-items:center;border:1px solid rgba(255,255,255,.26);border-radius:13px;color:var(--gold);background:rgba(255,255,255,.09);font:800 21px "Manrope",sans-serif}
+    .brand-copy{max-width:490px;margin:auto 0;padding:76px 0}.eyebrow{display:inline-flex;align-items:center;gap:9px;margin:0 0 22px;color:#f0d28e;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}.eyebrow:before{width:24px;height:1px;background:var(--gold);content:""}.brand-copy h1{max-width:470px;margin:0;color:#fff;font:700 clamp(38px,5vw,62px)/1.08 "Manrope",sans-serif;letter-spacing:-.055em}.brand-copy h1 span{color:#f0d28e}.brand-copy>p{max-width:415px;margin:22px 0 0;color:rgba(239,244,255,.73);font-size:16px;line-height:1.75}.trust-note{display:flex;align-items:center;gap:10px;color:rgba(239,244,255,.72);font-size:13px}.trust-icon{display:grid;width:29px;height:29px;place-items:center;border:1px solid rgba(255,255,255,.22);border-radius:50%;color:#f0d28e}
+    .auth-panel{display:grid;min-height:100vh;place-items:center;padding:44px 28px;background:radial-gradient(ellipse at 92% 2%,rgba(224,183,90,.1),transparent 30%),var(--canvas)}.auth-card{width:min(100%,430px)}.mobile-brand{display:none}.auth-heading{margin-bottom:32px}.auth-kicker{margin:0 0 11px;color:var(--blue);font-size:12px;font-weight:700;letter-spacing:.13em;text-transform:uppercase}.auth-heading h2{margin:0;color:var(--navy);font:800 clamp(30px,4vw,37px)/1.15 "Manrope",sans-serif;letter-spacing:-.045em}.auth-heading>p:last-child{margin:12px 0 0;color:var(--muted);font-size:15px;line-height:1.6}
+    .alert{display:none;margin:0 0 22px;padding:13px 15px;border:1px solid transparent;border-radius:12px;font-size:14px;line-height:1.5}.alert.show{display:block}.alert.error{border-color:#fecdd3;color:#a92d3c;background:#fff1f2}.alert.success{border-color:#bbf7d0;color:#176b4a;background:#ecfdf5}.field{margin-bottom:21px}.field-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}label{color:#25334b;font-size:13px;font-weight:700}.forgot{color:var(--blue);font-size:12px;font-weight:700;text-decoration:none}.forgot:hover,.register-link:hover{text-decoration:underline}.input-wrap{position:relative}.field input{display:block;width:100%;height:54px;padding:0 15px;border:1px solid var(--line);border-radius:12px;outline:none;color:var(--ink);background:#fff;font:500 15px "DM Sans",sans-serif;transition:border-color .18s,box-shadow .18s}.field input::placeholder{color:#a1aabb}.field input:focus{border-color:#7195e5;box-shadow:0 0 0 4px rgba(40,88,197,.11)}#password{padding-right:76px}.show-password{position:absolute;top:50%;right:12px;transform:translateY(-50%);padding:7px 4px;border:0;color:var(--blue);background:transparent;font:700 12px "DM Sans",sans-serif;cursor:pointer}.show-password:focus-visible,a:focus-visible,button:focus-visible{outline:3px solid rgba(40,88,197,.34);outline-offset:3px}
+    .submit-button{display:flex;width:100%;height:54px;align-items:center;justify-content:center;gap:10px;margin-top:7px;border:0;border-radius:12px;color:#fff;background:var(--blue);box-shadow:0 9px 20px rgba(40,88,197,.19);font:700 15px "DM Sans",sans-serif;cursor:pointer;transition:background .18s,transform .18s,box-shadow .18s}.submit-button:hover:not(:disabled){transform:translateY(-1px);background:var(--blue-hover);box-shadow:0 12px 23px rgba(40,88,197,.25)}.submit-button:disabled{cursor:wait;opacity:.76}.spinner{display:none;width:17px;height:17px;border:2px solid rgba(255,255,255,.42);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}.submit-button.is-loading .spinner{display:block}@keyframes spin{to{transform:rotate(360deg)}}.divider{display:flex;align-items:center;gap:15px;margin:26px 0;color:#9aa5b5;font-size:12px}.divider:before,.divider:after{height:1px;flex:1;background:#e2e8f0;content:""}.register-prompt{margin:0;color:var(--muted);text-align:center;font-size:14px}.register-link{margin-left:4px;color:var(--blue);font-weight:700;text-decoration:none}.secure-foot{margin:34px 0 0;color:#9aa5b5;text-align:center;font-size:12px}.secure-foot span{margin-right:5px;color:#5b8e72}
+    @media(max-width:850px){.page{grid-template-columns:minmax(300px,.8fr) 1.2fr}.brand-panel{padding-right:36px;padding-left:36px}.brand-copy h1{font-size:clamp(36px,5vw,50px)}}@media(max-width:650px){.page{display:block}.brand-panel{display:none}.auth-panel{min-height:100vh;align-items:start;padding:32px 22px 36px}.auth-card{width:min(100%,430px);margin:0 auto}.mobile-brand{display:inline-flex;align-items:center;gap:10px;margin-bottom:52px;color:var(--navy);font:800 18px "Manrope",sans-serif;letter-spacing:-.04em;text-decoration:none}.mobile-brand .brand-mark{border-color:#dce4f3;color:var(--blue);background:#fff}.auth-heading{margin-bottom:28px}.secure-foot{margin-top:28px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
   </style>
 </head>
 <body>
-
-  <div class="auth-wrapper">
-    <div class="auth-card">
-      <div class="auth-logo">
-        <h2>Welcome Back</h2>
-        <p>Sign in to manage your mining portfolio</p>
+  <main class="page">
+    <aside class="brand-panel" aria-label="T-Miner">
+      <a class="brand" href="index.html" aria-label="T-Miner home"><span class="brand-mark" aria-hidden="true">T</span><span>T-Miner</span></a>
+      <div class="brand-copy"><p class="eyebrow">Your mining portfolio</p><h1>Build your next chapter <span>with confidence.</span></h1><p>Sign in to keep track of your account, portfolio and activity—all in one place.</p></div>
+      <div class="brand-foot"><div class="trust-note"><span class="trust-icon" aria-hidden="true">✓</span><span>Secure access to your T-Miner account</span></div></div>
+    </aside>
+    <section class="auth-panel" aria-labelledby="loginTitle">
+      <div class="auth-card">
+        <a class="mobile-brand" href="index.html" aria-label="T-Miner home"><span class="brand-mark" aria-hidden="true">T</span><span>T-Miner</span></a>
+        <header class="auth-heading"><p class="auth-kicker">Welcome back</p><h2 id="loginTitle">Sign in to your account</h2><p>Enter your details below to continue.</p></header>
+        <div id="authMessage" class="alert" role="alert" aria-live="polite" tabindex="-1"></div>
+        <form id="loginForm">
+          <div class="field"><div class="field-top"><label for="email">Email address</label></div><input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="username" inputmode="email" required /></div>
+          <div class="field"><div class="field-top"><label for="password">Password</label><a class="forgot" href="forgot-password.html">Forgot password?</a></div><div class="input-wrap"><input type="password" id="password" name="password" placeholder="Enter your password" autocomplete="current-password" required /><button class="show-password" id="togglePassword" type="button" aria-controls="password" aria-pressed="false">Show</button></div></div>
+          <button class="submit-button" id="loginBtn" type="submit"><span class="spinner" aria-hidden="true"></span><span id="buttonText">Sign in</span></button>
+        </form>
+        <div class="divider" aria-hidden="true">NEW TO T-MINER?</div>
+        <p class="register-prompt">Don't have an account?<a class="register-link" href="register.html">Create one</a></p>
+        <p class="secure-foot"><span aria-hidden="true">●</span> Your sign-in is protected and encrypted.</p>
       </div>
-
-      <div id="alert" class="alert"></div>
-
-      <form id="loginForm">
-        <div class="form-group">
-          <label class="form-label">Email Address</label>
-          <input type="email" id="email" class="form-input" placeholder="you@example.com" required />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Password</label>
-          <input type="password" id="password" class="form-input" placeholder="Enter your password" required />
-        </div>
-        
-        <div style="text-align: right; margin-bottom: 20px;">
-          <a href="forgot-password.html" style="font-size: 13px; color: var(--primary); font-weight: 600; text-decoration: none;">Forgot Password?</a>
-        </div>
-
-        <button type="submit" id="loginBtn" class="btn btn-primary btn-block">Sign In</button>
-      </form>
-
-      <div class="auth-links">
-        Don't have an account? <a href="register.html">Create one</a>
-      </div>
-    </div>
-  </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/api-client.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const SUPABASE_URL = 'https://oinsfepzlnfpydzdngly.supabase.co'; 
-      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9pbnNmZXB6bG5mcHlkemRuZ2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA0OTg2NDcsImV4cCI6MjEwNjA3NDY0N30.eXyO-ZYcThiwMIy5cAGbOsGECLSqGhLgWVxgnPDxNKQ'; 
-      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-      document.getElementById('loginForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value;
-        const btn = document.getElementById('loginBtn');
-        const alertBox = document.getElementById('alert');
-
-        btn.disabled = true;
-        btn.innerText = 'Signing in...';
-        alertBox.style.display = 'none';
-
+    (() => {
+      const form = document.getElementById('loginForm');
+      const emailInput = document.getElementById('email');
+      const passwordInput = document.getElementById('password');
+      const button = document.getElementById('loginBtn');
+      const buttonText = document.getElementById('buttonText');
+      const message = document.getElementById('authMessage');
+      const togglePassword = document.getElementById('togglePassword');
+      function showMessage(text, kind = 'error') { message.textContent = text; message.className = `alert show ${kind}`; message.focus(); }
+      function clearMessage() { message.textContent = ''; message.className = 'alert'; }
+      function setLoading(loading) { button.disabled = loading; button.classList.toggle('is-loading', loading); button.setAttribute('aria-busy', String(loading)); buttonText.textContent = loading ? 'Signing in…' : 'Sign in'; }
+      togglePassword.addEventListener('click', () => { const reveal = passwordInput.type === 'password'; passwordInput.type = reveal ? 'text' : 'password'; togglePassword.textContent = reveal ? 'Hide' : 'Show'; togglePassword.setAttribute('aria-pressed', String(reveal)); });
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault(); clearMessage();
+        const email = emailInput.value.trim(); const password = passwordInput.value;
+        if (!email || !password) { showMessage('Enter both your email address and password.'); return; }
+        if (!window.supabase || !window.supabase.auth) { showMessage('The sign-in service could not be loaded. Check your connection and try again.'); return; }
+        setLoading(true);
         try {
-          alert("STEP 1: Starting login request...");
-          
-          // 1. Attempt Login
-          const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-          if (error) {
-            alert("STEP 2 FAILED: " + error.message);
-            btn.disabled = false;
-            btn.innerText = 'Sign In';
-            return;
-          }
-
-          alert("STEP 2 SUCCESS: Logged in! Now checking profile...");
-
-          // 2. Check Profile
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('is_active')
-            .eq('id', data.user.id)
-            .single();
-
-          if (profileError) {
-            alert("STEP 3 FAILED: " + profileError.message);
-            btn.disabled = false;
-            btn.innerText = 'Sign In';
-            return;
-          }
-
-          alert("STEP 3 SUCCESS: Profile checked. Redirecting now...");
-
-          // 3. Redirect
-          window.location.href = 'dashboard.html';
-
-        } catch (err) {
-          alert("FATAL ERROR: " + err.message);
-          btn.disabled = false;
-          btn.innerText = 'Sign In';
+          const { data, error } = await window.supabase.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+          if (!data.user) throw new Error('We could not verify your account. Please try again.');
+          // Some older accounts may not yet have a profile row; honor suspension when one exists.
+          const { data: profile, error: profileError } = await window.supabase.from('profiles').select('is_active').eq('id', data.user.id).maybeSingle();
+          if (profileError) { await window.supabase.auth.signOut(); throw new Error('We could not verify your account status. Please try again in a moment.'); }
+          if (profile && profile.is_active === false) { await window.supabase.auth.signOut(); setLoading(false); showMessage('This account is currently suspended. Please contact support for help.'); return; }
+          window.location.assign('dashboard.html');
+        } catch (error) {
+          setLoading(false);
+          const errorText = error && error.message === 'Invalid login credentials' ? 'The email or password is incorrect. Please try again.' : (error && error.message) || 'We could not sign you in. Please try again.';
+          showMessage(errorText);
         }
       });
-    });
+    })();
   </script>
 </body>
 </html>
