@@ -19,9 +19,9 @@
     .page-header-simple h2 { margin: 0; font-size: 18px; font-weight: 700; }
 
     .withdraw-balance-card {
-      background: linear-gradient(135deg, #8B0000 0%, #5c0000 100%);
+      background: linear-gradient(135deg, #1E3A8A 0%, #1E40AF 100%); /* Updated to Blue */
       margin: 16px; border-radius: 20px; padding: 24px; color: #fff;
-      box-shadow: 0 10px 25px rgba(139, 0, 0, 0.25);
+      box-shadow: 0 10px 25px rgba(30, 64, 175, 0.25);
     }
     .withdraw-balance-card .lbl { font-size: 12px; opacity: .85; letter-spacing: 1px; text-transform: uppercase; }
     .withdraw-balance-card .val { font-size: 32px; font-weight: 800; margin: 6px 0 14px; }
@@ -44,16 +44,17 @@
       width: 100%; padding: 14px; border: 1px solid #E2E8F0; border-radius: 12px;
       font-size: 15px; font-family: inherit; outline: none; background: #F8FAFC;
     }
-    .field input:focus { border-color: #8B0000; background: #fff; }
+    .field input:focus { border-color: #1E40AF; background: #fff; } /* Updated to Blue */
 
     .summary-box { background: #F8FAFC; border-radius: 12px; padding: 14px; margin-bottom: 16px; }
     .sum-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; color: #64748B; }
     .sum-row.total { border-top: 1px dashed #CBD5E1; margin-top: 6px; padding-top: 8px; font-weight: 700; color: var(--text-main); }
-    .sum-row.total span:last-child { color: #8B0000; }
+    .sum-row.total span:last-child { color: #1E40AF; } /* Updated to Blue */
 
     .alert-inline { display: none; padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
     .alert-inline.error { display: block; background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; }
     .alert-inline.success { display: block; background: #F0FDF4; color: #16A34A; border: 1px solid #BBF7D0; }
+    .alert-inline.warning { display: block; background: #FFFBEB; color: #92400E; border: 1px solid #FDE68A; }
   </style>
 </head>
 <body>
@@ -71,7 +72,7 @@
     <div class="wb-notes">
       <div class="wb-note" id="noteMin">Min: —</div>
       <div class="wb-note" id="noteFee">Fee: —</div>
-      <div class="wb-note">⏰ 24/7 Withdrawals</div>
+      <div class="wb-note"> Mon-Fri, 8AM - 6PM</div>
     </div>
   </div>
 
@@ -125,6 +126,43 @@
   <script>
     let CFG = { min: 1000, fee: 8, balance: 0 };
 
+    // ==========================================
+    // TIME CHECK FUNCTION (Mon-Fri, 8AM - 6PM)
+    // ==========================================
+    function isWithdrawalWindowOpen() {
+      const now = new Date();
+      const day = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+      const hour = now.getHours(); // 0 to 23
+
+      // Monday (1) to Friday (5), 8 AM (8) to 6 PM (18)
+      if (day >= 1 && day <= 5 && hour >= 8 && hour < 18) {
+        return true;
+      }
+      return false;
+    }
+
+    function applyTimeRestriction() {
+      const btn = document.getElementById('submitBtn');
+      const alertBox = document.getElementById('alertBox');
+      
+      if (!isWithdrawalWindowOpen()) {
+        btn.disabled = true;
+        btn.innerText = 'Withdrawals Closed (Mon-Fri 8AM-6PM)';
+        btn.style.opacity = '0.6';
+        btn.style.cursor = 'not-allowed';
+        
+        alertBox.className = 'alert-inline warning';
+        alertBox.innerText = '⏰ Withdrawals are only processed Monday to Friday, 8:00 AM - 6:00 PM. Please try again during working hours.';
+        return false;
+      } else {
+        btn.disabled = false;
+        btn.innerText = 'Submit Withdrawal Request';
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+        return true;
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
       const { data: { session } } = await window.supabase.auth.getSession();
       if (!session) return;
@@ -135,7 +173,7 @@
       CFG.balance = Number(wallet?.balance || 0);
       document.getElementById('balanceDisplay').innerText = '₦' + CFG.balance.toLocaleString('en-NG', { minimumFractionDigits: 2 });
 
-      // 2. Load settings (NO time window anymore — only min + fee)
+      // 2. Load settings
       const { data: settings } = await window.supabase.from('settings').select('key, value');
       const g = (k, d) => { const x = settings?.find(i => i.key === k); return x ? x.value : d; };
       CFG.min = parseFloat(g('min_withdrawal', 1000));
@@ -152,6 +190,9 @@
       if (!count || count === 0) {
         document.getElementById('formContainer').style.display = 'none';
         document.getElementById('minerLock').style.display = 'block';
+      } else {
+        // 4. Apply Time Restriction Check on Load
+        applyTimeRestriction();
       }
     });
 
@@ -166,6 +207,10 @@
     // Submit
     document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
       e.preventDefault();
+      
+      // Check time again right before submission
+      if (!applyTimeRestriction()) return;
+
       const alertBox = document.getElementById('alertBox');
       const btn = document.getElementById('submitBtn');
       alertBox.className = 'alert-inline';
@@ -175,7 +220,7 @@
       const acctNumber = document.getElementById('acctNumber').value.trim();
       const acctName = document.getElementById('acctName').value.trim();
 
-      // Client-side validations (no time check!)
+      // Client-side validations
       if (!amount || amount <= 0) return showErr('Enter a valid amount.');
       if (amount < CFG.min) return showErr(`Minimum withdrawal is ₦${CFG.min.toLocaleString()}.`);
       if (amount > CFG.balance) return showErr('Insufficient balance.');
