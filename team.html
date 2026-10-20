@@ -6,7 +6,7 @@
   <title>My Team - T-Miner</title>
   <link rel="stylesheet" href="assets/css/styles.css" />
   <style>
-    .team-header-bg { background: linear-gradient(135deg, #8B0000 0%, #5c0000 100%); padding: 30px 20px 80px; color: #fff; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; }
+    .team-header-bg { background: linear-gradient(135deg, #1E3A8A 0%, #1E40AF 100%); padding: 30px 20px 80px; color: #fff; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; }
     .team-header-bg h1 { color: #fff; margin: 0; font-size: 24px; }
     .team-header-bg p { opacity: 0.9; margin: 5px 0 0; font-size: 14px; }
     
@@ -87,9 +87,12 @@
   <script>
     function copyRef() {
       const input = document.getElementById('refLink');
-      input.select(); document.execCommand('copy');
-      const btn = event.target; btn.innerText = 'Copied!';
-      setTimeout(() => btn.innerText = 'Copy', 2000);
+      input.select(); 
+      navigator.clipboard.writeText(input.value).then(() => {
+        const btn = event.target; 
+        btn.innerText = 'Copied!';
+        setTimeout(() => btn.innerText = 'Copy', 2000);
+      });
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
@@ -128,15 +131,17 @@
       let totalTeamDeposits = 0;
 
       if (members && members.length > 0) {
-        // BULLETPROOF DEPOSIT CALCULATION
-        // Get all approved deposits for these specific users
         const memberIds = members.map(m => m.id);
-        const { data: deposits } = await window.supabase
+        
+        // Query for ONLY approved deposits
+        const { data: deposits, error: depositError } = await window.supabase
           .from('transactions')
-          .select('user_id, amount')
+          .select('user_id, amount, status')
           .in('user_id', memberIds)
           .eq('type', 'deposit')
-          .eq('status', 'approved');
+          .eq('status', 'approved'); // <-- ONLY COUNTS APPROVED DEPOSITS
+        
+        if (depositError) console.error('Error fetching deposits:', depositError);
 
         // Calculate totals per user
         const userDeposits = {};
