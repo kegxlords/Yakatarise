@@ -29,13 +29,24 @@
 
     .members-section { padding: 0 20px; margin-bottom: 20px; }
     .members-section h3 { font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 15px; }
-    .member-item { background: #fff; padding: 15px; border-radius: 16px; display: flex; align-items: center; gap: 15px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); border: 1px solid #F1F5F9; }
+    
+    .member-item { 
+      background: #fff; padding: 15px; border-radius: 16px; 
+      display: flex; align-items: center; gap: 15px; margin-bottom: 10px; 
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02); border: 1px solid #F1F5F9; 
+    }
     .member-avatar { width: 40px; height: 40px; background: var(--primary); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; flex-shrink: 0; }
     .member-info { flex: 1; }
     .member-name { font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
     .member-date { font-size: 11px; color: #94A3B8; }
     .member-deposit { font-size: 12px; color: var(--success); font-weight: 700; background: #F0FDF4; padding: 2px 8px; border-radius: 8px; display: inline-block; margin-top: 4px; }
-    .member-level { background: #FEF3C7; color: #D97706; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
+    
+    /* NEW TAG STYLES */
+    .member-tags { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+    .tag { padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .tag-active { background: #D1FAE5; color: #065F46; }
+    .tag-inactive { background: #FEE2E2; color: #991B1B; }
+    .tag-level { background: #FEF3C7; color: #D97706; }
   </style>
 </head>
 <body>
@@ -134,14 +145,12 @@
         const memberIds = members.map(m => m.id);
         
         // Query for ONLY approved deposits
-        const { data: deposits, error: depositError } = await window.supabase
+        const { data: deposits } = await window.supabase
           .from('transactions')
           .select('user_id, amount, status')
           .in('user_id', memberIds)
           .eq('type', 'deposit')
-          .eq('status', 'approved'); // <-- ONLY COUNTS APPROVED DEPOSITS
-        
-        if (depositError) console.error('Error fetching deposits:', depositError);
+          .eq('status', 'approved'); 
 
         // Calculate totals per user
         const userDeposits = {};
@@ -153,9 +162,15 @@
           });
         }
 
-        // Render List
+        // Render List with Active/Inactive Tags
         membersContainer.innerHTML = members.map(m => {
           const userDeposit = userDeposits[m.id] || 0;
+          const isActive = userDeposit > 0;
+          
+          // Determine Tag Class and Text
+          const statusClass = isActive ? 'tag-active' : 'tag-inactive';
+          const statusText = isActive ? 'Active' : 'Inactive';
+
           return `
             <div class="member-item">
               <div class="member-avatar">${(m.full_name || m.email || 'U')[0].toUpperCase()}</div>
@@ -164,7 +179,10 @@
                 <div class="member-date">Joined ${new Date(m.created_at).toLocaleDateString()}</div>
                 <div class="member-deposit">Deposited: ₦${userDeposit.toLocaleString()}</div>
               </div>
-              <div class="member-level">Lvl 1</div>
+              <div class="member-tags">
+                <span class="tag ${statusClass}">${statusText}</span>
+                <span class="tag tag-level">Lvl 1</span>
+              </div>
             </div>
           `;
         }).join('');
