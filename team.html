@@ -16,10 +16,21 @@
     .referral-link-box input { flex: 1; background: transparent; border: none; padding: 10px 15px; font-family: monospace; font-size: 14px; color: var(--text-main); outline: none; }
     .referral-link-box button { background: var(--primary); color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; }
     
-    .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; padding: 0 20px; }
+    /* NEW: Referral Overview Grid */
+    .referral-overview-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      padding: 0 20px;
+      margin-bottom: 20px;
+    }
     .stat-box-modern { background: #fff; padding: 15px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); text-align: center; border: 1px solid #F1F5F9; }
     .stat-box-modern .val { font-size: 18px; font-weight: 800; color: var(--primary); }
+    .stat-box-modern .val-green { color: var(--success); }
+    .stat-box-modern .val-red { color: var(--danger); }
     .stat-box-modern .lbl { font-size: 11px; color: #64748B; margin-top: 5px; }
+
+    .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; padding: 0 20px; }
 
     .commission-card { background: #fff; margin: 0 20px 20px; border-radius: 20px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border: 1px solid #F1F5F9; }
     .comm-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
@@ -41,7 +52,6 @@
     .member-date { font-size: 11px; color: #94A3B8; }
     .member-deposit { font-size: 12px; color: var(--success); font-weight: 700; background: #F0FDF4; padding: 2px 8px; border-radius: 8px; display: inline-block; margin-top: 4px; }
     
-    /* NEW TAG STYLES */
     .member-tags { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
     .tag { padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
     .tag-active { background: #D1FAE5; color: #065F46; }
@@ -65,10 +75,17 @@
     </div>
   </div>
 
+  <!-- NEW: Referral Overview Cards -->
+  <div class="referral-overview-grid">
+    <div class="stat-box-modern"><div class="val" id="statTotalRef">0</div><div class="lbl">Total Referrals</div></div>
+    <div class="stat-box-modern"><div class="val val-green" id="statActiveRef">0</div><div class="lbl">Active</div></div>
+    <div class="stat-box-modern"><div class="val val-red" id="statInactiveRef">0</div><div class="lbl">Inactive</div></div>
+  </div>
+
   <div class="stats-row">
     <div class="stat-box-modern"><div class="val" id="statLevel1">0</div><div class="lbl">Level 1 Members</div></div>
     <div class="stat-box-modern"><div class="val" id="statTotal">0</div><div class="lbl">Total Team Size</div></div>
-    <div class="stat-box-modern"><div class="val" id="statTeamDeposits" style="color: var(--success);">₦0</div><div class="lbl">Total Team Deposits</div></div>
+    <div class="stat-box-modern"><div class="val" id="statTeamDeposits" style="color: var(--success);">0</div><div class="lbl">Total Team Deposits</div></div>
     <div class="stat-box-modern"><div class="val" id="statCommissions" style="color: var(--accent);">₦0</div><div class="lbl">My Commissions</div></div>
   </div>
 
@@ -140,6 +157,10 @@
       const { data: members } = await window.supabase.from('profiles').select('id, full_name, email, created_at').eq('referred_by', userId).order('created_at', { ascending: false });
       const membersContainer = document.getElementById('membersList');
       let totalTeamDeposits = 0;
+      
+      // Counters for the new cards
+      let activeCount = 0;
+      let inactiveCount = 0;
 
       if (members && members.length > 0) {
         const memberIds = members.map(m => m.id);
@@ -167,7 +188,13 @@
           const userDeposit = userDeposits[m.id] || 0;
           const isActive = userDeposit > 0;
           
-          // Determine Tag Class and Text
+          // Increment counters
+          if (isActive) {
+            activeCount++;
+          } else {
+            inactiveCount++;
+          }
+
           const statusClass = isActive ? 'tag-active' : 'tag-inactive';
           const statusText = isActive ? 'Active' : 'Inactive';
 
@@ -191,6 +218,10 @@
       }
 
       // Update UI Stats
+      document.getElementById('statTotalRef').innerText = l1Count || 0;
+      document.getElementById('statActiveRef').innerText = activeCount;
+      document.getElementById('statInactiveRef').innerText = inactiveCount;
+
       document.getElementById('statLevel1').innerText = l1Count || 0;
       document.getElementById('statTotal').innerText = totalTeam;
       document.getElementById('statTeamDeposits').innerText = '₦' + totalTeamDeposits.toLocaleString();
