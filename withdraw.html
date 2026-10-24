@@ -19,7 +19,7 @@
     .page-header-simple h2 { margin: 0; font-size: 18px; font-weight: 700; }
 
     .withdraw-balance-card {
-      background: linear-gradient(135deg, #1E3A8A 0%, #1E40AF 100%); /* Updated to Blue */
+      background: linear-gradient(135deg, #1E3A8A 0%, #1E40AF 100%);
       margin: 16px; border-radius: 20px; padding: 24px; color: #fff;
       box-shadow: 0 10px 25px rgba(30, 64, 175, 0.25);
     }
@@ -44,12 +44,12 @@
       width: 100%; padding: 14px; border: 1px solid #E2E8F0; border-radius: 12px;
       font-size: 15px; font-family: inherit; outline: none; background: #F8FAFC;
     }
-    .field input:focus { border-color: #1E40AF; background: #fff; } /* Updated to Blue */
+    .field input:focus { border-color: #1E40AF; background: #fff; }
 
     .summary-box { background: #F8FAFC; border-radius: 12px; padding: 14px; margin-bottom: 16px; }
     .sum-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; color: #64748B; }
     .sum-row.total { border-top: 1px dashed #CBD5E1; margin-top: 6px; padding-top: 8px; font-weight: 700; color: var(--text-main); }
-    .sum-row.total span:last-child { color: #1E40AF; } /* Updated to Blue */
+    .sum-row.total span:last-child { color: #1E40AF; }
 
     .alert-inline { display: none; padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
     .alert-inline.error { display: block; background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; }
@@ -72,7 +72,7 @@
     <div class="wb-notes">
       <div class="wb-note" id="noteMin">Min: —</div>
       <div class="wb-note" id="noteFee">Fee: —</div>
-      <div class="wb-note"> Mon-Fri, 8AM - 6PM</div>
+      <div class="wb-note">⏰ Mon-Fri: 8AM-6PM, Weekends: 10AM-5PM</div>
     </div>
   </div>
 
@@ -127,17 +127,23 @@
     let CFG = { min: 1000, fee: 8, balance: 0 };
 
     // ==========================================
-    // TIME CHECK FUNCTION (Mon-Fri, 8AM - 6PM)
+    // TIME CHECK FUNCTION (Mon-Fri 8AM-6PM, Sat-Sun 10AM-5PM)
     // ==========================================
     function isWithdrawalWindowOpen() {
       const now = new Date();
       const day = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
       const hour = now.getHours(); // 0 to 23
 
-      // Monday (1) to Friday (5), 8 AM (8) to 6 PM (18)
-      if (day >= 1 && day <= 5 && hour >= 8 && hour < 18) {
-        return true;
+      // Monday (1) to Friday (5): 8 AM (8) to 6 PM (18)
+      if (day >= 1 && day <= 5) {
+        return hour >= 8 && hour < 18;
       }
+      
+      // Saturday (6) and Sunday (0): 10 AM (10) to 5 PM (17)
+      if (day === 6 || day === 0) {
+        return hour >= 10 && hour < 17;
+      }
+
       return false;
     }
 
@@ -147,12 +153,12 @@
       
       if (!isWithdrawalWindowOpen()) {
         btn.disabled = true;
-        btn.innerText = 'Withdrawals Closed (Mon-Fri 8AM-6PM)';
+        btn.innerText = 'Withdrawals Closed';
         btn.style.opacity = '0.6';
         btn.style.cursor = 'not-allowed';
         
         alertBox.className = 'alert-inline warning';
-        alertBox.innerText = '⏰ Withdrawals are only processed Monday to Friday, 8:00 AM - 6:00 PM. Please try again during working hours.';
+        alertBox.innerText = '⏰ Withdrawals are only processed Mon-Fri (8AM-6PM) and Weekends (10AM-5PM). Please try again during working hours.';
         return false;
       } else {
         btn.disabled = false;
