@@ -83,7 +83,7 @@ async function createMgmDeposit({ orderId, depositAmount, userId }) {
   }
   const result = response.data;
   const { error } = await supabaseAdmin.from('transactions').update({
-    status: 'processing', gateway: 'mgm', gateway_status: result.status || 'created', gateway_status_code: result.status_code ?? null,
+    status: 'pending', gateway: 'mgm', gateway_status: result.status || 'created', gateway_status_code: result.status_code ?? null,
     gateway_status_detail: result.status_detail || null, gateway_order_id: result.order_id || orderId,
     gateway_payload: response, gateway_submitted_at: new Date().toISOString()
   }).eq('user_id', userId).eq('reference', orderId).eq('type', 'deposit').eq('status', 'pending');
@@ -136,10 +136,10 @@ async function applyDepositCallback(data, body) {
     if (walletError || !wallet) throw new Error('Wallet not found for deposit');
     const { error: walletUpdateError } = await supabaseAdmin.from('wallets').update({ balance: Number(wallet.balance || 0) + Number(tx.amount), total_deposited: Number(wallet.total_deposited || 0) + Number(tx.amount) }).eq('user_id', tx.user_id);
     if (walletUpdateError) throw walletUpdateError;
-    const { error: txUpdateError } = await supabaseAdmin.from('transactions').update({ status: 'completed', gateway_status: data.status || 'success', gateway_status_code: code, gateway_status_detail: data.status_detail || null, gateway_payload: body }).eq('id', tx.id).in('status', ['pending', 'processing']);
+    const { error: txUpdateError } = await supabaseAdmin.from('transactions').update({ status: 'completed', gateway_status: data.status || 'success', gateway_status_code: code, gateway_status_detail: data.status_detail || null, gateway_payload: body }).eq('id', tx.id).in('status', ['pending', 'approved']);
     if (txUpdateError) throw txUpdateError;
   } else {
-    const { error: txUpdateError } = await supabaseAdmin.from('transactions').update({ status: 'rejected', gateway_status: data.status || 'failed', gateway_status_code: code, gateway_status_detail: data.status_detail || null, gateway_payload: body }).eq('id', tx.id).in('status', ['pending', 'processing']);
+    const { error: txUpdateError } = await supabaseAdmin.from('transactions').update({ status: 'rejected', gateway_status: data.status || 'failed', gateway_status_code: code, gateway_status_detail: data.status_detail || null, gateway_payload: body }).eq('id', tx.id).in('status', ['pending', 'approved']);
     if (txUpdateError) throw txUpdateError;
   }
 }
@@ -149,17 +149,18 @@ async function applyWithdrawalCallback(data, body) {
   if (code !== TERMINAL_SUCCESS && !TERMINAL_FAILURES.has(code)) return;
   const { data: tx, error } = await supabaseAdmin.from('transactions').select('*').eq('type', 'withdrawal').eq('reference', String(data.order_id || '')).maybeSingle();
   if (error || !tx) throw new Error('Unknown withdrawal order');
-  if (['completed', 'rejected', 'approved'].includes(tx.status)) return;
+  if (['completed', 'rejected'].includes(tx.status)) return;
+  if (tx.status === 'approved' && tx.gateway !== 'mgm') return;
   if (data.currency !== 'NGN' || Math.abs(Number(tx.amount) - Number(data.amount)) > 0.01) throw new Error('Withdrawal amount or currency mismatch');
   if (code === TERMINAL_SUCCESS) {
-    const { error: txError } = await supabaseAdmin.from('transactions').update({ status: 'completed', gateway_status: data.status || 'success', gateway_status_code: code, gateway_status_detail: data.status_detail || null, gateway_settlement_id: data.settlement_id || tx.gateway_settlement_id || null, gateway_payload: body }).eq('id', tx.id).in('status', ['pending', 'processing']);
+    const { error: txError } = await supabaseAdmin.from('transactions').update({ status: 'completed', gateway_status: data.status || 'success', gateway_status_code: code, gateway_status_detail: data.status_detail || null, gateway_settlement_id: data.settlement_id || tx.gateway_settlement_id || null, gateway_payload: body }).eq('id', tx.id).in('status', ['pending', 'approved']);
     if (txError) throw txError;
     const { data: wallet, error: walletError } = await supabaseAdmin.from('wallets').select('total_withdrawn').eq('user_id', tx.user_id).single();
     if (walletError || !wallet) throw new Error('Wallet not found while finalizing payout');
     const { error: walletUpdateError } = await supabaseAdmin.from('wallets').update({ total_withdrawn: Number(wallet.total_withdrawn || 0) + Number(tx.amount) }).eq('user_id', tx.user_id);
     if (walletUpdateError) throw walletUpdateError;
   } else {
-    const { error: txError } = await supabaseAdmin.from('transactions').update({ status: 'rejected', gateway_status: data.status || 'failed', gateway_status_code: code, gateway_status_detail: data.status_detail || null, gateway_payload: body, gateway_refunded_at: new Date().toISOString() }).eq('id', tx.id).in('status', ['pending', 'processing']);
+    const { error: txError } = await supabaseAdmin.from('transactions').update({ status: 'rejected', gateway_status: data.status || 'failed', gateway_status_code: code, gateway_status_detail: data.status_detail || null, gateway_payload: body, gateway_refunded_at: new Date().toISOString() }).eq('id', tx.id).in('status', ['pending', 'approved']);
     if (txError) throw txError;
     const { data: wallet, error: walletError } = await supabaseAdmin.from('wallets').select('balance').eq('user_id', tx.user_id).single();
     if (walletError || !wallet) throw new Error('Wallet not found while refunding payout');
