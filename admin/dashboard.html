@@ -207,7 +207,7 @@
     <div class="dark-card">
       <div class="dark-card-title">Filter</div>
       <select id="depositFilter" class="dark-input" onchange="loadDeposits()" style="margin-bottom:0;">
-        <option value="pending">Pending Only</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="all">All</option>
+        <option value="pending">Pending Only</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="gateway_success">Gateway Successful Deposits</option><option value="all">All</option>
       </select>
     </div>
     <div class="dark-card">
@@ -570,15 +570,16 @@
     // ===== DEPOSITS =====
     async function loadDeposits() {
       const filter = document.getElementById('depositFilter').value;
-      let query = window.supabase.from('transactions').select('*, profiles(email)').eq('type', 'deposit').order('created_at', { ascending: false });
-      if (filter !== 'all') query = query.eq('status', filter);
+      let query = window.supabase.from('transactions').select('*, profiles(email)').eq('type', 'deposit').neq('gateway', 'mgm_admin').order('created_at', { ascending: false });
+      if (filter === 'gateway_success') query = query.eq('gateway', 'mgm').eq('status', 'completed');
+      else if (filter !== 'all') query = query.eq('status', filter);
       const { data: txs } = await query;
       const tbody = document.getElementById('depositBody');
       if (!txs || txs.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="loading-text">No deposits found.</td></tr>'; return; }
       tbody.innerHTML = txs.map(tx => {
         let badgeClass = 'badge-yellow';
         if(tx.status === 'approved') badgeClass = 'badge-green'; if(tx.status === 'rejected') badgeClass = 'badge-red';
-        const isGatewayDeposit = tx.gateway === 'mgm' || tx.type === 'gateway_deposit';
+        const isGatewayDeposit = tx.gateway === 'mgm' || tx.gateway === 'mgm_admin';
         let actions = isGatewayDeposit ? '<span style="color:#8E8E93;font-size:11px;">Gateway callback</span>' : tx.status === 'pending' ? `<div class="action-btns"><button class="btn-tiny btn-tiny-approve" onclick="approveDeposit(${jsArg(tx.id)},${jsArg(tx.user_id)},${Number(tx.amount) || 0})">Approve</button><button class="btn-tiny btn-tiny-reject" onclick="rejectDeposit(${jsArg(tx.id)})">Reject</button></div>` : '<span style="color:#8E8E93;font-size:11px;">Done</span>';
         return `<tr><td>${escapeHtml(tx.profiles?.email || 'Unknown')}</td><td style="font-weight:700;color:#D4AF37;">₦${Number(tx.amount || 0).toLocaleString()}</td><td style="font-size:11px;color:#8E8E93;">${escapeHtml(tx.description || 'N/A')}</td><td><span class="badge-dark ${badgeClass}">${escapeHtml(tx.status || 'unknown')}</span></td><td>${actions}</td></tr>`;
       }).join('');
@@ -634,7 +635,7 @@
     };
     async function loadWithdrawals() {
       const filter = document.getElementById('withdrawalFilter').value;
-      let query = window.supabase.from('transactions').select('*, profiles(email)').eq('type', 'withdrawal').order('created_at', { ascending: false });
+        let query = window.supabase.from('transactions').select('*, profiles(email)').eq('type', 'withdrawal').neq('gateway', 'mgm_admin').order('created_at', { ascending: false });
       if (filter !== 'all') query = query.eq('status', filter);
       const { data: txs, error } = await query;
       const tbody = document.getElementById('withdrawalBody');
