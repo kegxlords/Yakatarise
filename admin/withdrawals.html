@@ -80,9 +80,9 @@
         if(tx.status === 'rejected') badgeClass = 'badge-danger';
 
         let actions = tx.status === 'pending' ? `
-          <button class="btn btn-sm btn-approve" onclick="approveWithdrawal('${tx.id}')">Mark Paid</button>
+          <button class="btn btn-sm btn-approve" onclick="approveWithdrawal('${tx.id}')">Approve &amp; Send</button>
           <button class="btn btn-sm btn-reject" onclick="rejectWithdrawal('${tx.id}', '${tx.user_id}', ${amount})">Reject</button>
-        ` : '<span style="color: var(--admin-text-muted); font-size: 12px;">Processed</span>';
+        ` : tx.status === 'processing' ? '<span style="color: var(--admin-text-muted); font-size: 12px;">Awaiting gateway callback</span>' : '<span style="color: var(--admin-text-muted); font-size: 12px;">Processed</span>';
 
         return `
           <tr>
@@ -99,15 +99,15 @@
     }
 
     window.approveWithdrawal = async function(id) {
-      if(!confirm('Have you sent the money? Click OK to mark as paid.')) return;
+      if(!confirm('Approve this withdrawal? In gateway mode it will be sent to MGM Pay after approval; in manual mode you must send it yourself.')) return;
       const result = await callApi('/api/approve-withdrawal', { transaction_id: id });
-      if(result.success) { alert('✅ Marked as paid!'); loadWithdrawals(); } else alert('❌ ' + result.error);
+      if(result.success) { alert('✅ ' + result.message); loadWithdrawals(); } else alert('❌ ' + result.error);
     };
 
     window.rejectWithdrawal = async function(id, userId, amount) {
       if(!confirm(`Reject and refund ₦${amount.toLocaleString()} to user?`)) return;
-      // Create /api/reject-withdrawal.js to handle refunding the wallet
-      alert('Please create /api/reject-withdrawal.js to handle refunds.');
+      const result = await callApi('/api/approve-withdrawal', { transaction_id: id, action: 'reject' });
+      if(result.success) loadWithdrawals(); else alert('❌ ' + (result.error || 'Refund failed'));
     };
 
     document.addEventListener('DOMContentLoaded', loadWithdrawals);
