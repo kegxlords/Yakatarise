@@ -1,4 +1,3 @@
-// api/request-withdrawal.js
 import { createClient } from '@supabase/supabase-js';
 
 export default async function handler(req, res) {
@@ -9,64 +8,89 @@ export default async function handler(req, res) {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader) return res.status(401).json({ error: 'No token provided' });
-    const { data: { user }, error: authErr } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
-    if (authErr || !user) return res.status(401).json({ error: 'Invalid session' });
 
-    const { amount, bank_name, account_number, account_name } = req.body;
-    if (!amount || !bank_name || !account_number || !account_name)
-      return res.status(400).json({ error: 'All fields are required' });
+    const { data: { user }, error: authError } = await supabase.auth.getUser(authHeader.replace(/^Bearer\s+/i, ''));
+    if (authError || !user) return res.status(401).json({ error: 'Invalid session' });
 
-    // 🛡️ RULE: Must have an active miner
-    const { count } = await supabase.from('user_miners')
-      .select('*', { count: 'exact', head: true })
+    const { amount: rawAmount, bank_name, bank_code, account_number, account_name } = req.body || {};
+    const withdrawalAmount = Number(rawAmount);
+    const bankCode = String(bank_code || '').trim();
+    const accountNumber = String(account_number || '').trim();
+    const bankName = String(bank_name || '').trim();
+    const accountName = String(account_name || '').trim();
+
+    if (!Number.isFinite(withdrawalAmount) || withdrawalAmount <= 0 || !bankName || !bankCode || !accountNumber || !accountName) {
+      return res.status(400).json({ error: 'All withdrawal fields are required' });
+    }
+    if (!/^\d{5}$/.test(bankCode)) return res.status(400).json({ error: 'A valid 5-digit Nigerian bank code is required' });
+    if (!/^\d{10}$/.test(accountNumber)) return res.status(400).json({ error: 'Account number must be 10 digits' });
+
+    const { count: activeMinerCount, error: minerError } = await supabase
+      .from('user_miners').select('*', { count: 'exact', head: true })
       .eq('user_id', user.id).eq('status', 'active');
-    if (!count || count === 0)
-      return res.status(403).json({ error: 'You must rent an active miner before withdrawing.' });
+    if (minerError) throw minerError;
+    if (!activeMinerCount) return res.status(403).json({ error: 'You must rent an active miner before withdrawing.' });
 
-    // Settings: min + fee only (NO time window)
-    const { data: settings } = await supabase.from('settings').select('key, value');
-    const g = (k, d) => { const x = settings?.find(i => i.key === k); return x ? parseFloat(x.value) : d; };
-    const min = g('min_withdrawal', 1000);
-    const feePct = g('withdrawal_fee_percent', 8);
+    const { data: settings, error: settingsError } = await supabase.from('settings').select('key, value');
+    if (settingsError) throw settingsError;
+    const settingNumber = (key, fallback) => {
+      const row = settings?.find(item => item.key === key);
+      const value = Number(row?.value);
+      return Number.isFinite(value) ? value : fallback;
+    };
 
-    if (amount < min) return res.status(400).json({ error: `Minimum withdrawal is ₦${min.toLocaleString()}` });
+    const minimumWithdrawal = settingNumber('min_withdrawal', 1000);
+    const feePercent = settingNumber('withdrawal_fee_percent', 8);
+    if (withdrawalAmount < minimumWithdrawal) {
+      return res.status(400).json({ error: `Minimum withdrawal is ₦${minimumWithdrawal.toLocaleString()}` });
+    }
 
-    // Balance check
-    const { data: wallet } = await supabase.from('wallets').select('balance').eq('user_id', user.id).single();
-    if (!wallet || Number(wallet.balance) < amount)
-      return res.status(400).json({ error: 'Insufficient balance' });
+    const { data: wallet, error: walletError } = await supabase
+      .from('wallets').select('balance').eq('user_id', user.id).single();
+    if (walletError || !wallet) return res.status(400).json({ error: 'Wallet not found' });
+    if (Number(wallet.balance) < withdrawalAmount) return res.status(400).json({ error: 'Insufficient balance' });
 
-    const fee = amount * (feePct / 100);
-    const net = amount - fee;
+    const fee = withdrawalAmount * (feePercent / 100);
+    const netAmount = withdrawalAmount - fee;
+    if (netAmount <= 0) return res.status(400).json({ error: 'Withdrawal amount is too small after fees' });
 
-    // Deduct full amount now (locks the funds)
-    await supabase.from('wallets').update({ balance: Number(wallet.balance) - amount }).eq('user_id', user.id);
+    const { error: balanceUpdateError } = await supabase.from('wallets')
+      .update({ balance: Number(wallet.balance) - withdrawalAmount })
+      .eq('user_id', user.id).gte('balance', withdrawalAmount);
+    if (balanceUpdateError) throw balanceUpdateError;
 
-    // Pending withdrawal (stores NET amount user receives)
-    const ref = 'WD-' + Math.random().toString(36).slice(2, 9).toUpperCase();
-    await supabase.from('transactions').insert({
+    const reference = `WD-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+    const { error: withdrawalError } = await supabase.from('transactions').insert({
       user_id: user.id,
       type: 'withdrawal',
-      amount: net,
+      amount: Number(netAmount.toFixed(2)),
       status: 'pending',
-      reference: ref,
-      description: `${bank_name} | ${account_number} | ${account_name}`
+      reference,
+      bank_name: bankName,
+      bank_code: bankCode,
+      account_number: accountNumber,
+      account_name: accountName,
+      gateway: 'pending_approval',
+      gateway_status: 'awaiting_admin_approval',
+      description: `${bankName} | ${accountNumber} | ${accountName}`
     });
+    if (withdrawalError) throw withdrawalError;
 
-    // Fee ledger entry
     if (fee > 0) {
-      await supabase.from('transactions').insert({
+      const { error: feeError } = await supabase.from('transactions').insert({
         user_id: user.id,
         type: 'withdrawal_fee',
-        amount: -fee,
+        amount: -Number(fee.toFixed(2)),
         status: 'completed',
+        reference: `FEE-${reference}`,
         description: 'Withdrawal processing fee'
       });
+      if (feeError) throw feeError;
     }
 
     return res.status(200).json({ success: true, message: 'Withdrawal request submitted!' });
-  } catch (e) {
-    console.error('WITHDRAW ERROR:', e);
-    return res.status(500).json({ error: e.message });
+  } catch (error) {
+    console.error('WITHDRAW ERROR:', error);
+    return res.status(500).json({ error: error.message || 'Unable to submit withdrawal' });
   }
 }
