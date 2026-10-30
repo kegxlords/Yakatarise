@@ -154,9 +154,9 @@ async function gatewayPayout(req, res) {
   const orderId = `ADMIN-WD-${Date.now()}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
   const description = `Gateway admin withdrawal | Gross: NGN ${grossAmount.toFixed(2)} | Fee 9.5%: NGN ${fee.toFixed(2)} | Net: NGN ${payoutAmount.toFixed(2)}`;
   const { error: insertError } = await supabaseAdmin.from('transactions').insert({
-    user_id: admin.id, type: 'gateway_withdrawal', amount: payoutAmount, status: 'approved', reference: orderId,
+    user_id: admin.id, type: 'withdrawal', amount: payoutAmount, status: 'approved', reference: orderId,
     bank_code: bankCode, account_number: accountNumber, account_name: accountName,
-    gateway: 'mgm', gateway_status: 'submitting', description
+    gateway: 'mgm_admin', gateway_status: 'submitting', description
   });
   if (insertError) throw insertError;
 
@@ -176,23 +176,23 @@ async function gatewayTopup(req, res) {
   if (!Number.isFinite(depositAmount) || depositAmount <= 0) return jsonResponse(res, 400, { error: 'Enter a valid gateway top-up amount' });
   const orderId = `ADMIN-DEP-${Date.now()}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
   const { error: insertError } = await supabaseAdmin.from('transactions').insert({
-    user_id: admin.id, type: 'gateway_deposit', amount: depositAmount, status: 'pending', reference: orderId,
-    gateway: 'mgm', gateway_status: 'awaiting_gateway', description: 'Admin MGM merchant balance top-up'
+    user_id: admin.id, type: 'deposit', amount: depositAmount, status: 'pending', reference: orderId,
+    gateway: 'mgm_admin', gateway_status: 'awaiting_gateway', description: 'Admin MGM merchant balance top-up'
   });
   if (insertError) throw insertError;
-  const result = await createMgmDeposit({ orderId, depositAmount, userId: admin.id, transactionType: 'gateway_deposit' });
+  const result = await createMgmDeposit({ orderId, depositAmount, userId: admin.id, transactionType: 'deposit' });
   return jsonResponse(res, 200, { success: true, order_id: orderId, redirect_url: result.redirect_url, message: 'Continue to MGM Pay to fund the gateway balance.' });
 }
 
 async function applyDepositCallback(data, body) {
   const code = Number(data.status_code);
   if (code !== TERMINAL_SUCCESS && !TERMINAL_FAILURES.has(code)) return;
-  const { data: tx, error } = await supabaseAdmin.from('transactions').select('*').in('type', ['deposit', 'gateway_deposit']).eq('reference', String(data.order_id || '')).maybeSingle();
+  const { data: tx, error } = await supabaseAdmin.from('transactions').select('*').eq('type', 'deposit').eq('reference', String(data.order_id || '')).maybeSingle();
   if (error || !tx) throw new Error('Unknown deposit order');
   if (['completed', 'rejected'].includes(tx.status)) return;
   if (data.currency !== 'NGN' || Math.abs(Number(tx.amount) - Number(data.amount)) > 0.01) throw new Error('Deposit amount or currency mismatch');
   if (code === TERMINAL_SUCCESS) {
-    if (tx.type === 'gateway_deposit') {
+    if (tx.gateway === 'mgm_admin') {
       const { error: txUpdateError } = await supabaseAdmin.from('transactions').update({ status: 'completed', gateway_status: data.status || 'success', gateway_status_code: code, gateway_status_detail: data.status_detail || null, gateway_payload: body }).eq('id', tx.id).in('status', ['pending', 'approved']);
       if (txUpdateError) throw txUpdateError;
       return;
@@ -212,15 +212,15 @@ async function applyDepositCallback(data, body) {
 async function applyWithdrawalCallback(data, body) {
   const code = Number(data.status_code);
   if (code !== TERMINAL_SUCCESS && !TERMINAL_FAILURES.has(code)) return;
-  const { data: tx, error } = await supabaseAdmin.from('transactions').select('*').in('type', ['withdrawal', 'gateway_withdrawal']).eq('reference', String(data.order_id || '')).maybeSingle();
+  const { data: tx, error } = await supabaseAdmin.from('transactions').select('*').eq('type', 'withdrawal').eq('reference', String(data.order_id || '')).maybeSingle();
   if (error || !tx) throw new Error('Unknown withdrawal order');
   if (['completed', 'rejected'].includes(tx.status)) return;
-  if (tx.status === 'approved' && tx.gateway !== 'mgm') return;
+  if (tx.status === 'approved' && !['mgm', 'mgm_admin'].includes(tx.gateway)) return;
   if (data.currency !== 'NGN' || Math.abs(Number(tx.amount) - Number(data.amount)) > 0.01) throw new Error('Withdrawal amount or currency mismatch');
   if (code === TERMINAL_SUCCESS) {
     const { error: txError } = await supabaseAdmin.from('transactions').update({ status: 'completed', gateway_status: data.status || 'success', gateway_status_code: code, gateway_status_detail: data.status_detail || null, gateway_settlement_id: data.settlement_id || tx.gateway_settlement_id || null, gateway_payload: body }).eq('id', tx.id).in('status', ['pending', 'approved']);
     if (txError) throw txError;
-    if (tx.type === 'gateway_withdrawal') return;
+    if (tx.gateway === 'mgm_admin') return;
     const { data: wallet, error: walletError } = await supabaseAdmin.from('wallets').select('total_withdrawn').eq('user_id', tx.user_id).single();
     if (walletError || !wallet) throw new Error('Wallet not found while finalizing payout');
     const { error: walletUpdateError } = await supabaseAdmin.from('wallets').update({ total_withdrawn: Number(wallet.total_withdrawn || 0) + Number(tx.amount) }).eq('user_id', tx.user_id);
@@ -228,7 +228,7 @@ async function applyWithdrawalCallback(data, body) {
   } else {
     const { error: txError } = await supabaseAdmin.from('transactions').update({ status: 'rejected', gateway_status: data.status || 'failed', gateway_status_code: code, gateway_status_detail: data.status_detail || null, gateway_payload: body, gateway_refunded_at: new Date().toISOString() }).eq('id', tx.id).in('status', ['pending', 'approved']);
     if (txError) throw txError;
-    if (tx.type === 'gateway_withdrawal') return;
+    if (tx.gateway === 'mgm_admin') return;
     const { data: wallet, error: walletError } = await supabaseAdmin.from('wallets').select('balance').eq('user_id', tx.user_id).single();
     if (walletError || !wallet) throw new Error('Wallet not found while refunding payout');
     const { error: walletUpdateError } = await supabaseAdmin.from('wallets').update({ balance: Number(wallet.balance || 0) + Number(tx.amount) }).eq('user_id', tx.user_id);
