@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { randomInt } from 'node:crypto';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -30,9 +31,20 @@ export default async function handler(req, res) {
   
   if (existing) return res.status(400).json({ error: 'You have already used this code' });
 
+  // Fixed-value codes use amount. Range codes choose a fresh, cryptographically
+  // secure whole-naira value for each redemption, so users can receive
+  // different credits from the same code.
+  const hasRange = giftCode.min_amount != null && giftCode.max_amount != null;
+  const minAmount = hasRange ? Number(giftCode.min_amount) : Number(giftCode.amount);
+  const maxAmount = hasRange ? Number(giftCode.max_amount) : minAmount;
+  if (!Number.isSafeInteger(minAmount) || !Number.isSafeInteger(maxAmount) || minAmount < 1 || maxAmount < minAmount) {
+    return res.status(500).json({ error: 'This gift code has an invalid amount configuration' });
+  }
+  const amountAwarded = minAmount === maxAmount ? minAmount : randomInt(minAmount, maxAmount + 1);
+
   // 4. Credit Wallet
   const { data: wallet } = await supabase.from('wallets').select('balance').eq('user_id', user.id).single();
-  const newBalance = (wallet?.balance || 0) + giftCode.amount;
+  const newBalance = (wallet?.balance || 0) + amountAwarded;
   
   await supabase.from('wallets').update({ balance: newBalance }).eq('user_id', user.id);
 
@@ -43,17 +55,17 @@ export default async function handler(req, res) {
   await supabase.from('user_gift_redemptions').insert({
     user_id: user.id,
     gift_code_id: giftCode.id,
-    amount_credited: giftCode.amount
+    amount_credited: amountAwarded
   });
 
   // 7. Create Transaction Record
   await supabase.from('transactions').insert({
     user_id: user.id,
     type: 'gift_code_bonus',
-    amount: giftCode.amount,
+    amount: amountAwarded,
     status: 'completed',
     description: `Redeemed gift code: ${giftCode.code}`
   });
 
-  return res.status(200).json({ success: true, message: `Successfully redeemed ₦${giftCode.amount}!` });
+  return res.status(200).json({ success: true, amount: amountAwarded, message: `Successfully redeemed ₦${amountAwarded}!` });
 }
