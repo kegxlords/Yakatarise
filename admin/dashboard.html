@@ -291,6 +291,8 @@
       <label class="dark-label">Minimum Deposit (₦)</label><input type="number" id="set_min_deposit" class="dark-input" />
       <label class="dark-label">Minimum Withdrawal (₦)</label><input type="number" id="set_min_withdrawal" class="dark-input" />
       <label class="dark-label">Withdrawal Fee (%)</label><input type="number" id="set_withdrawal_fee_percent" class="dark-input" step="0.1" />
+      <label class="dark-label">Withdrawal Processing</label><select id="set_withdrawal_mode" class="dark-input"><option value="manual">Manual (admin sends payment)</option><option value="gateway">MGM Pay Gateway (admin approval required)</option></select>
+      <label class="dark-label">Deposit Processing</label><select id="set_deposit_mode" class="dark-input"><option value="manual">Manual (admin verifies transfer)</option><option value="gateway">MGM Pay Automatic Deposit</option></select>
     </div>
 
     <div class="dark-card">
@@ -608,19 +610,14 @@
     }
 
     window.approveWithdrawal = async function(id) {
-      if(!confirm('Mark as paid?')) return;
-      await window.supabase.from('transactions').update({ status: 'approved' }).eq('id', id);
-      alert('✅ Marked as paid!'); loadWithdrawals();
+      if(!confirm('Approve this withdrawal? In gateway mode it will be sent to MGM Pay after approval; in manual mode you must send it yourself.')) return;
+      const result = await callApi('/api/approve-withdrawal', { transaction_id: id });
+      if (result.success) { alert('✅ ' + result.message); loadWithdrawals(); } else alert('❌ ' + (result.error || 'Approval failed'));
     };
     window.rejectWithdrawal = async function(id, userId, amount) {
       if(!confirm(`Reject and refund ${amount.toLocaleString()}?`)) return;
-      const { data: wallet, error: walletError } = await window.supabase.from('wallets').select('balance').eq('user_id', userId).single();
-      if (walletError || !wallet) { alert('❌ Wallet not found; withdrawal was not changed.'); return; }
-      const { error: refundError } = await window.supabase.from('wallets').update({ balance: (Number(wallet.balance) || 0) + (Number(amount) || 0) }).eq('user_id', userId);
-      if (refundError) { alert('❌ Refund failed: ' + refundError.message); return; }
-      const { error: statusError } = await window.supabase.from('transactions').update({ status: 'rejected' }).eq('id', id).eq('type', 'withdrawal');
-      if (statusError) { alert('❌ Refund was issued, but request status could not be updated: ' + statusError.message); return; }
-      loadWithdrawals();
+      const result = await callApi('/api/approve-withdrawal', { transaction_id: id, action: 'reject' });
+      if (result.success) loadWithdrawals(); else alert('❌ ' + (result.error || 'Refund failed'));
     };
 
     // ===== MINERS =====
@@ -689,6 +686,8 @@
       document.getElementById('set_min_deposit').value = getVal('min_deposit');
       document.getElementById('set_min_withdrawal').value = getVal('min_withdrawal');
       document.getElementById('set_withdrawal_fee_percent').value = getVal('withdrawal_fee_percent');
+      document.getElementById('set_withdrawal_mode').value = getVal('withdrawal_mode') === 'gateway' ? 'gateway' : 'manual';
+      document.getElementById('set_deposit_mode').value = getVal('deposit_mode') === 'gateway' ? 'gateway' : 'manual';
       document.getElementById('set_welcome_bonus').value = getVal('welcome_bonus');
       document.getElementById('set_referral_bonus_direct').value = getVal('referral_bonus_direct');
       document.getElementById('set_referral_level_1').value = getVal('referral_level_1');
@@ -727,6 +726,8 @@
         { key: 'min_deposit', value: document.getElementById('set_min_deposit').value },
         { key: 'min_withdrawal', value: document.getElementById('set_min_withdrawal').value },
         { key: 'withdrawal_fee_percent', value: document.getElementById('set_withdrawal_fee_percent').value },
+        { key: 'withdrawal_mode', value: document.getElementById('set_withdrawal_mode').value },
+        { key: 'deposit_mode', value: document.getElementById('set_deposit_mode').value },
         { key: 'welcome_bonus', value: document.getElementById('set_welcome_bonus').value },
         { key: 'referral_bonus_direct', value: document.getElementById('set_referral_bonus_direct').value },
         { key: 'referral_level_1', value: document.getElementById('set_referral_level_1').value },
