@@ -100,8 +100,20 @@
       </div>
 
       <div class="field">
-        <label>Bank Name</label>
-        <input type="text" id="bankName" placeholder="e.g. GTBank" required />
+        <label>Bank</label>
+        <select id="bankCode" required style="width:100%;padding:14px;border:1px solid #E2E8F0;border-radius:12px;font-size:15px;font-family:inherit;outline:none;background:#F8FAFC;">
+          <option value="">Select bank</option>
+          <option value="20009">Opay</option><option value="20013">Access Bank</option><option value="20036">Fidelity Bank</option>
+          <option value="20039">First Bank of Nigeria</option><option value="20040">FCMB</option><option value="20043">Globus Bank</option>
+          <option value="20045">GTBank</option><option value="20047">Heritage Bank</option><option value="20051">Jaiz Bank</option>
+          <option value="20053">Keystone Bank</option><option value="20055">Kuda Bank</option><option value="20063">One Finance</option>
+          <option value="20065">PalmPay</option><option value="20066">Parkway - ReadyCash</option><option value="20068">Polaris Bank</option>
+          <option value="20069">Providus Bank</option><option value="20073">Stanbic IBTC</option><option value="20074">Standard Chartered</option>
+          <option value="20075">Sterling Bank</option><option value="20076">TAJ Bank</option><option value="20079">Titan Bank</option>
+          <option value="20080">Union Bank</option><option value="20081">UBA</option><option value="20082">Unity Bank</option>
+          <option value="20083">VFD Microfinance Bank</option><option value="20086">Zenith Bank</option><option value="20087">Moniepoint Microfinance Bank</option>
+          <option value="20012">ASO Savings and Loans</option><option value="20026">Ecobank Nigeria</option>
+        </select>
       </div>
       <div class="field">
         <label>Account Number</label>
@@ -222,7 +234,9 @@
       alertBox.className = 'alert-inline';
 
       const amount = parseFloat(document.getElementById('withdrawAmount').value);
-      const bankName = document.getElementById('bankName').value.trim();
+      const bankSelect = document.getElementById('bankCode');
+      const bankCode = bankSelect.value;
+      const bankName = bankSelect.options[bankSelect.selectedIndex]?.text || '';
       const acctNumber = document.getElementById('acctNumber').value.trim();
       const acctName = document.getElementById('acctName').value.trim();
 
@@ -230,13 +244,14 @@
       if (!amount || amount <= 0) return showErr('Enter a valid amount.');
       if (amount < CFG.min) return showErr(`Minimum withdrawal is ₦${CFG.min.toLocaleString()}.`);
       if (amount > CFG.balance) return showErr('Insufficient balance.');
+      if (!bankCode) return showErr('Select your bank.');
       if (acctNumber.length !== 10) return showErr('Account number must be 10 digits.');
 
       btn.disabled = true;
       btn.innerText = 'Processing...';
 
       const result = await callApi('/api/request-withdrawal', {
-        amount, bank_name: bankName, account_number: acctNumber, account_name: acctName
+        amount, bank_name: bankName, bank_code: bankCode, account_number: acctNumber, account_name: acctName
       });
 
       if (result.success) {
@@ -257,4 +272,5 @@
     }
   </script>
 </body>
-</html>
+          </html>
+          
