@@ -77,7 +77,10 @@ async function createMgmDeposit({ orderId, depositAmount, userId }) {
   data.signature = mgmSignature(data, required('MGM_COLLECTION_KEY'));
 
   const response = await relayRequest('/api/pay/payment', { merchant_no: required('MGM_MERCHANT_NO'), data }, timestamp);
-  if (response?.state !== 'ok' || !response.data) throw new Error(response?.message || 'MGM Pay rejected the deposit order');
+  if (response?.state !== 'ok' || !response.data) {
+    const detail = response?.message || response?.error || JSON.stringify(response);
+    throw new Error(`MGM Pay rejected the deposit order: ${detail}`);
+  }
   const result = response.data;
   const { error } = await supabaseAdmin.from('transactions').update({
     status: 'processing', gateway: 'mgm', gateway_status: result.status || 'created', gateway_status_code: result.status_code ?? null,
