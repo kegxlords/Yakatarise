@@ -52,20 +52,20 @@ export default async function handler(req, res) {
     if (!tx.bank_code || !tx.account_number || !tx.account_name) return jsonResponse(res, 400, { error: 'This withdrawal is missing bank payout details. Reject it and ask the user to resubmit.' });
     const orderId = tx.reference || `WD-${tx.id}`;
     const submissionTime = new Date().toISOString();
-    const { data: claimed, error: claimError } = await supabaseAdmin.from('transactions').update({ status: 'processing', gateway: 'mgm', gateway_status: 'submitting', approved_at: submissionTime }).eq('id', transaction_id).eq('status', 'pending').select('id').maybeSingle();
+    const { data: claimed, error: claimError } = await supabaseAdmin.from('transactions').update({ status: 'approved', gateway: 'mgm', gateway_status: 'submitting', approved_at: submissionTime }).eq('id', transaction_id).eq('status', 'pending').select('id').maybeSingle();
     if (claimError) throw claimError;
     if (!claimed) return jsonResponse(res, 409, { error: 'Withdrawal is already being processed' });
 
     const response = await createMgmPayout({ orderId, payoutAmount: tx.amount, accountName: tx.account_name, accountNumber: tx.account_number, bankCode: tx.bank_code });
     if (response?.state !== 'ok' || !response.data) {
-      await supabaseAdmin.from('transactions').update({ status: 'pending', gateway_status: 'submission_failed', gateway_payload: response }).eq('id', transaction_id).eq('status', 'processing');
+      await supabaseAdmin.from('transactions').update({ status: 'pending', gateway_status: 'submission_failed', gateway_payload: response }).eq('id', transaction_id).eq('status', 'approved');
       return jsonResponse(res, 502, { error: response?.message || 'MGM Pay rejected the payout request' });
     }
 
     const data = response.data;
-    const { error: updateError } = await supabaseAdmin.from('transactions').update({ status: 'processing', gateway: 'mgm', gateway_status: data.status || 'accepted', gateway_status_code: data.status_code ?? null, gateway_status_detail: data.status_detail || null, gateway_order_id: data.order_id || orderId, gateway_settlement_id: data.settlement_id || null, gateway_payload: response, approved_at: submissionTime, gateway_submitted_at: new Date().toISOString() }).eq('id', transaction_id).eq('status', 'processing');
+    const { error: updateError } = await supabaseAdmin.from('transactions').update({ status: 'approved', gateway: 'mgm', gateway_status: data.status || 'accepted', gateway_status_code: data.status_code ?? null, gateway_status_detail: data.status_detail || null, gateway_order_id: data.order_id || orderId, gateway_settlement_id: data.settlement_id || null, gateway_payload: response, approved_at: submissionTime, gateway_submitted_at: new Date().toISOString() }).eq('id', transaction_id).eq('status', 'approved');
     if (updateError) throw updateError;
-    return jsonResponse(res, 200, { success: true, mode, status: 'processing', message: 'Withdrawal approved and sent to MGM Pay for processing.' });
+    return jsonResponse(res, 200, { success: true, mode, status: 'approved', message: 'Withdrawal approved and sent to MGM Pay for processing.' });
   } catch (error) {
     console.error('APPROVE WITHDRAWAL ERROR:', error);
     if (error.message?.includes('Admin')) return jsonResponse(res, 403, { error: error.message });
