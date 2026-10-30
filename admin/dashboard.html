@@ -162,6 +162,7 @@
     <div class="admin-tab" onclick="showSection('users', this)"><span class="admin-tab-icon">👥</span> Users</div>
     <div class="admin-tab" onclick="showSection('deposits', this)"><span class="admin-tab-icon">💰</span> Deposits</div>
     <div class="admin-tab" onclick="showSection('withdrawals', this)"><span class="admin-tab-icon">↗️</span> Withdrawals</div>
+    <div class="admin-tab" onclick="showSection('gateway', this)"><span class="admin-tab-icon">🔌</span> Gateway</div>
     <div class="admin-tab" onclick="showSection('miners', this)"><span class="admin-tab-icon">⛏️</span> Miners</div>
     <div class="admin-tab" onclick="showSection('giftcodes', this)"><span class="admin-tab-icon">🎁</span> Gift Codes</div>
     <div class="admin-tab" onclick="showSection('settings', this)"><span class="admin-tab-icon">⚙️</span> Settings</div>
@@ -236,6 +237,41 @@
           <tbody id="withdrawalBody"><tr><td colspan="7" class="loading-text">Loading...</td></tr></tbody>
         </table>
       </div>
+    </div>
+  </section>
+
+  <!-- ==================== GATEWAY ==================== -->
+  <section id="section-gateway" class="admin-section">
+    <div class="dark-card">
+      <div class="dark-card-title">MGM Gateway Balance</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">
+        <div class="stat-box-dark"><div class="lbl">Available</div><div class="val gold" id="gatewayAvailable">—</div></div>
+        <div class="stat-box-dark"><div class="lbl">Free</div><div class="val green" id="gatewayFree">—</div></div>
+        <div class="stat-box-dark"><div class="lbl">Total</div><div class="val" id="gatewayTotal">—</div></div>
+      </div>
+      <p id="gatewayBalanceStatus" style="font-size:12px;color:#8E8E93;margin:0 0 12px;">Balance is read directly from MGM Pay.</p>
+      <button class="btn-dark" onclick="loadGatewayBalance()">Refresh Gateway Balance</button>
+    </div>
+
+    <div class="dark-card">
+      <div class="dark-card-title">Withdraw From Gateway</div>
+      <p style="font-size:12px;color:#8E8E93;margin-top:0;">A 9.5% gateway fee is deducted. The net amount is sent to the bank account below.</p>
+      <label class="dark-label">Amount To Withdraw (₦)</label><input type="number" id="gatewayWithdrawAmount" class="dark-input" min="1" step="0.01" oninput="calculateGatewayFee()" />
+      <div id="gatewayFeeSummary" style="font-size:13px;color:#D4AF37;margin:8px 0 14px;">Fee: ₦0.00 · Net sent: ₦0.00</div>
+      <label class="dark-label">Bank</label>
+      <select id="gatewayBankCode" class="dark-input">
+        <option value="">Select bank</option><option value="20009">Opay</option><option value="20013">Access Bank</option><option value="20036">Fidelity Bank</option><option value="20039">First Bank of Nigeria</option><option value="20040">FCMB</option><option value="20043">Globus Bank</option><option value="20045">GTBank</option><option value="20047">Heritage Bank</option><option value="20051">Jaiz Bank</option><option value="20053">Keystone Bank</option><option value="20055">Kuda Bank</option><option value="20063">One Finance</option><option value="20065">PalmPay</option><option value="20066">Parkway - ReadyCash</option><option value="20068">Polaris Bank</option><option value="20069">Providus Bank</option><option value="20073">Stanbic IBTC</option><option value="20074">Standard Chartered</option><option value="20075">Sterling Bank</option><option value="20076">TAJ Bank</option><option value="20079">Titan Bank</option><option value="20080">Union Bank</option><option value="20081">UBA</option><option value="20082">Unity Bank</option><option value="20083">VFD Microfinance Bank</option><option value="20086">Zenith Bank</option><option value="20087">Moniepoint Microfinance Bank</option>
+      </select>
+      <label class="dark-label">Account Number</label><input type="text" id="gatewayAccountNumber" class="dark-input" maxlength="10" />
+      <label class="dark-label">Account Name</label><input type="text" id="gatewayAccountName" class="dark-input" />
+      <button class="btn-dark" onclick="submitGatewayPayout(this)">Send Gateway Withdrawal</button>
+    </div>
+
+    <div class="dark-card">
+      <div class="dark-card-title">Top Up Gateway</div>
+      <p style="font-size:12px;color:#8E8E93;margin-top:0;">Creates an MGM payment order. Complete the MGM checkout to increase the merchant gateway balance.</p>
+      <label class="dark-label">Top-up Amount (₦)</label><input type="number" id="gatewayTopupAmount" class="dark-input" min="1" step="0.01" />
+      <button class="btn-dark" onclick="submitGatewayTopup(this)">Create Gateway Top-up</button>
     </div>
   </section>
 
@@ -388,6 +424,7 @@
       if(sectionId === 'users') loadUsers();
       if(sectionId === 'deposits') loadDeposits();
       if(sectionId === 'withdrawals') loadWithdrawals();
+      if(sectionId === 'gateway') loadGatewayBalance();
       if(sectionId === 'miners') loadMiners();
       if(sectionId === 'giftcodes') loadGiftCodes();
       if(sectionId === 'settings') loadSettings();
@@ -433,7 +470,11 @@
     }
 
     // ===== USERS =====
-    let allUsers = []; let adminUserId = null;
+    let allUsers = []; let adminUserId = null; let dashboardWithdrawalMode = 'manual';
+    async function loadProcessingModes() {
+      const { data: settings } = await window.supabase.from('settings').select('key,value').in('key', ['withdrawal_mode']);
+      dashboardWithdrawalMode = settings?.find(s => s.key === 'withdrawal_mode')?.value === 'gateway' ? 'gateway' : 'manual';
+    }
     async function loadUsers() {
       const { data: { session } } = await window.supabase.auth.getSession();
       if (session) adminUserId = session.user.id;
@@ -537,7 +578,8 @@
       tbody.innerHTML = txs.map(tx => {
         let badgeClass = 'badge-yellow';
         if(tx.status === 'approved') badgeClass = 'badge-green'; if(tx.status === 'rejected') badgeClass = 'badge-red';
-        let actions = tx.status === 'pending' ? `<div class="action-btns"><button class="btn-tiny btn-tiny-approve" onclick="approveDeposit(${jsArg(tx.id)},${jsArg(tx.user_id)},${Number(tx.amount) || 0})">Approve</button><button class="btn-tiny btn-tiny-reject" onclick="rejectDeposit(${jsArg(tx.id)})">Reject</button></div>` : '<span style="color:#8E8E93;font-size:11px;">Done</span>';
+        const isGatewayDeposit = tx.gateway === 'mgm' || tx.type === 'gateway_deposit';
+        let actions = isGatewayDeposit ? '<span style="color:#8E8E93;font-size:11px;">Gateway callback</span>' : tx.status === 'pending' ? `<div class="action-btns"><button class="btn-tiny btn-tiny-approve" onclick="approveDeposit(${jsArg(tx.id)},${jsArg(tx.user_id)},${Number(tx.amount) || 0})">Approve</button><button class="btn-tiny btn-tiny-reject" onclick="rejectDeposit(${jsArg(tx.id)})">Reject</button></div>` : '<span style="color:#8E8E93;font-size:11px;">Done</span>';
         return `<tr><td>${escapeHtml(tx.profiles?.email || 'Unknown')}</td><td style="font-weight:700;color:#D4AF37;">₦${Number(tx.amount || 0).toLocaleString()}</td><td style="font-size:11px;color:#8E8E93;">${escapeHtml(tx.description || 'N/A')}</td><td><span class="badge-dark ${badgeClass}">${escapeHtml(tx.status || 'unknown')}</span></td><td>${actions}</td></tr>`;
       }).join('');
     }
@@ -604,7 +646,9 @@
         const net = Number(tx.net_amount ?? tx.amount_after_fee) || Math.max(0, amount - fee);
         const bank = [tx.bank_name, tx.account_number, tx.account_name].filter(Boolean).map(escapeHtml).join(' · ') || escapeHtml(tx.description || 'N/A');
         const badgeClass = tx.status === 'approved' || tx.status === 'completed' ? 'badge-green' : tx.status === 'rejected' ? 'badge-red' : 'badge-yellow';
-        const actions = tx.status === 'pending' ? `<div class="action-btns"><button class="btn-tiny btn-tiny-approve" onclick="approveWithdrawal(${jsArg(tx.id)})">Paid</button><button class="btn-tiny btn-tiny-reject" onclick="rejectWithdrawal(${jsArg(tx.id)},${jsArg(tx.user_id)},${amount})">Reject</button></div>` : '<span style="color:#8E8E93;font-size:11px;">Done</span>';
+        const isGatewayWithdrawal = dashboardWithdrawalMode === 'gateway' || tx.gateway === 'mgm';
+        const sendLabel = isGatewayWithdrawal ? 'Sent to Gateway' : 'Mark Paid';
+        const actions = tx.status === 'pending' ? `<div class="action-btns"><button class="btn-tiny btn-tiny-approve" onclick="approveWithdrawal(${jsArg(tx.id)})">${sendLabel}</button><button class="btn-tiny btn-tiny-reject" onclick="rejectWithdrawal(${jsArg(tx.id)},${jsArg(tx.user_id)},${amount})">Reject</button></div>` : '<span style="color:#8E8E93;font-size:11px;">Done</span>';
         return `<tr><td>${escapeHtml(tx.profiles?.email || 'Unknown')}</td><td>₦${amount.toLocaleString()}</td><td>₦${fee.toLocaleString()}</td><td>₦${net.toLocaleString()}</td><td style="font-size:11px;color:#8E8E93;">${bank}</td><td><span class="badge-dark ${badgeClass}">${escapeHtml(tx.status || 'unknown')}</span></td><td>${actions}</td></tr>`;
       }).join('');
     }
@@ -618,6 +662,50 @@
       if(!confirm(`Reject and refund ${amount.toLocaleString()}?`)) return;
       const result = await callApi('/api/approve-withdrawal', { transaction_id: id, action: 'reject' });
       if (result.success) loadWithdrawals(); else alert('❌ ' + (result.error || 'Refund failed'));
+    };
+
+    // ===== MGM GATEWAY =====
+    function formatNgn(value) { return '₦' + Number(value || 0).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+    window.calculateGatewayFee = function() {
+      const gross = Number(document.getElementById('gatewayWithdrawAmount').value) || 0;
+      const fee = gross * 0.095;
+      document.getElementById('gatewayFeeSummary').innerText = `Fee: ${formatNgn(fee)} · Net sent: ${formatNgn(gross - fee)}`;
+    };
+    window.loadGatewayBalance = async function() {
+      const status = document.getElementById('gatewayBalanceStatus');
+      status.innerText = 'Loading gateway balance...';
+      const result = await callApi('/api/mgm?action=gateway_balance', {});
+      if (!result.success) { status.innerText = 'Could not load balance: ' + (result.error || 'Unknown error'); return; }
+      const data = result.data || {};
+      document.getElementById('gatewayAvailable').innerText = formatNgn(data.available_balance);
+      document.getElementById('gatewayFree').innerText = formatNgn(data.free_balance);
+      document.getElementById('gatewayTotal').innerText = formatNgn(data.total_balance);
+      status.innerText = 'Balance refreshed from MGM Pay.';
+    };
+    window.submitGatewayPayout = async function(button) {
+      const amount = Number(document.getElementById('gatewayWithdrawAmount').value);
+      const bank = document.getElementById('gatewayBankCode');
+      const bankCode = bank.value;
+      const accountNumber = document.getElementById('gatewayAccountNumber').value.trim();
+      const accountName = document.getElementById('gatewayAccountName').value.trim();
+      if (!amount || amount <= 0) return alert('Enter a valid withdrawal amount.');
+      if (!bankCode || !/^\d{10}$/.test(accountNumber) || !accountName) return alert('Enter valid bank details.');
+      if (!confirm(`Send ${formatNgn(amount - amount * 0.095)} to ${accountName} after the 9.5% fee?`)) return;
+      button.disabled = true; button.innerText = 'Sending...';
+      const result = await callApi('/api/mgm?action=gateway_payout', { amount, bank_code: bankCode, account_number: accountNumber, account_name: accountName });
+      if (result.success) { alert(`✅ ${result.message}\nNet sent: ${formatNgn(result.payout_amount)}\nFee: ${formatNgn(result.fee)}`); document.getElementById('gatewayWithdrawAmount').value = ''; calculateGatewayFee(); loadGatewayBalance(); }
+      else alert('❌ ' + (result.error || 'Gateway withdrawal failed'));
+      button.disabled = false; button.innerText = 'Send Gateway Withdrawal';
+    };
+    window.submitGatewayTopup = async function(button) {
+      const amount = Number(document.getElementById('gatewayTopupAmount').value);
+      if (!amount || amount <= 0) return alert('Enter a valid top-up amount.');
+      if (!confirm(`Create an MGM top-up order for ${formatNgn(amount)}?`)) return;
+      button.disabled = true; button.innerText = 'Creating...';
+      const result = await callApi('/api/mgm?action=gateway_topup', { amount });
+      if (result.success && result.redirect_url) window.location.href = result.redirect_url;
+      else alert('❌ ' + (result.error || 'Gateway top-up failed'));
+      button.disabled = false; button.innerText = 'Create Gateway Top-up';
     };
 
     // ===== MINERS =====
@@ -686,7 +774,8 @@
       document.getElementById('set_min_deposit').value = getVal('min_deposit');
       document.getElementById('set_min_withdrawal').value = getVal('min_withdrawal');
       document.getElementById('set_withdrawal_fee_percent').value = getVal('withdrawal_fee_percent');
-      document.getElementById('set_withdrawal_mode').value = getVal('withdrawal_mode') === 'gateway' ? 'gateway' : 'manual';
+      dashboardWithdrawalMode = getVal('withdrawal_mode') === 'gateway' ? 'gateway' : 'manual';
+      document.getElementById('set_withdrawal_mode').value = dashboardWithdrawalMode;
       document.getElementById('set_deposit_mode').value = getVal('deposit_mode') === 'gateway' ? 'gateway' : 'manual';
       document.getElementById('set_welcome_bonus').value = getVal('welcome_bonus');
       document.getElementById('set_referral_bonus_direct').value = getVal('referral_bonus_direct');
@@ -760,7 +849,7 @@
       try { await window.supabase.auth.signOut(); }
       finally { window.location.href = '../login.html'; }
     };
-    document.addEventListener('DOMContentLoaded', loadOverview);
+    document.addEventListener('DOMContentLoaded', async () => { await loadProcessingModes(); loadOverview(); });
   </script>
 </body>
 </html>
