@@ -266,7 +266,9 @@
     <div class="dark-card">
       <div class="dark-card-title"> Generate Gift Code</div>
       <label class="dark-label">Code (Leave blank to auto-generate)</label><input type="text" id="newCode" class="dark-input" placeholder="WELCOME2024" style="text-transform:uppercase;" />
-      <label class="dark-label">Amount (₦)</label><input type="number" id="newAmount" class="dark-input" placeholder="1000" />
+      <label class="dark-label">Fixed Amount (₦) <small>(leave blank for a range)</small></label><input type="number" id="newAmount" class="dark-input" placeholder="1000" min="1" step="1" />
+      <label class="dark-label">Minimum Amount (₦)</label><input type="number" id="newMinAmount" class="dark-input" placeholder="100" min="1" step="1" />
+      <label class="dark-label">Maximum Amount (₦)</label><input type="number" id="newMaxAmount" class="dark-input" placeholder="1000" min="1" step="1" />
       <label class="dark-label">Max Uses</label><input type="number" id="newMaxUses" class="dark-input" value="1" />
       <label class="dark-label">Expires (Optional)</label><input type="date" id="newExpiry" class="dark-input" />
       <button class="btn-dark" onclick="createGiftCode()">Generate Code</button>
@@ -652,17 +654,28 @@
         const isFull = c.used_count >= c.max_uses;
         const status = !c.is_active ? 'Inactive' : isExpired ? 'Expired' : isFull ? 'Full' : 'Active';
         const badgeClass = status === 'Active' ? 'badge-green' : 'badge-red';
-        return `<tr><td style="font-weight:700;font-family:monospace;">${escapeHtml(c.code)}</td><td>₦${Number(c.amount).toLocaleString()}</td><td>${c.used_count}/${c.max_uses}</td><td style="color:#8E8E93;">${c.expires_at ? new Date(c.expires_at).toLocaleDateString() : 'Never'}</td><td><span class="badge-dark ${badgeClass}">${status}</span></td><td><div class="action-btns"><button class="btn-tiny ${c.is_active ? 'btn-tiny-reject' : 'btn-tiny-approve'}" onclick="toggleCode(${jsArg(c.id)},${Boolean(c.is_active)})">${c.is_active ? 'Off' : 'On'}</button><button class="btn-tiny btn-tiny-reject" onclick="deleteCode(${jsArg(c.id)})">Del</button></div></td></tr>`;
+        const amountLabel = c.min_amount != null && c.max_amount != null && Number(c.min_amount) !== Number(c.max_amount) ? `₦${Number(c.min_amount).toLocaleString()} – ₦${Number(c.max_amount).toLocaleString()}` : `₦${Number(c.amount).toLocaleString()}`;
+        return `<tr><td style="font-weight:700;font-family:monospace;">${escapeHtml(c.code)}</td><td>${amountLabel}</td><td>${c.used_count}/${c.max_uses}</td><td style="color:#8E8E93;">${c.expires_at ? new Date(c.expires_at).toLocaleDateString() : 'Never'}</td><td><span class="badge-dark ${badgeClass}">${status}</span></td><td><div class="action-btns"><button class="btn-tiny ${c.is_active ? 'btn-tiny-reject' : 'btn-tiny-approve'}" onclick="toggleCode(${jsArg(c.id)},${Boolean(c.is_active)})">${c.is_active ? 'Off' : 'On'}</button><button class="btn-tiny btn-tiny-reject" onclick="deleteCode(${jsArg(c.id)})">Del</button></div></td></tr>`;
       }).join('');
     }
     window.createGiftCode = async function() {
       let code = document.getElementById('newCode').value.trim().toUpperCase();
       const amount = document.getElementById('newAmount').value;
+      const minAmount = document.getElementById('newMinAmount').value;
+      const maxAmount = document.getElementById('newMaxAmount').value;
       const maxUses = document.getElementById('newMaxUses').value;
       const expiry = document.getElementById('newExpiry').value;
       if (!code) code = 'JTR-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-      if (!amount) return alert('Enter amount');
-      const { error } = await window.supabase.from('gift_codes').insert({ code, amount, max_uses: maxUses || 1, expires_at: expiry ? new Date(expiry).toISOString() : null, is_active: true });
+      const hasFixedAmount = amount !== '';
+      const hasRange = minAmount !== '' || maxAmount !== '';
+      if (hasFixedAmount && hasRange) return alert('Use either a fixed amount or a minimum and maximum amount, not both.');
+      if (!hasFixedAmount && !minAmount && !maxAmount) return alert('Enter a fixed amount or both minimum and maximum amounts.');
+      if (hasRange && (!minAmount || !maxAmount)) return alert('Enter both minimum and maximum amounts.');
+      const fixedAmount = hasFixedAmount ? Number(amount) : Number(minAmount);
+      const rangeMin = hasRange ? Number(minAmount) : fixedAmount;
+      const rangeMax = hasRange ? Number(maxAmount) : fixedAmount;
+      if (![fixedAmount, rangeMin, rangeMax].every(Number.isInteger) || fixedAmount < 1 || rangeMin < 1 || rangeMax < rangeMin) return alert('Amounts must be positive whole numbers, and maximum must be at least minimum.');
+      const { error } = await window.supabase.from('gift_codes').insert({ code, amount: fixedAmount, min_amount: rangeMin, max_amount: rangeMax, max_uses: maxUses || 1, expires_at: expiry ? new Date(expiry).toISOString() : null, is_active: true });
       if (error) alert('Error: ' + error.message); else { alert('✅ Code generated!'); loadGiftCodes(); }
     };
     window.toggleCode = async function(id, status) { await window.supabase.from('gift_codes').update({ is_active: !status }).eq('id', id); loadGiftCodes(); };
