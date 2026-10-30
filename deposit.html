@@ -35,7 +35,7 @@
     <h2 style="margin: 0; font-size: 18px;">Deposit Funds</h2>
   </div>
 
-  <div class="bank-details-card">
+  <div class="bank-details-card" id="manualBankDetails">
     <div class="bank-row"><span class="lbl">Bank Name</span><span class="val" id="dispBankName">Loading...</span></div>
     <div class="bank-row">
       <span class="lbl">Account Number</span>
@@ -59,7 +59,7 @@
         <label>Transaction Reference / Sender Name</label>
         <input type="text" id="depRef" placeholder="Helps us identify your payment" required />
       </div>
-      <button type="submit" class="btn btn-primary btn-block" style="border-radius: 12px; padding: 15px; margin-top: 10px;">Submit Deposit Request</button>
+        <button type="submit" class="btn btn-primary btn-block" id="depositSubmitBtn" style="border-radius: 12px; padding: 15px; margin-top: 10px;">Submit Deposit Request</button>
     </form>
     <p style="text-align:center; font-size: 12px; color: #94A3B8; margin-top: 15px;">Deposits are typically approved within 5-30 minutes during working hours.</p>
   </div>
@@ -72,13 +72,19 @@
   <script src="assets/js/auth-guard.js"></script>
   <script>
     // 1. Load Bank Details from Settings
+    let depositMode = 'manual';
     document.addEventListener('DOMContentLoaded', async () => {
       const { data: settings } = await window.supabase.from('settings').select('*');
       if(settings) {
         const getVal = (key) => settings.find(s => s.key === key)?.value || 'Not Set';
+        depositMode = getVal('deposit_mode') === 'gateway' ? 'gateway' : 'manual';
         document.getElementById('dispBankName').innerText = getVal('bank_name');
         document.getElementById('dispAcctNum').innerText = getVal('account_number');
         document.getElementById('dispAcctName').innerText = getVal('account_name');
+        if (depositMode === 'gateway') {
+          document.getElementById('manualBankDetails').style.display = 'none';
+          document.getElementById('depositSubmitBtn').innerText = 'Continue to MGM Pay';
+        }
       }
     });
 
@@ -96,25 +102,20 @@
       btn.disabled = true;
       btn.innerText = 'Submitting...';
 
-      // Generate a unique reference ID
-      const txRef = 'DEP-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+      const result = await callApi('/api/mgm?action=create_deposit', { amount, reference: ref });
 
-      const { error } = await window.supabase.from('transactions').insert({
-        user_id: session.user.id,
-        type: 'deposit',
-        amount: amount,
-        description: ref,
-        reference: txRef,
-        status: 'pending'
-      });
-
-      if(error) {
+      if(!result.success) {
         alertBox.className = 'deposit-alert error';
-        alertBox.innerText = '❌ Error submitting deposit. Please try again.';
+        alertBox.innerText = '❌ ' + (result.error || 'Error submitting deposit. Please try again.');
         btn.disabled = false;
-        btn.innerText = 'Submit Deposit Request';
+        btn.innerText = depositMode === 'gateway' ? 'Continue to MGM Pay' : 'Submit Deposit Request';
       } else {
         alertBox.className = 'deposit-alert success';
+        if (result.redirect_url) {
+          alertBox.innerText = '✅ Redirecting to MGM Pay...';
+          window.location.href = result.redirect_url;
+          return;
+        }
         alertBox.innerText = '✅ Deposit request submitted! Admin will verify and credit your wallet shortly.';
         document.getElementById('depositForm').reset();
         btn.innerText = 'Submitted Successfully';
