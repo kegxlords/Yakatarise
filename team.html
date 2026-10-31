@@ -165,13 +165,13 @@
       if (members && members.length > 0) {
         const memberIds = members.map(m => m.id);
         
-        // Query for ONLY approved deposits
+        // Count both manual approvals and successful MGM gateway deposits.
         const { data: deposits } = await window.supabase
           .from('transactions')
           .select('user_id, amount, status')
           .in('user_id', memberIds)
           .eq('type', 'deposit')
-          .eq('status', 'approved'); 
+          .in('status', ['approved', 'completed']);
 
         // Calculate totals per user
         const userDeposits = {};
