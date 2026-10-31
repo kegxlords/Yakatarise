@@ -59,7 +59,8 @@ export default async function handler(req, res) {
     const response = await createMgmPayout({ orderId, payoutAmount: tx.amount, accountName: tx.account_name, accountNumber: tx.account_number, bankCode: tx.bank_code });
     if (response?.state !== 'ok' || !response.data) {
       await supabaseAdmin.from('transactions').update({ status: 'pending', gateway_status: 'submission_failed', gateway_payload: response }).eq('id', transaction_id).eq('status', 'approved');
-      return jsonResponse(res, 502, { error: response?.message || 'MGM Pay rejected the payout request' });
+      const providerReason = response?.message || response?.error || response?.status_detail || response?.data?.status_detail || (response ? JSON.stringify(response) : 'No response body');
+      return jsonResponse(res, 502, { error: `MGM Pay rejected the payout request: ${providerReason}` });
     }
 
     const data = response.data;
