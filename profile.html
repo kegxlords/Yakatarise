@@ -121,13 +121,13 @@
       }
 
       // 3. CALCULATE TOTAL RECHARGE (The Bulletproof Way)
-      // Instead of trusting the 'total_deposited' column, we sum all approved deposits from history
+      // Include approved manual deposits and completed gateway deposits.
       const { data: deposits } = await window.supabase
         .from('transactions')
         .select('amount')
         .eq('user_id', userId)
         .eq('type', 'deposit')
-        .eq('status', 'approved');
+        .in('status', ['approved', 'completed']);
 
       let totalRecharge = 0;
       if (deposits) {
