@@ -113,6 +113,9 @@
   <script src="assets/js/auth-guard.js"></script>
   
   <script>
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    }
     function copyRef() {
       const input = document.getElementById('refLink');
       input.select(); 
@@ -200,9 +203,9 @@
 
           return `
             <div class="member-item">
-              <div class="member-avatar">${(m.full_name || m.email || 'U')[0].toUpperCase()}</div>
-              <div class="member-info">
-                <div class="member-name">${m.full_name || 'Member'}</div>
+                <div class="member-avatar">${escapeHtml((m.full_name || m.email || 'U')[0].toUpperCase())}</div>
+                <div class="member-info">
+                <div class="member-name">${escapeHtml(m.full_name || 'Member')}</div>
                 <div class="member-date">Joined ${new Date(m.created_at).toLocaleDateString()}</div>
                 <div class="member-deposit">Deposited: ₦${userDeposit.toLocaleString()}</div>
               </div>
