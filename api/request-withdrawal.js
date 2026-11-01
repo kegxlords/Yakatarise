@@ -31,6 +31,26 @@ export default async function handler(req, res) {
     if (minerError) throw minerError;
     if (!activeMinerCount) return res.status(403).json({ error: 'You must rent an active miner before withdrawing.' });
 
+    // ==========================================
+    // DAILY WITHDRAWAL LIMIT CHECK (1 per day)
+    // ==========================================
+    const now = new Date();
+    // Create a UTC midnight timestamp for the start of the current day
+    const startOfDay = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0, 0)).toISOString();
+
+    const { count: todayWithdrawals, error: dailyLimitError } = await supabase
+      .from('transactions')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('type', 'withdrawal')
+      .gte('created_at', startOfDay);
+
+    if (dailyLimitError) throw dailyLimitError;
+    if (todayWithdrawals > 0) {
+      return res.status(429).json({ error: 'You have already submitted a withdrawal request today. Limit: 1 per day.' });
+    }
+    // ==========================================
+
     const { data: settings, error: settingsError } = await supabase.from('settings').select('key, value');
     if (settingsError) throw settingsError;
     const settingNumber = (key, fallback) => {
