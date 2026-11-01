@@ -73,6 +73,7 @@
       <div class="wb-note" id="noteMin">Min: —</div>
       <div class="wb-note" id="noteFee">Fee: —</div>
       <div class="wb-note">⏰ Mon-Fri: 8AM-6PM, Weekends: 10AM-5PM</div>
+      <div class="wb-note">⚠️ Max 1 withdrawal per day</div>
     </div>
   </div>
 
@@ -137,6 +138,7 @@
 
   <script>
     let CFG = { min: 1000, fee: 8, balance: 0 };
+    let currentUserId = null;
 
     // ==========================================
     // TIME CHECK FUNCTION (Mon-Fri 8AM-6PM, Sat-Sun 10AM-5PM)
@@ -181,13 +183,27 @@
       }
     }
 
+    function applyDailyLimitRestriction() {
+      const btn = document.getElementById('submitBtn');
+      const alertBox = document.getElementById('alertBox');
+      btn.disabled = true;
+      btn.innerText = 'Daily Limit Reached';
+      btn.style.opacity = '0.6';
+      btn.style.cursor = 'not-allowed';
+      
+      alertBox.className = 'alert-inline warning';
+      alertBox.innerText = '⚠️ You have already submitted a withdrawal request today. You can only withdraw once per day. Please try again tomorrow.';
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
       const { data: { session } } = await window.supabase.auth.getSession();
       if (!session) return;
+      
+      currentUserId = session.user.id;
 
       // 1. Load balance
       const { data: wallet } = await window.supabase.from('wallets')
-        .select('balance').eq('user_id', session.user.id).single();
+        .select('balance').eq('user_id', currentUserId).single();
       CFG.balance = Number(wallet?.balance || 0);
       document.getElementById('balanceDisplay').innerText = '₦' + CFG.balance.toLocaleString('en-NG', { minimumFractionDigits: 2 });
 
@@ -203,14 +219,32 @@
       // 3. Active miner rule
       const { count } = await window.supabase.from('user_miners')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', session.user.id).eq('status', 'active');
+        .eq('user_id', currentUserId).eq('status', 'active');
 
       if (!count || count === 0) {
         document.getElementById('formContainer').style.display = 'none';
         document.getElementById('minerLock').style.display = 'block';
       } else {
-        // 4. Apply Time Restriction Check on Load
-        applyTimeRestriction();
+        // 4. Check Daily Withdrawal Limit
+        // NOTE: Ensure your Supabase table is named 'withdrawals'. If it's named 'transactions' or 'withdrawal_requests', update the string below.
+        const now = new Date();
+        const startOfDay = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0, 0)).toISOString();
+        
+        const { count: todayCount, error: checkError } = await window.supabase
+          .from('withdrawals')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', currentUserId)
+          .gte('created_at', startOfDay);
+
+        if (checkError) {
+          console.error('Error checking daily withdrawal limit:', checkError);
+        }
+
+        if (todayCount > 0) {
+          applyDailyLimitRestriction();
+        } else {
+          applyTimeRestriction();
+        }
       }
     });
 
@@ -226,12 +260,28 @@
     document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       
-      // Check time again right before submission
-      if (!applyTimeRestriction()) return;
-
       const alertBox = document.getElementById('alertBox');
       const btn = document.getElementById('submitBtn');
-      alertBox.className = 'alert-inline';
+      alertBox.className = 'alert-inline'; // hide previous alerts
+
+      // 1. Re-verify daily limit dynamically right before submission (prevents race conditions/bypasses)
+      const now = new Date();
+      const startOfDay = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0, 0)).toISOString();
+      
+      const { count: todayCount, error: checkError } = await window.supabase
+        .from('withdrawals')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', currentUserId)
+        .gte('created_at', startOfDay);
+
+      if (!checkError && todayCount > 0) {
+        showErr('You have already submitted a withdrawal request today. Limit: 1 per day.');
+        applyDailyLimitRestriction();
+        return;
+      }
+
+      // 2. Check time window again right before submission
+      if (!applyTimeRestriction()) return;
 
       const amount = parseFloat(document.getElementById('withdrawAmount').value);
       const bankSelect = document.getElementById('bankCode');
@@ -272,5 +322,4 @@
     }
   </script>
 </body>
-          </html>
-          
+</html>
