@@ -369,6 +369,7 @@
       <div class="dark-card-title">🔗 Support Links</div>
       <label class="dark-label">Telegram Link</label><input type="url" id="set_telegram_link" class="dark-input" />
       <label class="dark-label">WhatsApp Link</label><input type="url" id="set_customer_service_link" class="dark-input" />
+      <label class="dark-label">WhatsApp Group Link</label><input type="url" id="set_whatsapp_group_link" class="dark-input" placeholder="https://chat.whatsapp.com/..." />
     </div>
 
     <button class="btn-dark" onclick="saveAllSettings(this)" style="margin-bottom:20px;">💾 Save All Settings</button>
@@ -812,6 +813,7 @@
       document.getElementById('set_account_name').value = getVal('account_name');
       document.getElementById('set_telegram_link').value = getVal('telegram_link');
       document.getElementById('set_customer_service_link').value = getVal('customer_service_link');
+      document.getElementById('set_whatsapp_group_link').value = getVal('whatsapp_group_link');
       
       // Load selected days into the new visible buttons
       try {
@@ -852,7 +854,8 @@
         { key: 'account_number', value: document.getElementById('set_account_number').value },
         { key: 'account_name', value: document.getElementById('set_account_name').value },
         { key: 'telegram_link', value: document.getElementById('set_telegram_link').value },
-        { key: 'customer_service_link', value: document.getElementById('set_customer_service_link').value }
+        { key: 'customer_service_link', value: document.getElementById('set_customer_service_link').value },
+        { key: 'whatsapp_group_link', value: document.getElementById('set_whatsapp_group_link').value }
       ];
       try {
         const { error } = await window.supabase.from('settings').upsert(settingsToSave, { onConflict: 'key' });
