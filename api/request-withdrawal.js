@@ -66,17 +66,17 @@ export default async function handler(req, res) {
     }
 
     const { data: wallet, error: walletError } = await supabase
-      .from('wallets').select('withdrawal_balance').eq('user_id', user.id).single();
+      .from('wallets').select('balance').eq('user_id', user.id).single();
     if (walletError || !wallet) return res.status(400).json({ error: 'Wallet not found' });
-    if (Number(wallet.withdrawal_balance || 0) < withdrawalAmount) return res.status(400).json({ error: 'Insufficient withdrawal balance' });
+    if (Number(wallet.balance || 0) < withdrawalAmount) return res.status(400).json({ error: 'Insufficient balance' });
 
     const fee = withdrawalAmount * (feePercent / 100);
     const netAmount = withdrawalAmount - fee;
     if (netAmount <= 0) return res.status(400).json({ error: 'Withdrawal amount is too small after fees' });
 
     const { error: balanceUpdateError } = await supabase.from('wallets')
-      .update({ withdrawal_balance: Number(wallet.withdrawal_balance || 0) - withdrawalAmount })
-      .eq('user_id', user.id).gte('withdrawal_balance', withdrawalAmount);
+      .update({ balance: Number(wallet.balance || 0) - withdrawalAmount })
+      .eq('user_id', user.id).gte('balance', withdrawalAmount);
     if (balanceUpdateError) throw balanceUpdateError;
 
     const reference = `WD-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;

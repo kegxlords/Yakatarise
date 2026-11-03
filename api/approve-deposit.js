@@ -16,11 +16,11 @@ export default async function handler(req, res) {
 
     // 2. Credit the purchase-only deposit balance.
     const { data: wallet } = await supabaseAdmin
-      .from('wallets').select('deposit_balance, total_deposited').eq('user_id', tx.user_id).single();
+      .from('wallets').select('balance, total_deposited').eq('user_id', tx.user_id).single();
 
     await supabaseAdmin
       .from('wallets').update({ 
-        deposit_balance: Number(wallet.deposit_balance || 0) + Number(tx.amount),
+        balance: Number(wallet.balance || 0) + Number(tx.amount),
         total_deposited: Number(wallet.total_deposited || 0) + Number(tx.amount)
       }).eq('user_id', tx.user_id);
 

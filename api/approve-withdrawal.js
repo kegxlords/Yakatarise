@@ -17,9 +17,9 @@ async function addTotalWithdrawn(userId, amount) {
 async function rejectWithdrawal(transactionId) {
   const { data: tx, error: txError } = await supabaseAdmin.from('transactions').select('*').eq('id', transactionId).eq('type', 'withdrawal').eq('status', 'pending').single();
   if (txError || !tx) return { status: 404, error: 'Pending withdrawal not found' };
-  const { data: wallet, error: walletError } = await supabaseAdmin.from('wallets').select('withdrawal_balance').eq('user_id', tx.user_id).single();
+  const { data: wallet, error: walletError } = await supabaseAdmin.from('wallets').select('balance').eq('user_id', tx.user_id).single();
   if (walletError || !wallet) return { status: 500, error: 'Wallet not found; withdrawal was not changed' };
-  const { error: refundError } = await supabaseAdmin.from('wallets').update({ withdrawal_balance: Number(wallet.withdrawal_balance || 0) + Number(tx.amount) }).eq('user_id', tx.user_id);
+  const { error: refundError } = await supabaseAdmin.from('wallets').update({ balance: Number(wallet.balance || 0) + Number(tx.amount) }).eq('user_id', tx.user_id);
   if (refundError) throw refundError;
   const { error: statusError } = await supabaseAdmin.from('transactions').update({ status: 'rejected', gateway_status: 'rejected_by_admin', gateway_refunded_at: new Date().toISOString() }).eq('id', tx.id).eq('status', 'pending');
   if (statusError) throw statusError;

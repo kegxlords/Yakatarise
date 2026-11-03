@@ -42,11 +42,11 @@ export default async function handler(req, res) {
   }
   const amountAwarded = minAmount === maxAmount ? minAmount : randomInt(minAmount, maxAmount + 1);
 
-  // 4. Credit withdrawal balance only. Gift rewards cannot fund purchases.
-  const { data: wallet } = await supabase.from('wallets').select('withdrawal_balance').eq('user_id', user.id).single();
-  const newBalance = Number(wallet?.withdrawal_balance || 0) + amountAwarded;
+  // 4. Credit the unified wallet balance.
+  const { data: wallet } = await supabase.from('wallets').select('balance').eq('user_id', user.id).single();
+  const newBalance = Number(wallet?.balance || 0) + amountAwarded;
   
-  await supabase.from('wallets').update({ withdrawal_balance: newBalance }).eq('user_id', user.id);
+  await supabase.from('wallets').update({ balance: newBalance }).eq('user_id', user.id);
 
   // 5. Update Code Usage
   await supabase.from('gift_codes').update({ used_count: giftCode.used_count + 1 }).eq('id', giftCode.id);
