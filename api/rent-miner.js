@@ -34,12 +34,12 @@ export default async function handler(req, res) {
     const L3_PERCENT = getSetting('referral_level_3', 1) / 100;
     const DIRECT_BONUS_PERCENT = getSetting('referral_bonus_direct', 8) / 100;
 
-    // 3. Check Wallet
+    // 3. Miner purchases can use deposit balance only.
     const { data: wallet } = await supabaseAdmin
-      .from('wallets').select('balance').eq('user_id', userId).single();
+      .from('wallets').select('deposit_balance').eq('user_id', userId).single();
       
     if (!wallet) return jsonResponse(res, 400, { error: 'Wallet not found.' });
-    if (wallet.balance < miner.price) return jsonResponse(res, 400, { error: 'Insufficient balance' });
+    if (Number(wallet.deposit_balance || 0) < Number(miner.price)) return jsonResponse(res, 400, { error: 'Insufficient deposit balance. Successful deposits are required to purchase a miner.' });
 
     // 4. Create Miner Record
     const endDate = new Date();
@@ -50,8 +50,12 @@ export default async function handler(req, res) {
       status: 'active', days_collected: 0, total_collected: 0
     });
 
-    // 5. Deduct Balance
-    await supabaseAdmin.from('wallets').update({ balance: wallet.balance - miner.price }).eq('user_id', userId);
+    // 5. Deduct deposit balance only.
+    const { error: purchaseBalanceError } = await supabaseAdmin.from('wallets')
+      .update({ deposit_balance: Number(wallet.deposit_balance || 0) - Number(miner.price) })
+      .eq('user_id', userId)
+      .gte('deposit_balance', Number(miner.price));
+    if (purchaseBalanceError) throw purchaseBalanceError;
 
     await supabaseAdmin.from('transactions').insert({
       user_id: userId, type: 'miner_purchase', amount: -miner.price,
@@ -80,10 +84,10 @@ export default async function handler(req, res) {
           const commAmount = miner.price * comm.percent;
           
           const { data: uplineWallet } = await supabaseAdmin
-            .from('wallets').select('balance').eq('user_id', comm.userId).single();
+            .from('wallets').select('withdrawal_balance').eq('user_id', comm.userId).single();
             
           if (uplineWallet) {
-            await supabaseAdmin.from('wallets').update({ balance: uplineWallet.balance + commAmount }).eq('user_id', comm.userId);
+            await supabaseAdmin.from('wallets').update({ withdrawal_balance: Number(uplineWallet.withdrawal_balance || 0) + commAmount }).eq('user_id', comm.userId);
             await supabaseAdmin.from('transactions').insert({
               user_id: comm.userId, type: 'referral_bonus', amount: commAmount,
               status: 'completed', description: `Level ${comm.level} commission`

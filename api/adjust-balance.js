@@ -10,17 +10,17 @@ export default async function handler(req, res) {
 
     // 1. Get current wallet
     const { data: wallet, error: wErr } = await supabaseAdmin
-      .from('wallets').select('balance').eq('user_id', user_id).single();
+      .from('wallets').select('withdrawal_balance').eq('user_id', user_id).single();
     if (wErr) throw wErr;
 
-    let newBalance = wallet.balance;
+    let newBalance = Number(wallet.withdrawal_balance || 0);
     if (action === 'credit') newBalance += amount;
     else if (action === 'debit') newBalance -= amount;
 
     if (newBalance < 0) return jsonResponse(res, 400, { error: 'Insufficient funds for debit' });
 
     // 2. Update Wallet
-    await supabaseAdmin.from('wallets').update({ balance: newBalance }).eq('user_id', user_id);
+    await supabaseAdmin.from('wallets').update({ withdrawal_balance: newBalance }).eq('user_id', user_id);
 
     // 3. Create Transaction Record
     await supabaseAdmin.from('transactions').insert({

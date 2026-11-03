@@ -197,9 +197,9 @@ async function applyDepositCallback(data, body) {
       if (txUpdateError) throw txUpdateError;
       return;
     }
-    const { data: wallet, error: walletError } = await supabaseAdmin.from('wallets').select('balance, total_deposited').eq('user_id', tx.user_id).single();
+    const { data: wallet, error: walletError } = await supabaseAdmin.from('wallets').select('deposit_balance, total_deposited').eq('user_id', tx.user_id).single();
     if (walletError || !wallet) throw new Error('Wallet not found for deposit');
-    const { error: walletUpdateError } = await supabaseAdmin.from('wallets').update({ balance: Number(wallet.balance || 0) + Number(tx.amount), total_deposited: Number(wallet.total_deposited || 0) + Number(tx.amount) }).eq('user_id', tx.user_id);
+    const { error: walletUpdateError } = await supabaseAdmin.from('wallets').update({ deposit_balance: Number(wallet.deposit_balance || 0) + Number(tx.amount), total_deposited: Number(wallet.total_deposited || 0) + Number(tx.amount) }).eq('user_id', tx.user_id);
     if (walletUpdateError) throw walletUpdateError;
     const { error: txUpdateError } = await supabaseAdmin.from('transactions').update({ status: 'completed', gateway_status: data.status || 'success', gateway_status_code: code, gateway_status_detail: data.status_detail || null, gateway_payload: body }).eq('id', tx.id).in('status', ['pending', 'approved']);
     if (txUpdateError) throw txUpdateError;
@@ -229,9 +229,9 @@ async function applyWithdrawalCallback(data, body) {
     const { error: txError } = await supabaseAdmin.from('transactions').update({ status: 'rejected', gateway_status: data.status || 'failed', gateway_status_code: code, gateway_status_detail: data.status_detail || null, gateway_payload: body, gateway_refunded_at: new Date().toISOString() }).eq('id', tx.id).in('status', ['pending', 'approved']);
     if (txError) throw txError;
     if (tx.gateway === 'mgm_admin') return;
-    const { data: wallet, error: walletError } = await supabaseAdmin.from('wallets').select('balance').eq('user_id', tx.user_id).single();
+    const { data: wallet, error: walletError } = await supabaseAdmin.from('wallets').select('withdrawal_balance').eq('user_id', tx.user_id).single();
     if (walletError || !wallet) throw new Error('Wallet not found while refunding payout');
-    const { error: walletUpdateError } = await supabaseAdmin.from('wallets').update({ balance: Number(wallet.balance || 0) + Number(tx.amount) }).eq('user_id', tx.user_id);
+    const { error: walletUpdateError } = await supabaseAdmin.from('wallets').update({ withdrawal_balance: Number(wallet.withdrawal_balance || 0) + Number(tx.amount) }).eq('user_id', tx.user_id);
     if (walletUpdateError) throw walletUpdateError;
     await supabaseAdmin.from('transactions').insert({ user_id: tx.user_id, type: 'withdrawal_refund', amount: Number(tx.amount), status: 'completed', reference: `REFUND-${tx.reference}`, description: `MGM Pay withdrawal failed: ${data.status_detail || 'Payout returned'}` });
   }

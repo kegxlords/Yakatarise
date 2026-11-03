@@ -14,14 +14,14 @@ export default async function handler(req, res) {
       
     if (txErr || !tx) return jsonResponse(res, 404, { error: 'Transaction not found or already processed' });
 
-    // 2. Credit User Wallet
+    // 2. Credit the purchase-only deposit balance.
     const { data: wallet } = await supabaseAdmin
-      .from('wallets').select('balance, total_deposited').eq('user_id', tx.user_id).single();
+      .from('wallets').select('deposit_balance, total_deposited').eq('user_id', tx.user_id).single();
 
     await supabaseAdmin
       .from('wallets').update({ 
-        balance: wallet.balance + tx.amount,
-        total_deposited: wallet.total_deposited + tx.amount 
+        deposit_balance: Number(wallet.deposit_balance || 0) + Number(tx.amount),
+        total_deposited: Number(wallet.total_deposited || 0) + Number(tx.amount)
       }).eq('user_id', tx.user_id);
 
     // 3. Update Transaction Status
