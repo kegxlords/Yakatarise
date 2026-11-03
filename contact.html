@@ -50,6 +50,14 @@
         <div class="contact-link">Chat with us →</div>
       </a>
 
+      <!-- WhatsApp Group -->
+      <a href="#" id="whatsappGroupLink" target="_blank" rel="noopener noreferrer" class="contact-card">
+        <div class="contact-icon" style="color: #25D366;">👥</div>
+        <h3>WhatsApp Community</h3>
+        <p>Join our official group for updates, announcements, and community support.</p>
+        <div class="contact-link">Join the group →</div>
+      </a>
+
       <!-- Email -->
       <a href="mailto:support@t-miner.com" class="contact-card">
         <div class="contact-icon" style="color: var(--primary);">✉️</div>
@@ -66,6 +74,15 @@
   </main>
 
   <div id="app-footer"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/api-client.js"></script>
   <script src="assets/js/components.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const { data: settings } = await window.supabase.from('settings').select('key, value');
+      const whatsappGroupLink = settings?.find(setting => setting.key === 'whatsapp_group_link')?.value;
+      if (whatsappGroupLink) document.getElementById('whatsappGroupLink').href = whatsappGroupLink;
+    });
+  </script>
 </body>
 </html>
