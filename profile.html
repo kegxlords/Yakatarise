@@ -25,12 +25,12 @@
 
   <!-- Overlapping Balance Card -->
   <div class="profile-balance-card">
-    <div class="balance-title">💳 Available Balance</div>
+    <div class="balance-title">💸 Withdrawal Balance</div>
     <div class="balance-amount" id="profileBalance">₦0.00</div>
     
     <div class="balance-stats-row">
       <div class="balance-stat-box">
-        <label>Total Recharge</label>
+        <label>Successful Deposits</label>
         <div id="statRecharge">₦0.00</div>
       </div>
       <div class="balance-stat-box">
@@ -115,9 +115,9 @@
       }
       
       // 2. Fetch Current Wallet Balance
-      const { data: wallet } = await window.supabase.from('wallets').select('balance').eq('user_id', userId).single();
+      const { data: wallet } = await window.supabase.from('wallets').select('withdrawal_balance').eq('user_id', userId).single();
       if(wallet) {
-        document.getElementById('profileBalance').innerText = '₦' + Number(wallet.balance).toLocaleString();
+        document.getElementById('profileBalance').innerText = '₦' + Number(wallet.withdrawal_balance || 0).toLocaleString();
       }
 
       // 3. CALCULATE TOTAL RECHARGE (The Bulletproof Way)
