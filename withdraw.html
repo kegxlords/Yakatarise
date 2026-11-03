@@ -203,8 +203,8 @@
 
       // 1. Load balance
       const { data: wallet } = await window.supabase.from('wallets')
-        .select('withdrawal_balance').eq('user_id', currentUserId).single();
-      CFG.balance = Number(wallet?.withdrawal_balance || 0);
+        .select('balance').eq('user_id', currentUserId).single();
+      CFG.balance = Number(wallet?.balance || 0);
       document.getElementById('balanceDisplay').innerText = '₦' + CFG.balance.toLocaleString('en-NG', { minimumFractionDigits: 2 });
 
       // 2. Load settings

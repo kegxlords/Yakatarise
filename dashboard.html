@@ -48,9 +48,6 @@
     }
     .balance-label { font-size: 13px; color: #94A3B8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
     .balance-amount { font-size: 36px; font-weight: 800; color: var(--text-main); margin-bottom: 20px; letter-spacing: -1px; }
-    .deposit-balance-row { display: flex; justify-content: space-between; align-items: center; margin: -8px 0 20px; padding: 10px 12px; background: #F8FAFC; border-radius: 10px; }
-    .deposit-balance-row .label { color: #64748B; font-size: 12px; }
-    .deposit-balance-row .value { color: var(--text-main); font-size: 14px; font-weight: 700; }
     
     .balance-actions { display: flex; gap: 12px; }
     .bal-action-btn {
@@ -169,14 +166,10 @@
   <!-- Balance Card -->
   <div class="balance-card">
     <div class="balance-header">
-      <div class="balance-label">Withdrawal Balance</div>
+      <div class="balance-label">Wallet Balance</div>
       <div style="font-size: 20px; cursor: pointer;" onclick="toggleBalance()">👁️</div>
     </div>
     <div class="balance-amount" id="dashBalance">₦0.00</div>
-    <div class="deposit-balance-row">
-      <span class="label">Successful Deposit Balance</span>
-      <span class="value" id="dashDepositBalance">₦0.00</span>
-    </div>
     <div class="balance-actions">
       <a href="deposit.html" class="bal-action-btn btn-deposit">💳 Recharge</a>
       <a href="withdraw.html" class="bal-action-btn btn-withdraw">💸 Withdraw</a>
@@ -269,20 +262,17 @@
       // 2. Fetch Wallet Balance
       const { data: wallet } = await window.supabase
         .from('wallets')
-        .select('withdrawal_balance, deposit_balance')
+        .select('balance')
         .eq('user_id', session.user.id)
         .single();
       
-      const balance = wallet ? Number(wallet.withdrawal_balance || 0) : 0;
+      const balance = wallet ? Number(wallet.balance || 0) : 0;
       const formattedBalance = '₦' + balance.toLocaleString(undefined, {minimumFractionDigits: 2});
       
       const balEl = document.getElementById('dashBalance');
       balEl.innerText = formattedBalance;
       balEl.dataset.realBalance = formattedBalance; // Store for toggle function
 
-      // Deposit balance contains successful deposits and is purchase-only.
-      const depositBalance = Number(wallet?.deposit_balance || 0);
-      document.getElementById('dashDepositBalance').innerText = '₦' + depositBalance.toLocaleString(undefined, {minimumFractionDigits: 2});
 
       // 3. Fetch Active Miners & Calculate Daily Earnings
       const { data: miners } = await window.supabase
