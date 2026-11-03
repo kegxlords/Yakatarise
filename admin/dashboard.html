@@ -495,7 +495,7 @@
       for (let from = 0; ; from += pageSize) {
         const { data, error } = await window.supabase
           .from('profiles')
-          .select('id, full_name, email, is_active, created_at, wallets(withdrawal_balance)')
+          .select('id, full_name, email, is_active, created_at, wallets(balance)')
           .order('created_at', { ascending: false })
           .range(from, from + pageSize - 1);
         if (error) throw error;
@@ -508,7 +508,7 @@
       const tbody = document.getElementById('usersTableBody');
       if (users.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="loading-text">No users found.</td></tr>'; return; }
       tbody.innerHTML = users.map(u => {
-        const balance = u.wallets?.withdrawal_balance || 0;
+        const balance = u.wallets?.balance || 0;
         const statusBadge = u.is_active ? '<span class="badge-dark badge-green">Active</span>' : '<span class="badge-dark badge-red">Banned</span>';
         const isSelf = u.id === adminUserId;
         return `<tr>
@@ -547,12 +547,12 @@
       if (!Number.isFinite(amount) || amount <= 0) return alert('Enter a valid amount');
       btn.innerText = 'Processing...'; btn.disabled = true;
       try {
-        const { data: wallet, error: walletError } = await window.supabase.from('wallets').select('withdrawal_balance').eq('user_id', userId).single();
+        const { data: wallet, error: walletError } = await window.supabase.from('wallets').select('balance').eq('user_id', userId).single();
         if (walletError || !wallet) throw new Error(walletError?.message || 'Wallet not found');
-        const currentBalance = Number(wallet.withdrawal_balance) || 0;
+        const currentBalance = Number(wallet.balance) || 0;
         const newBalance = action === 'credit' ? currentBalance + amount : currentBalance - amount;
         if (newBalance < 0) throw new Error('Insufficient funds');
-        const { error: updateError } = await window.supabase.from('wallets').update({ withdrawal_balance: newBalance }).eq('user_id', userId);
+        const { error: updateError } = await window.supabase.from('wallets').update({ balance: newBalance }).eq('user_id', userId);
         if (updateError) throw updateError;
         const { error: transactionError } = await window.supabase.from('transactions').insert({ user_id: userId, type: 'admin_adjustment', amount: action === 'credit' ? amount : -amount, status: 'completed', description: `Admin ${action}: ${reason}` });
         if (transactionError) throw transactionError;
@@ -622,23 +622,23 @@
       try {
         // 1. Find the user's wallet safely
         let { data: wallet, error: wErr } = await window.supabase
-          .from('wallets').select('deposit_balance, total_deposited').eq('user_id', userId).single();
+          .from('wallets').select('balance, total_deposited').eq('user_id', userId).single();
           
         if (wErr || !wallet) throw new Error("User wallet not found.");
 
         // 2. Calculate new totals (Ensure they are treated as numbers)
-        const currentDepositBalance = Number(wallet.deposit_balance) || 0;
+        const currentDepositBalance = Number(wallet.balance) || 0;
         const currentTotalDeposited = Number(wallet.total_deposited) || 0;
         const depositAmount = Number(amount);
 
-        const newDepositBalance = currentDepositBalance + depositAmount;
+        const newBalance = currentDepositBalance + depositAmount;
         const newTotalDeposited = currentTotalDeposited + depositAmount;
 
         // 3. Update Wallet (Balance AND Total Deposited)
         const { error: uErr } = await window.supabase
           .from('wallets')
           .update({ 
-            deposit_balance: newDepositBalance,
+            balance: newBalance,
             total_deposited: newTotalDeposited 
           })
           .eq('user_id', userId);
