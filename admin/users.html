@@ -149,7 +149,7 @@
 
       const { data: profiles, error } = await window.supabase
         .from('profiles')
-        .select('id, full_name, email, is_active, created_at, wallets(balance)')
+        .select('id, full_name, email, is_active, created_at, wallets(withdrawal_balance)')
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -171,7 +171,7 @@
       }
 
       tbody.innerHTML = users.map(u => {
-        const balance = u.wallets?.balance || 0;
+        const balance = u.wallets?.withdrawal_balance || 0;
         const statusBadge = u.is_active 
           ? '<span class="badge badge-success">Active</span>' 
           : '<span class="badge badge-danger">Banned</span>';
@@ -233,17 +233,17 @@
       try {
         // Get current balance
         const { data: wallet, error: wErr } = await window.supabase
-          .from('wallets').select('balance').eq('user_id', userId).single();
+          .from('wallets').select('withdrawal_balance').eq('user_id', userId).single();
         if (wErr) throw new Error('Could not fetch wallet');
 
-        let newBalance = wallet.balance;
+        let newBalance = Number(wallet.withdrawal_balance || 0);
         if (action === 'credit') newBalance += amount;
         else if (action === 'debit') newBalance -= amount;
 
         if (newBalance < 0) throw new Error('Insufficient funds for this debit');
 
         // Update Wallet
-        await window.supabase.from('wallets').update({ balance: newBalance }).eq('user_id', userId);
+        await window.supabase.from('wallets').update({ withdrawal_balance: newBalance }).eq('user_id', userId);
 
         // Create Transaction Record
         await window.supabase.from('transactions').insert({

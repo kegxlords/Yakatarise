@@ -100,23 +100,23 @@
       try {
         // 1. Find the user's wallet safely
         let { data: wallet, error: wErr } = await window.supabase
-          .from('wallets').select('balance, total_deposited').eq('user_id', userId).single();
+          .from('wallets').select('deposit_balance, total_deposited').eq('user_id', userId).single();
           
         if (wErr || !wallet) throw new Error("User wallet not found.");
 
         // 2. Calculate new totals (Ensure they are treated as numbers)
-        const currentBalance = Number(wallet.balance) || 0;
+        const currentDepositBalance = Number(wallet.deposit_balance) || 0;
         const currentTotalDeposited = Number(wallet.total_deposited) || 0;
         const depositAmount = Number(amount);
 
-        const newBalance = currentBalance + depositAmount;
+        const newDepositBalance = currentDepositBalance + depositAmount;
         const newTotalDeposited = currentTotalDeposited + depositAmount;
 
         // 3. Update Wallet (Balance AND Total Deposited)
         const { error: uErr } = await window.supabase
           .from('wallets')
           .update({ 
-            balance: newBalance, 
+            deposit_balance: newDepositBalance,
             total_deposited: newTotalDeposited 
           })
           .eq('user_id', userId);
