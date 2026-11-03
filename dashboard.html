@@ -141,6 +141,12 @@
       cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
       text-decoration: none; margin-bottom: 10px;
     }
+    .btn-whatsapp {
+      background: #25D366; color: #fff; width: 100%; padding: 14px;
+      border-radius: 12px; border: none; font-weight: 700; font-size: 15px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+      text-decoration: none; margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
@@ -351,6 +357,10 @@
       const tgLink = getVal('telegram_link', '#');
       document.getElementById('popTelegramLink').href = tgLink;
 
+      // Populate WhatsApp Group Link
+      const whatsappGroupLink = getVal('whatsapp_group_link', '#');
+      document.getElementById('popWhatsappGroupLink').href = whatsappGroupLink;
+
       // Show popup immediately
       document.getElementById('welcomePopup').classList.add('active');
     }
@@ -392,6 +402,9 @@
 
       <a href="#" id="popTelegramLink" target="_blank" class="btn-telegram">
         ✈️ Join our Telegram Group
+      </a>
+      <a href="#" id="popWhatsappGroupLink" target="_blank" rel="noopener noreferrer" class="btn-whatsapp">
+        💬 Join our WhatsApp Group
       </a>
       <button class="btn btn-outline btn-block" style="border-radius: 12px; margin-top: 10px;" onclick="closeWelcomePopup()">Close & Start Mining</button>
     </div>
